@@ -7,13 +7,35 @@ import {
   deleteAnnouncement,
 } from "../controllers/announcementController.js";
 import { protect, authorize } from "../middleware/auth.js";
+import {
+  cacheResponse,
+  invalidateCacheOnSuccess,
+} from "../middleware/cache.js";
 
 const router = express.Router();
 
-router.get("/", getActiveAnnouncements);
+router.get("/", cacheResponse("home", 300), getActiveAnnouncements);
 router.get("/all", protect, authorize("admin"), getAllAnnouncements);
-router.post("/", protect, authorize("admin"), createAnnouncement);
-router.put("/:id", protect, authorize("admin"), updateAnnouncement);
-router.delete("/:id", protect, authorize("admin"), deleteAnnouncement);
+router.post(
+  "/",
+  protect,
+  authorize("admin"),
+  invalidateCacheOnSuccess(["home"]),
+  createAnnouncement,
+);
+router.put(
+  "/:id",
+  protect,
+  authorize("admin"),
+  invalidateCacheOnSuccess(["home"]),
+  updateAnnouncement,
+);
+router.delete(
+  "/:id",
+  protect,
+  authorize("admin"),
+  invalidateCacheOnSuccess(["home"]),
+  deleteAnnouncement,
+);
 
 export default router;
