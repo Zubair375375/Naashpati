@@ -23,7 +23,7 @@ const Footer = () => {
             <p className="text-secondary-300 mb-4 max-w-md">
               Natural herbal products for a healthier life. We provide
               high-quality, organic herbs and supplements sourced from trusted
-              suppliers worldwide.
+              suppliers worldwide..
             </p>
             <div className="flex space-x-4">
               <a
