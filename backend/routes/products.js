@@ -23,6 +23,11 @@ import {
   clearCache,
 } from "../controllers/trendingProductController.js";
 import { protect, optionalProtect, authorize } from "../middleware/auth.js";
+import {
+  cacheResponse,
+  invalidateCacheOnSuccess,
+  skipAuthenticatedOrDraftRequests,
+} from "../middleware/cache.js";
 
 const router = express.Router();
 
@@ -527,23 +532,50 @@ const answerQuestionValidation = [
 
 // Routes
 // Trending products (must be before /:id to avoid conflicts)
-router.get("/trending", getTrendingProducts);
-router.post("/trending/cache/clear", protect, authorize("admin"), clearCache);
+router.get("/trending", cacheResponse("trendingProducts", 120), getTrendingProducts);
+router.post(
+  "/trending/cache/clear",
+  protect,
+  authorize("admin"),
+  invalidateCacheOnSuccess(["trendingProducts"]),
+  clearCache,
+);
 
 // Product views and interactions
 router.post("/:id/view", recordView);
 router.post("/:id/add-to-cart", recordCart);
-router.post("/:id/sale", protect, authorize("admin"), recordSale);
+router.post(
+  "/:id/sale",
+  protect,
+  authorize("admin"),
+  invalidateCacheOnSuccess(["trendingProducts"]),
+  recordSale,
+);
 
 // Main product routes
-router.get("/", getProducts);
-router.get("/categories", getCategories);
-router.get("/slug/:id", optionalProtect, getProduct);
-router.get("/:id", optionalProtect, getProduct);
+router.get(
+  "/",
+  cacheResponse("products", 60, { skip: skipAuthenticatedOrDraftRequests }),
+  getProducts,
+);
+router.get("/categories", cacheResponse("categories", 300), getCategories);
+router.get(
+  "/slug/:id",
+  optionalProtect,
+  cacheResponse("products", 60, { skip: skipAuthenticatedOrDraftRequests }),
+  getProduct,
+);
+router.get(
+  "/:id",
+  optionalProtect,
+  cacheResponse("products", 60, { skip: skipAuthenticatedOrDraftRequests }),
+  getProduct,
+);
 router.post(
   "/",
   protect,
   authorize("admin"),
+  invalidateCacheOnSuccess(["products", "categories", "trendingProducts"]),
   createProductValidation,
   createProduct,
 );
@@ -551,10 +583,17 @@ router.put(
   "/:id",
   protect,
   authorize("admin"),
+  invalidateCacheOnSuccess(["products", "categories", "trendingProducts"]),
   updateProductValidation,
   updateProduct,
 );
-router.delete("/:id", protect, authorize("admin"), deleteProduct);
+router.delete(
+  "/:id",
+  protect,
+  authorize("admin"),
+  invalidateCacheOnSuccess(["products", "categories", "trendingProducts"]),
+  deleteProduct,
+);
 router.post("/:id/reviews", protect, reviewValidation, createProductReview);
 router.delete(
   "/:id/reviews/:reviewId",
