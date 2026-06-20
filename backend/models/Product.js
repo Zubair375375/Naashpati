@@ -416,7 +416,6 @@ productSchema.index(
     },
   },
 );
-productSchema.index({ slug: 1 });
 productSchema.index({ isActive: 1, status: 1, lenses: 1, createdAt: -1 });
 productSchema.index({ isActive: 1, status: 1, newArrival: 1, createdAt: -1 });
 productSchema.index({ isActive: 1, status: 1, category: 1, createdAt: -1 });
