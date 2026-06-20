@@ -59,6 +59,7 @@ const productMetricEventSchema = new mongoose.Schema(
 
 productMetricEventSchema.index({ productId: 1, occurredAt: -1 });
 productMetricEventSchema.index({ orderId: 1, productId: 1, type: 1 });
+productMetricEventSchema.index({ occurredAt: -1, productId: 1, type: 1 });
 
 const ProductMetricEvent = mongoose.model(
   "ProductMetricEvent",

@@ -62,6 +62,13 @@ const productMetricSchema = new mongoose.Schema(
 );
 
 productMetricSchema.index({ rankingScore: -1, sales7d: -1, updatedAt: -1 });
+productMetricSchema.index({
+  rankingScore: -1,
+  sales7d: -1,
+  sales30d: -1,
+  totalSales: -1,
+  updatedAt: -1,
+});
 
 const ProductMetric = mongoose.model("ProductMetric", productMetricSchema);
 

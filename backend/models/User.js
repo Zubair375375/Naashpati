@@ -150,6 +150,11 @@ userSchema.methods.toJSON = function () {
   return userObject;
 };
 
+userSchema.index({ createdAt: -1 });
+userSchema.index({ role: 1, createdAt: -1 });
+userSchema.index({ resetPasswordToken: 1, resetPasswordExpire: 1 });
+userSchema.index({ refreshToken: 1 });
+
 const User = mongoose.model("User", userSchema);
 
 export default User;
