@@ -16,7 +16,7 @@ const Footer = () => {
                 <img
                   src="/assets/logos/Logo_White.png"
                   alt="Naashpati"
-                  className="h-6 w-auto border-0 outline-none"
+                  className="h-8 w-auto border-0 outline-none"
                 />
               </Link>
             </div>
