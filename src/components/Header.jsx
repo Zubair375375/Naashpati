@@ -421,7 +421,7 @@ const Header = () => {
             <img
               src="/assets/logos/Logo.png"
               alt="Naashpati"
-              className="h-6 w-auto border-0 outline-none"
+              className="h-8 w-auto border-0 outline-none"
             />
           </Link>
 
