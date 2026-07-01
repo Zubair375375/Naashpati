@@ -16,6 +16,11 @@ const router = express.Router();
 
 // Validation rules
 const createOrderValidation = [
+  body("idempotencyKey")
+    .optional()
+    .isString()
+    .isLength({ min: 8, max: 128 })
+    .withMessage("idempotencyKey must be 8-128 characters"),
   body("orderItems")
     .isArray({ min: 1 })
     .withMessage("Order must have at least one item"),
@@ -97,6 +102,19 @@ const updateStatusValidation = [
     .withMessage("Invalid status"),
 ];
 
+const confirmPaymentValidation = [
+  body("idempotencyKey")
+    .optional()
+    .isString()
+    .isLength({ min: 8, max: 128 })
+    .withMessage("idempotencyKey must be 8-128 characters"),
+  body("orderId").isMongoId().withMessage("Invalid order ID"),
+  body("paymentIntentId")
+    .trim()
+    .notEmpty()
+    .withMessage("paymentIntentId is required"),
+];
+
 // Routes
 router.post("/", optionalProtect, createOrderValidation, createOrder);
 router.get("/myorders", protect, getMyOrders);
@@ -113,6 +131,6 @@ router.put(
 
 // Payment routes
 router.post("/create-payment-intent", protect, createPaymentIntent);
-router.post("/confirm-payment", protect, confirmPayment);
+router.post("/confirm-payment", protect, confirmPaymentValidation, confirmPayment);
 
 export default router;
