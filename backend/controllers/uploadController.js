@@ -1,5 +1,8 @@
 import User from "../models/User.js";
-import getCloudinary from "../config/cloudinary.js";
+import getCloudinary, {
+  buildOptimizedCloudinaryImageUrl,
+  getCloudinaryImageUploadOptions,
+} from "../config/cloudinary.js";
 
 // @desc    Upload image to local /uploads folder
 // @route   POST /api/upload
@@ -15,10 +18,10 @@ export const uploadImage = async (req, res) => {
 
     let result;
     try {
-      result = await getCloudinary().uploader.upload(req.file.path, {
-        folder: "naashpati",
-        resource_type: "image",
-      });
+      result = await getCloudinary().uploader.upload(
+        req.file.path,
+        getCloudinaryImageUploadOptions(),
+      );
     } catch (cloudErr) {
       console.error("Cloudinary upload error:", cloudErr);
       return res.status(500).json({
@@ -37,7 +40,8 @@ export const uploadImage = async (req, res) => {
     res.json({
       success: true,
       data: {
-        url: result.secure_url,
+        url: buildOptimizedCloudinaryImageUrl(result.public_id),
+        originalUrl: result.secure_url,
         public_id: result.public_id,
       },
     });

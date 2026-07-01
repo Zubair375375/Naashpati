@@ -31,21 +31,9 @@ import {
 import { getUsers, selectAllUsers } from "../store/slices/userSlice";
 import Loader from "../components/Loader";
 import toast from "react-hot-toast";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 const CreateProduct = lazy(() => import("./admin/CreateProduct"));
 const EditProduct = lazy(() => import("./admin/EditProduct"));
-
-const MEDIA_API_ORIGIN = (import.meta.env.VITE_API_URL || "/api").replace(
-  /\/api\/?$/,
-  "",
-);
-
-// Helper to resolve image/media URLs (handles absolute and relative paths)
-const resolveMediaUrl = (url) => {
-  if (!url) return "/placeholder-product.jpg";
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (url.startsWith("/uploads/")) return `${MEDIA_API_ORIGIN}${url}`;
-  return url;
-};
 import {
   FaEye,
   FaCopy,

@@ -1,15 +1,9 @@
-// Helper to resolve image/media URLs (handles absolute and relative paths)
-const resolveMediaUrl = (url, serverUrl) => {
-  if (!url) return "/placeholder-product.jpg";
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (url.startsWith("/uploads/")) return `${serverUrl}${url}`;
-  return url;
-};
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../store/slices/cartSlice";
 import { selectAuthUser } from "../store/slices/authSlice";
 import toast from "react-hot-toast";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 import {
   MdStar,
   MdShoppingCart,
@@ -23,8 +17,6 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   const isAdmin = user?.role === "admin";
   const ratingValue = product.averageRating ?? product.rating ?? 0;
   const reviewCount = product.numReviews ?? product.reviewCount ?? 0;
-  const API_URL = import.meta.env.VITE_API_URL || "/api";
-  const SERVER_URL = API_URL.replace(/\/api\/?$/, "");
   const productUrl = `/products/${product.slug || product._id}`;
   const salePrice = Number(product.salePrice ?? product.price ?? 0);
   const originalPrice = Number(product.originalPrice ?? product.price ?? 0);
@@ -38,11 +30,8 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     ? Math.round(((originalPrice - salePrice) / originalPrice) * 100)
     : 0;
   const productImage = product.image
-    ? resolveMediaUrl(product.image, SERVER_URL)
-    : resolveMediaUrl(
-        product.images?.[0]?.url || product.images?.[0],
-        SERVER_URL,
-      );
+    ? resolveMediaUrl(product.image)
+    : resolveMediaUrl(product.images?.[0]?.url || product.images?.[0]);
   const summaryText =
     product.shortDescription ||
     product.briefDescriptionPoints?.[0] ||

@@ -10,6 +10,7 @@ import {
 } from "../store/slices/saleOfferSlice";
 import ProductCard from "../components/ProductCard";
 import Loader from "../components/Loader";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 
 const SaleOffer = () => {
   const { id } = useParams();
@@ -17,15 +18,6 @@ const SaleOffer = () => {
   const saleOffer = useSelector(selectCurrentSaleOffer);
   const isLoading = useSelector(selectSaleOfferStatus);
   const error = useSelector(selectSaleOfferError);
-  const API_URL = import.meta.env.VITE_API_URL || "/api";
-  const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
-
-  const resolveMediaUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    if (url.startsWith("/uploads/")) return `${API_ORIGIN}${url}`;
-    return url;
-  };
 
   useEffect(() => {
     dispatch(fetchSaleOffer(id));
