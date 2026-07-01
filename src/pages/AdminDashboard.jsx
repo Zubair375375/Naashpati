@@ -34,11 +34,7 @@ import toast from "react-hot-toast";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 const CreateProduct = lazy(() => import("./admin/CreateProduct"));
 const EditProduct = lazy(() => import("./admin/EditProduct"));
-import {
-  FaEye,
-  FaCopy,
-  FaTimes,
-} from "react-icons/fa";
+import { FaEye, FaCopy, FaTimes } from "react-icons/fa";
 import { FaFileExcel } from "react-icons/fa";
 import {
   exportToExcel,
@@ -979,7 +975,9 @@ const AdminDashboard = () => {
       message: announcement.message,
       type: announcement.type,
       isActive: announcement.isActive,
-      startDate: announcement.startDate ? announcement.startDate.slice(0, 10) : "",
+      startDate: announcement.startDate
+        ? announcement.startDate.slice(0, 10)
+        : "",
       endDate: announcement.endDate ? announcement.endDate.slice(0, 10) : "",
     });
     setShowAnnouncementModal(true);

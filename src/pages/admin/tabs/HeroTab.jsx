@@ -85,13 +85,17 @@ const HeroTab = ({
                 className="flex items-center space-x-2 rounded bg-[#68a300] px-4 py-2 text-white hover:bg-[#5f9600] disabled:opacity-60"
               >
                 <FaPlus />
-                <span>{uploadingHeroImage ? "Uploading..." : "Add Hero Slide"}</span>
+                <span>
+                  {uploadingHeroImage ? "Uploading..." : "Add Hero Slide"}
+                </span>
               </button>
             </form>
           </div>
 
           <div className="rounded-lg border bg-gray-50 p-5">
-            <h2 className="mb-4 text-2xl font-semibold">Hero Certificate Badges</h2>
+            <h2 className="mb-4 text-2xl font-semibold">
+              Hero Certificate Badges
+            </h2>
 
             {heroBadgeImages.length > 0 && (
               <div className="mb-4">
@@ -131,7 +135,9 @@ const HeroTab = ({
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={(e) => handleHeroBadgeImageSelection(e.target.files)}
+                  onChange={(e) =>
+                    handleHeroBadgeImageSelection(e.target.files)
+                  }
                   className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
                 />
                 {heroBadgeImagePreviews.length > 0 && (
@@ -173,7 +179,9 @@ const HeroTab = ({
           </div>
 
           <div className="rounded-lg border bg-gray-50 p-5">
-            <h2 className="mb-4 text-2xl font-semibold">Shop By Gender Images</h2>
+            <h2 className="mb-4 text-2xl font-semibold">
+              Shop By Gender Images
+            </h2>
 
             <form className="space-y-4" onSubmit={handleSaveGenderImages}>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

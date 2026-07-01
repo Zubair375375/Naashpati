@@ -78,7 +78,9 @@ const AnnouncementsTab = ({
                   </span>
                 </td>
                 <td className="px-4 py-4 text-sm text-gray-500">
-                  {ann.endDate ? new Date(ann.endDate).toLocaleDateString() : "Never"}
+                  {ann.endDate
+                    ? new Date(ann.endDate).toLocaleDateString()
+                    : "Never"}
                 </td>
                 <td className="space-x-3 px-4 py-4 text-sm font-medium">
                   <button

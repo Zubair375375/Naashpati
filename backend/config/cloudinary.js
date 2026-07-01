@@ -1,4 +1,3 @@
-
 import cloudinary from "cloudinary";
 
 const IMAGE_UPLOAD_FOLDER = process.env.CLOUDINARY_UPLOAD_FOLDER || "naashpati";
@@ -21,7 +20,9 @@ const getCloudinary = () => {
   return cloudinary.v2;
 };
 
-export const getCloudinaryImageUploadOptions = (folder = IMAGE_UPLOAD_FOLDER) => ({
+export const getCloudinaryImageUploadOptions = (
+  folder = IMAGE_UPLOAD_FOLDER,
+) => ({
   folder,
   resource_type: "image",
   eager: [AGGRESSIVE_IMAGE_TRANSFORM],

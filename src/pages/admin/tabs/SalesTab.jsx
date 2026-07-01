@@ -134,7 +134,9 @@ const SalesTab = ({
                         {product.name}
                       </span>
                       <span className="block truncate text-xs text-gray-400">
-                        {product.lenses ? "Lenses" : product.category || "Product"}
+                        {product.lenses
+                          ? "Lenses"
+                          : product.category || "Product"}
                       </span>
                     </span>
                   </label>
@@ -176,7 +178,9 @@ const SalesTab = ({
                 <div className="space-y-4 p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="font-semibold text-gray-900">{offer.name}</h3>
+                      <h3 className="font-semibold text-gray-900">
+                        {offer.name}
+                      </h3>
                       <p className="mt-1 text-sm text-gray-500">
                         Order: {offer.displayOrder || 0}
                       </p>
