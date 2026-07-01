@@ -19,6 +19,7 @@ import {
   selectIsAuthenticated,
 } from "../../store/slices/authSlice";
 import RichTextEditor from "../../components/RichTextEditor";
+import { resolveMediaUrl } from "../../utils/mediaUrl";
 
 const ATTRIBUTE_FIELDS = [
   { key: "color", label: "Color" },
@@ -58,7 +59,6 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const accessToken = useSelector((state) => state.auth.accessToken);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
-  const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -321,13 +321,6 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
 
   const getCurrentProductId = () =>
     productProp?._id || productProp?.id || id || product?._id || product?.id;
-
-  const resolveMediaUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    if (url.startsWith("/uploads/")) return `${API_ORIGIN}${url}`;
-    return url;
-  };
 
   const formatDate = (value) => {
     const date = new Date(value);

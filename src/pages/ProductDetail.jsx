@@ -1,10 +1,3 @@
-// Helper to resolve image/media URLs (handles absolute and relative paths)
-const resolveMediaUrl = (url) => {
-  if (!url) return "/placeholder-product.jpg";
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (url.startsWith("/uploads/")) return `${SERVER_URL}${url}`;
-  return url;
-};
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,6 +21,7 @@ import {
 import Loader from "../components/Loader";
 import toast from "react-hot-toast";
 import DOMPurify from "dompurify";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 import {
   FaStar,
   FaRegStar,
@@ -120,7 +114,7 @@ const ProductDetail = () => {
     const rawImage =
       item?.image || item?.images?.[0]?.url || item?.images?.[0] || "";
     if (!rawImage) return "/placeholder-product.jpg";
-    if (/^https?:\/\//i.test(rawImage)) return rawImage;
+    if (/^https?:\/\//i.test(rawImage)) return resolveMediaUrl(rawImage);
     if (rawImage.startsWith("/")) return `${SERVER_URL}${rawImage}`;
     return rawImage;
   };

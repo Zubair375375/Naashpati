@@ -1,16 +1,5 @@
 import { FaCheck, FaImage, FaPlus, FaTrash } from "react-icons/fa";
-
-const MEDIA_API_ORIGIN = (import.meta.env.VITE_API_URL || "/api").replace(
-  /\/api\/?$/,
-  "",
-);
-
-const resolveMediaUrl = (url) => {
-  if (!url) return "/placeholder-product.jpg";
-  if (url.startsWith("http://") || url.startsWith("https://")) return url;
-  if (url.startsWith("/uploads/")) return `${MEDIA_API_ORIGIN}${url}`;
-  return url;
-};
+import { resolveMediaUrl } from "../../../utils/mediaUrl";
 
 const HeroTab = ({
   handleCreateHeroSlide,

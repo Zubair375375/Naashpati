@@ -19,6 +19,7 @@ import {
 import ProductCard from "../components/ProductCard";
 import TrendingProducts from "../components/TrendingProducts";
 import api from "../api/axios";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 
 const BADGE_MARQUEE_STYLE = `
 @keyframes heroBadgesMarquee {
@@ -54,14 +55,6 @@ const Home = () => {
   );
   const [lensesProductsLoading, setLensesProductsLoading] = useState(false);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
-  const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
-
-  const resolveMediaUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    if (url.startsWith("/uploads/")) return `${API_ORIGIN}${url}`;
-    return url;
-  };
 
   const femaleCollectionImage =
     resolveMediaUrl(heroGenderImages?.female) ||

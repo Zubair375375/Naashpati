@@ -12,6 +12,7 @@ import {
   FaChevronDown,
 } from "react-icons/fa";
 import { MdVerified, MdNaturePeople, MdEco } from "react-icons/md";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 
 const values = [
   {
@@ -138,14 +139,6 @@ const About = () => {
   );
   const [teamMembers, setTeamMembers] = useState([]);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
-  const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
-
-  const resolveMediaUrl = (url) => {
-    if (!url) return "";
-    if (url.startsWith("http://") || url.startsWith("https://")) return url;
-    if (url.startsWith("/uploads/")) return `${API_ORIGIN}${url}`;
-    return url;
-  };
 
   useEffect(() => {
     const fetchAboutContent = async () => {
