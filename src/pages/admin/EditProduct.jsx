@@ -1541,7 +1541,6 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
               />
               <span className="ml-2 text-sm text-gray-700">Lenses</span>
             </label>
-
           </div>
 
           <div className="space-y-4 rounded-md border border-gray-200 p-4">

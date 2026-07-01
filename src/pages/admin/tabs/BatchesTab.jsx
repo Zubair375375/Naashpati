@@ -17,7 +17,9 @@ const BatchesTab = ({
     <div className="p-6">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Batch Management</h2>
-        <p className="text-sm text-gray-500">Total batch stock: {batchStockTotal}</p>
+        <p className="text-sm text-gray-500">
+          Total batch stock: {batchStockTotal}
+        </p>
       </div>
 
       <div className="mb-8 grid grid-cols-1 gap-8 lg:grid-cols-[360px,1fr]">

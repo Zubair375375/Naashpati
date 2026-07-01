@@ -7,7 +7,11 @@ const CLOUDINARY_OPTIMIZATION =
   "f_auto,q_auto:eco,dpr_auto,c_limit,w_2000,fl_progressive:steep";
 
 const injectCloudinaryTransform = (url) => {
-  if (!url || !url.includes("res.cloudinary.com") || !url.includes("/upload/")) {
+  if (
+    !url ||
+    !url.includes("res.cloudinary.com") ||
+    !url.includes("/upload/")
+  ) {
     return url;
   }
 

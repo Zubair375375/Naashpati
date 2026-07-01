@@ -72,7 +72,8 @@ const CategoriesTab = ({
                   if (file) {
                     setCategoryImageFile(file);
                     const reader = new FileReader();
-                    reader.onload = (ev) => setCategoryImagePreview(ev.target.result);
+                    reader.onload = (ev) =>
+                      setCategoryImagePreview(ev.target.result);
                     reader.readAsDataURL(file);
                   }
                 }}
@@ -85,7 +86,9 @@ const CategoriesTab = ({
               className="flex items-center space-x-2 rounded bg-[#68a300] px-4 py-2 text-white hover:bg-[#5f9600] disabled:opacity-60"
             >
               <FaPlus />
-              <span>{uploadingCategoryImage ? "Uploading..." : "Add Category"}</span>
+              <span>
+                {uploadingCategoryImage ? "Uploading..." : "Add Category"}
+              </span>
             </button>
           </form>
         </div>
@@ -114,7 +117,9 @@ const CategoriesTab = ({
                 <div className="space-y-2 p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {category.name}
+                      </h3>
                       <p className="text-xs uppercase tracking-[0.18em] text-gray-400">
                         {category.value}
                       </p>
@@ -127,7 +132,9 @@ const CategoriesTab = ({
                         <FaEdit />
                       </button>
                       <button
-                        onClick={() => handleDeleteCategory(category._id, category.value)}
+                        onClick={() =>
+                          handleDeleteCategory(category._id, category.value)
+                        }
                         className="text-red-600 hover:text-red-900"
                       >
                         <FaTrash />

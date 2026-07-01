@@ -94,7 +94,9 @@ const ProductsTab = ({
 
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h3 className="text-xl font-semibold">{activeProductCategoryName}</h3>
+            <h3 className="text-xl font-semibold">
+              {activeProductCategoryName}
+            </h3>
             <p className="text-sm text-gray-500">
               Showing {visibleProducts.length} product
               {visibleProducts.length === 1 ? "" : "s"}
@@ -156,7 +158,9 @@ const ProductsTab = ({
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-sm capitalize text-gray-500">
-                    {product.lenses ? "Lenses" : product.category || "Uncategorized"}
+                    {product.lenses
+                      ? "Lenses"
+                      : product.category || "Uncategorized"}
                   </td>
                   <td className="whitespace-nowrap px-4 py-4 text-sm text-gray-900">
                     {product.sku || "N/A"}
