@@ -419,9 +419,27 @@ productSchema.index(
 productSchema.index({ isActive: 1, status: 1, lenses: 1, createdAt: -1 });
 productSchema.index({ isActive: 1, status: 1, newArrival: 1, createdAt: -1 });
 productSchema.index({ isActive: 1, status: 1, category: 1, createdAt: -1 });
-productSchema.index({ isActive: 1, status: 1, productCollection: 1, createdAt: -1 });
-productSchema.index({ isActive: 1, status: 1, trending: 1, trendingScore: -1, createdAt: -1 });
-productSchema.index({ isActive: 1, status: 1, category: 1, trending: 1, trendingScore: -1, createdAt: -1 });
+productSchema.index({
+  isActive: 1,
+  status: 1,
+  productCollection: 1,
+  createdAt: -1,
+});
+productSchema.index({
+  isActive: 1,
+  status: 1,
+  trending: 1,
+  trendingScore: -1,
+  createdAt: -1,
+});
+productSchema.index({
+  isActive: 1,
+  status: 1,
+  category: 1,
+  trending: 1,
+  trendingScore: -1,
+  createdAt: -1,
+});
 productSchema.index({ isActive: 1, status: 1, lenses: 1, price: 1 });
 productSchema.index({ isActive: 1, status: 1, lenses: 1, price: -1 });
 productSchema.index({ "reviews.user": 1 });
