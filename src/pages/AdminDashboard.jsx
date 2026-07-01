@@ -383,8 +383,6 @@ const AdminDashboard = () => {
     }
   };
 
-  };
-
   const handleDeleteProduct = async (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
@@ -501,29 +499,6 @@ const AdminDashboard = () => {
 
     fetchProductBatches(productId);
   }, [activeTab, products, selectedBatchProductId]);
-
-
-
-
-  const handleCreateCategory = async (e) => {
-    e.preventDefault();
-    if (!categoryForm.name.trim()) {
-      toast.error("Category name is required");
-      return;
-    }
-
-    try {
-
-  const handleDeleteProduct = async (productId) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      try {
-        await dispatch(deleteProduct(productId)).unwrap();
-        toast.success("Product deleted successfully");
-      } catch (error) {
-        toast.error("Failed to delete product");
-      }
-    }
-  };
 
   const handleEditProduct = (product) => {
     setEditingProduct(product);
