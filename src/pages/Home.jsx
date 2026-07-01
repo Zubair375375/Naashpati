@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { MdEco, MdShield, MdLocalShipping, MdFavorite } from "react-icons/md";
 import { FaSeedling } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import {
   fetchCategories,
   selectCategories,
@@ -54,6 +55,7 @@ const Home = () => {
     LENSES_PRODUCTS_BATCH_SIZE,
   );
   const [lensesProductsLoading, setLensesProductsLoading] = useState(false);
+  const categoryScrollRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
 
   const femaleCollectionImage =
@@ -126,6 +128,18 @@ const Home = () => {
   );
   const canLoadMoreLensesProducts =
     visibleLensesProductCount < lensesProducts.length;
+
+  const scrollCategories = (direction) => {
+    const element = categoryScrollRef.current;
+    if (!element) {
+      return;
+    }
+
+    element.scrollBy({
+      left: direction * 360,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <div className="min-h-screen">
@@ -236,41 +250,64 @@ const Home = () => {
             </Link>
           </div>
 
-          <div className="flex gap-5 overflow-x-auto pb-4">
-            {categories
-              .filter((category) => {
-                const value = String(category.value || "")
-                  .trim()
-                  .toLowerCase();
-                return (
-                  value !== "male-collection" && value !== "female-collection"
-                );
-              })
-              .map((category) => (
-                <Link
-                  key={category.value}
-                  to={`/products?category=${category.value}`}
-                  className="group min-w-[220px] shrink-0"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100">
-                    {category.image ? (
-                      <img
-                        src={resolveMediaUrl(category.image)}
-                        alt={category.name}
-                        loading="lazy"
-                        className="h-[224px] w-[224px] object-cover transition duration-300 group-hover:scale-[1.03]"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <FaSeedling className="text-4xl text-[#68a300]" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="mt-3 text-center text-sm font-medium text-gray-700">
-                    {category.name}
-                  </p>
-                </Link>
-              ))}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => scrollCategories(-1)}
+              className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-md transition hover:bg-white"
+              aria-label="Scroll categories left"
+            >
+              <FaChevronLeft className="text-sm" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => scrollCategories(1)}
+              className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-md transition hover:bg-white"
+              aria-label="Scroll categories right"
+            >
+              <FaChevronRight className="text-sm" />
+            </button>
+
+            <div
+              ref={categoryScrollRef}
+              className="flex gap-5 overflow-x-auto px-14 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {categories
+                .filter((category) => {
+                  const value = String(category.value || "")
+                    .trim()
+                    .toLowerCase();
+                  return (
+                    value !== "male-collection" && value !== "female-collection"
+                  );
+                })
+                .map((category) => (
+                  <Link
+                    key={category.value}
+                    to={`/products?category=${category.value}`}
+                    className="group min-w-[220px] shrink-0"
+                  >
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100">
+                      {category.image ? (
+                        <img
+                          src={resolveMediaUrl(category.image)}
+                          alt={category.name}
+                          loading="lazy"
+                          className="h-[224px] w-[224px] object-cover transition duration-300 group-hover:scale-[1.03]"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <FaSeedling className="text-4xl text-[#68a300]" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="mt-3 text-center text-sm font-medium text-gray-700">
+                      {category.name}
+                    </p>
+                  </Link>
+                ))}
+            </div>
           </div>
 
           <div className="mt-10 text-center">
