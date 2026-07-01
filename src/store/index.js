@@ -5,9 +5,7 @@ import cartReducer from "./slices/cartSlice";
 import orderReducer from "./slices/orderSlice";
 import userReducer from "./slices/userSlice";
 import announcementReducer from "./slices/announcementSlice";
-import heroSlideReducer from "./slices/heroSlideSlice";
 import heroBadgeReducer from "./slices/heroBadgeSlice";
-import productBannerReducer from "./slices/productBannerSlice";
 import saleOfferReducer from "./slices/saleOfferSlice";
 import trendingReducer from "./slices/trendingSlice";
 
@@ -19,9 +17,7 @@ export const store = configureStore({
     orders: orderReducer,
     users: userReducer,
     announcements: announcementReducer,
-    heroSlides: heroSlideReducer,
     heroBadges: heroBadgeReducer,
-    productBanners: productBannerReducer,
     saleOffers: saleOfferReducer,
     trending: trendingReducer,
   },
