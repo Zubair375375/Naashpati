@@ -177,6 +177,49 @@ export const deductStockFIFO = async (productId, quantity, session) => {
   return allocations;
 };
 
+export const restoreStockFromOrderItems = async (orderItems = [], session) => {
+  const touchedProductIds = new Set();
+
+  for (const item of orderItems) {
+    const productId = item?.product?._id || item?.product;
+    if (!productId) {
+      continue;
+    }
+
+    touchedProductIds.add(String(productId));
+
+    const allocations = Array.isArray(item.batchAllocations)
+      ? item.batchAllocations
+      : [];
+
+    for (const allocation of allocations) {
+      const batchId = allocation?.batchId;
+      const quantity = toNumber(allocation?.quantity, 0);
+
+      if (!batchId || quantity <= 0) {
+        continue;
+      }
+
+      const batch = await Batch.findById(batchId).session(session || null);
+      if (!batch) {
+        throw new Error(`BATCH_NOT_FOUND:${batchId}`);
+      }
+
+      const nextRemaining = toNumber(batch.remaining_quantity, 0) + quantity;
+      if (nextRemaining > toNumber(batch.quantity, 0)) {
+        throw new Error(`BATCH_RESTORE_OVERFLOW:${batchId}`);
+      }
+
+      batch.remaining_quantity = nextRemaining;
+      await batch.save({ session });
+    }
+  }
+
+  for (const productId of touchedProductIds) {
+    await syncLegacyProductStock(productId, session);
+  }
+};
+
 export const adjustStockToTarget = async (
   product,
   targetStock,

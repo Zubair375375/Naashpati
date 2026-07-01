@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,6 +11,7 @@ import { createOrder } from "../store/slices/orderSlice";
 import Loader from "../components/Loader";
 import toast from "react-hot-toast";
 import { FaCreditCard, FaTruck, FaMapMarkerAlt } from "react-icons/fa";
+import { createIdempotencyKey } from "../utils/idempotencyKey";
 
 const Checkout = () => {
   const dispatch = useDispatch();
@@ -39,6 +40,7 @@ const Checkout = () => {
   const [paymentMethod] = useState("demo");
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasPlacedOrder, setHasPlacedOrder] = useState(false);
+  const orderSubmitKeyRef = useRef("");
   const TAX_RATE = 0.08;
   const subtotal = Number(cartTotal || 0);
   const taxAmount = Number((subtotal * TAX_RATE).toFixed(2));
@@ -165,6 +167,10 @@ const Checkout = () => {
 
     setIsProcessing(true);
 
+    if (!orderSubmitKeyRef.current) {
+      orderSubmitKeyRef.current = createIdempotencyKey();
+    }
+
     try {
       const orderData = {
         orderItems: cartItems.map((item) => ({
@@ -183,9 +189,11 @@ const Checkout = () => {
         taxPrice: taxAmount,
         shippingPrice: 0,
         totalPrice: grandTotal,
+        idempotencyKey: orderSubmitKeyRef.current,
       };
 
       const createdOrder = await dispatch(createOrder(orderData)).unwrap();
+      orderSubmitKeyRef.current = "";
       setHasPlacedOrder(true);
       const customerName =
         [shippingAddress.firstName, shippingAddress.lastName]

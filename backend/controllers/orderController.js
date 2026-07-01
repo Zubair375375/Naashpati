@@ -6,6 +6,7 @@ import stripe from "stripe";
 import {
   deductStockFIFO,
   getStockTotalsByProductIds,
+  restoreStockFromOrderItems,
 } from "../services/inventoryService.js";
 import {
   isCompletionTransition,
@@ -241,6 +242,121 @@ const buildOrderConfirmationEmail = (customerName, order) => {
 </html>`;
 };
 
+const roundCurrency = (value) => Number(Number(value || 0).toFixed(2));
+
+const getProductEffectiveUnitPrice = (product) => {
+  const salePrice = Number(product?.salePrice || 0);
+  if (Number.isFinite(salePrice) && salePrice > 0) {
+    return roundCurrency(salePrice);
+  }
+  return roundCurrency(product?.price || 0);
+};
+
+const aggregateRequestedQuantities = (orderItems = []) => {
+  const requested = new Map();
+
+  for (const item of orderItems) {
+    const productId = String(item?.product || "");
+    const quantity = Number(item?.quantity || 0);
+    if (!productId || !Number.isFinite(quantity) || quantity <= 0) {
+      continue;
+    }
+
+    requested.set(productId, (requested.get(productId) || 0) + quantity);
+  }
+
+  return requested;
+};
+
+const normalizeOrderItems = (orderItems = []) => {
+  const merged = new Map();
+
+  for (const item of orderItems) {
+    const productId = String(item?.product || "").trim();
+    const quantity = Number(item?.quantity || 0);
+
+    if (!productId || !Number.isFinite(quantity) || quantity <= 0) {
+      continue;
+    }
+
+    if (!merged.has(productId)) {
+      merged.set(productId, {
+        product: item.product,
+        name: item.name,
+        image: item.image,
+        price: Number(item.price || 0),
+        quantity,
+      });
+      continue;
+    }
+
+    const existing = merged.get(productId);
+    existing.quantity += quantity;
+  }
+
+  return Array.from(merged.values());
+};
+
+const ORDER_STATUS_TRANSITIONS = {
+  pending: ["processing", "cancelled", "refunded", "shipped", "delivered"],
+  processing: ["shipped", "delivered", "cancelled", "refunded"],
+  shipped: ["delivered", "cancelled", "refunded"],
+  delivered: ["refunded"],
+  cancelled: [],
+  refunded: [],
+};
+
+const canTransitionOrderStatus = (fromStatus, toStatus) => {
+  if (fromStatus === toStatus) {
+    return true;
+  }
+
+  return (ORDER_STATUS_TRANSITIONS[fromStatus] || []).includes(toStatus);
+};
+
+const isDuplicateKeyError =
+  (error) => Number(error?.code) === 11000 || error?.name === "MongoServerError";
+
+const normalizeIdempotencyKey = (value) => {
+  if (typeof value !== "string") {
+    return "";
+  }
+
+  const normalized = value.trim();
+  if (normalized.length < 8 || normalized.length > 128) {
+    return "";
+  }
+
+  return normalized;
+};
+
+const getRequestIdempotencyKey = (req) =>
+  normalizeIdempotencyKey(req.get("x-idempotency-key") || req.body?.idempotencyKey);
+
+const getOrderCreateReplayQuery = ({ req, idempotencyKey, shippingAddress }) => {
+  if (!idempotencyKey) {
+    return null;
+  }
+
+  if (req.user?._id) {
+    return {
+      user: req.user._id,
+      "idempotency.createOrderKey": idempotencyKey,
+    };
+  }
+
+  const shippingEmail = getGuestEmailFromShipping(shippingAddress).toLowerCase();
+  if (!shippingEmail) {
+    return null;
+  }
+
+  return {
+    user: null,
+    "customerSnapshot.email": shippingEmail,
+    "idempotency.createOrderKey": idempotencyKey,
+  };
+};
+
 // @desc    Create new order
 // @route   POST /api/orders
 // @access  Public
@@ -255,87 +371,177 @@ export const createOrder = async (req, res) => {
   }
 
   try {
-    const {
-      orderItems,
-      shippingAddress,
-      paymentMethod,
-      taxPrice,
-      shippingPrice,
-      totalPrice,
-    } = req.body;
+    const { shippingAddress, paymentMethod, taxPrice, shippingPrice, totalPrice } =
+      req.body;
+    const normalizedOrderItems = normalizeOrderItems(req.body.orderItems || []);
+    const idempotencyKey = getRequestIdempotencyKey(req);
 
-    if (orderItems && orderItems.length === 0) {
+    if (normalizedOrderItems.length === 0) {
       return res.status(400).json({
         success: false,
         error: "No order items",
       });
     }
 
+    const replayQuery = getOrderCreateReplayQuery({
+      req,
+      idempotencyKey,
+      shippingAddress,
+    });
+
+    if (replayQuery) {
+      const existingOrder = await Order.findOne(replayQuery);
+      if (existingOrder) {
+        return res.status(200).json({
+          success: true,
+          idempotentReplay: true,
+          data: existingOrder,
+        });
+      }
+    }
+
     const session = await mongoose.startSession();
     let createdOrder;
 
-    await session.withTransaction(async () => {
-      const productIds = orderItems.map((item) => item.product);
-      const products = await Product.find({ _id: { $in: productIds } }).session(
-        session,
-      );
-      const productMap = new Map(
-        products.map((product) => [String(product._id), product]),
-      );
-      const stockMap = await getStockTotalsByProductIds(productIds, session);
-      const allocationMap = new Map();
-
-      for (const item of orderItems) {
-        const product = productMap.get(String(item.product));
-        if (!product) {
-          throw new Error(`PRODUCT_NOT_FOUND:${item.name}`);
-        }
-
-        const availableStock = stockMap.get(String(item.product)) || 0;
-        if (availableStock < Number(item.quantity)) {
-          throw new Error(`INSUFFICIENT_STOCK:${product.name}`);
-        }
-      }
-
-      for (const item of orderItems) {
-        const allocations = await deductStockFIFO(
-          item.product,
-          Number(item.quantity),
+    try {
+      await session.withTransaction(async () => {
+        const productIds = normalizedOrderItems.map((item) => item.product);
+        const products = await Product.find({ _id: { $in: productIds } }).session(
           session,
         );
-        allocationMap.set(String(item.product), allocations);
-      }
+        const productMap = new Map(
+          products.map((product) => [String(product._id), product]),
+        );
+        const requestedQtyByProduct = aggregateRequestedQuantities(
+          normalizedOrderItems,
+        );
+        const stockMap = await getStockTotalsByProductIds(
+          Array.from(requestedQtyByProduct.keys()),
+          session,
+        );
 
-      const orderItemsWithBatches = orderItems.map((item) => {
-        const allocations = allocationMap.get(String(item.product)) || [];
-        return {
-          ...item,
-          batchAllocations: allocations.map((allocation) => ({
-            batchId: allocation.batchId,
-            batchNumber: allocation.batchNumber,
-            quantity: allocation.deducted,
-          })),
-        };
+        let expectedSubtotal = 0;
+
+        for (const [productId, requestedQty] of requestedQtyByProduct.entries()) {
+          const product = productMap.get(productId);
+          if (!product) {
+            throw new Error(`PRODUCT_NOT_FOUND:${productId}`);
+          }
+
+          const availableStock = stockMap.get(productId) || 0;
+          if (availableStock < requestedQty) {
+            throw new Error(`INSUFFICIENT_STOCK:${product.name}`);
+          }
+        }
+
+        for (const item of normalizedOrderItems) {
+          const product = productMap.get(String(item.product));
+          if (!product) {
+            throw new Error(`PRODUCT_NOT_FOUND:${item.product}`);
+          }
+
+          const normalizedQty = Number(item.quantity || 0);
+          if (!Number.isFinite(normalizedQty) || normalizedQty <= 0) {
+            throw new Error(`INVALID_QUANTITY:${product.name}`);
+          }
+
+          const expectedUnitPrice = getProductEffectiveUnitPrice(product);
+          const incomingUnitPrice = roundCurrency(item.price);
+          if (incomingUnitPrice !== expectedUnitPrice) {
+            throw new Error(`PRICE_MISMATCH:${product.name}`);
+          }
+
+          expectedSubtotal += expectedUnitPrice * normalizedQty;
+        }
+
+        const normalizedTax = roundCurrency(taxPrice);
+        const normalizedShipping = roundCurrency(shippingPrice);
+        const computedTotal = roundCurrency(
+          roundCurrency(expectedSubtotal) + normalizedTax + normalizedShipping,
+        );
+
+        if (computedTotal !== roundCurrency(totalPrice)) {
+          throw new Error("TOTAL_MISMATCH");
+        }
+
+        const allocationQueueMap = new Map();
+        for (const [productId, requestedQty] of requestedQtyByProduct.entries()) {
+          const allocations = await deductStockFIFO(productId, requestedQty, session);
+          allocationQueueMap.set(
+            productId,
+            allocations.map((allocation) => ({
+              batchId: allocation.batchId,
+              batchNumber: allocation.batchNumber,
+              remaining: Number(allocation.deducted || 0),
+            })),
+          );
+        }
+
+        const orderItemsWithBatches = normalizedOrderItems.map((item) => {
+          const product = productMap.get(String(item.product));
+          const queue = allocationQueueMap.get(String(item.product)) || [];
+          let qtyNeeded = Number(item.quantity || 0);
+          const batchAllocations = [];
+
+          while (qtyNeeded > 0 && queue.length > 0) {
+            const head = queue[0];
+            const consumed = Math.min(head.remaining, qtyNeeded);
+
+            batchAllocations.push({
+              batchId: head.batchId,
+              batchNumber: head.batchNumber,
+              quantity: consumed,
+            });
+
+            head.remaining -= consumed;
+            qtyNeeded -= consumed;
+
+            if (head.remaining <= 0) {
+              queue.shift();
+            }
+          }
+
+          if (qtyNeeded > 0) {
+            throw new Error(`ALLOCATION_MISMATCH:${product?.name || item.product}`);
+          }
+
+          const fallbackImage =
+            product?.image || product?.images?.[0]?.url || product?.images?.[0] || "";
+
+          return {
+            product: item.product,
+            name: product?.name || item.name,
+            image: item.image || fallbackImage,
+            price: getProductEffectiveUnitPrice(product),
+            quantity: Number(item.quantity),
+            batchAllocations,
+          };
+        });
+
+        const order = new Order({
+          user: req.user?._id || null,
+          customerSnapshot: {
+            name: req.user?.name || getGuestNameFromShipping(shippingAddress),
+            email:
+              req.user?.email ||
+              getGuestEmailFromShipping(shippingAddress).toLowerCase(),
+          },
+          orderItems: orderItemsWithBatches,
+          shippingAddress,
+          paymentMethod,
+          taxPrice: normalizedTax,
+          shippingPrice: normalizedShipping,
+          totalPrice: computedTotal,
+          idempotency: {
+            createOrderKey: idempotencyKey || "",
+          },
+        });
+
+        createdOrder = await order.save({ session });
       });
-
-      const order = new Order({
-        user: req.user?._id || null,
-        customerSnapshot: {
-          name: req.user?.name || getGuestNameFromShipping(shippingAddress),
-          email: req.user?.email || getGuestEmailFromShipping(shippingAddress),
-        },
-        orderItems: orderItemsWithBatches,
-        shippingAddress,
-        paymentMethod,
-        taxPrice,
-        shippingPrice,
-        totalPrice,
-      });
-
-      createdOrder = await order.save({ session });
-    });
-
-    session.endSession();
+    } finally {
+      session.endSession();
+    }
 
     // Send order confirmation email (fire-and-forget)
     const customerEmail = shippingAddress.email || req.user?.email;
@@ -356,6 +562,25 @@ export const createOrder = async (req, res) => {
       data: createdOrder,
     });
   } catch (error) {
+    if (isDuplicateKeyError(error) && idempotencyKey) {
+      const replayQuery = getOrderCreateReplayQuery({
+        req,
+        idempotencyKey,
+        shippingAddress: req.body?.shippingAddress,
+      });
+
+      if (replayQuery) {
+        const existingOrder = await Order.findOne(replayQuery);
+        if (existingOrder) {
+          return res.status(200).json({
+            success: true,
+            idempotentReplay: true,
+            data: existingOrder,
+          });
+        }
+      }
+    }
+
     if (typeof error?.message === "string") {
       if (error.message.startsWith("PRODUCT_NOT_FOUND:")) {
         return res.status(404).json({
@@ -370,6 +595,48 @@ export const createOrder = async (req, res) => {
         return res.status(400).json({
           success: false,
           error: `Insufficient stock for ${error.message.replace("INSUFFICIENT_STOCK:", "")}`,
+        });
+      }
+
+      if (error.message.startsWith("PRICE_MISMATCH:")) {
+        return res.status(409).json({
+          success: false,
+          error: `Price changed for ${error.message.replace("PRICE_MISMATCH:", "")}. Please refresh and try again.`,
+        });
+      }
+
+      if (error.message === "TOTAL_MISMATCH") {
+        return res.status(409).json({
+          success: false,
+          error: "Order total mismatch. Please refresh your cart and try again.",
+        });
+      }
+
+      if (error.message.startsWith("INVALID_QUANTITY:")) {
+        return res.status(400).json({
+          success: false,
+          error: `Invalid quantity for ${error.message.replace("INVALID_QUANTITY:", "")}`,
+        });
+      }
+
+      if (error.message.startsWith("ALLOCATION_MISMATCH:")) {
+        return res.status(409).json({
+          success: false,
+          error: `Inventory allocation failed for ${error.message.replace("ALLOCATION_MISMATCH:", "")}. Please retry.`,
+        });
+      }
+
+      if (error.message.startsWith("BATCH_NOT_FOUND:")) {
+        return res.status(409).json({
+          success: false,
+          error: "Inventory reconciliation failed. Please contact support.",
+        });
+      }
+
+      if (error.message.startsWith("BATCH_RESTORE_OVERFLOW:")) {
+        return res.status(409).json({
+          success: false,
+          error: "Inventory reconciliation conflict detected. Please contact support.",
         });
       }
     }
@@ -501,6 +768,21 @@ export const updateOrderToDelivered = async (req, res) => {
     }
 
     const previousStatus = order.status;
+
+    if (!canTransitionOrderStatus(previousStatus, "delivered")) {
+      return res.status(409).json({
+        success: false,
+        error: `Invalid order status transition (${previousStatus}->delivered)`,
+      });
+    }
+
+    if (previousStatus === "delivered") {
+      return res.json({
+        success: true,
+        data: order,
+      });
+    }
+
     order.isDelivered = true;
     order.deliveredAt = Date.now();
     order.status = "delivered";
@@ -534,17 +816,7 @@ export const updateOrderToDelivered = async (req, res) => {
 // @access  Private/Admin
 export const updateOrderStatus = async (req, res) => {
   try {
-    const order = await Order.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        error: "Order not found",
-      });
-    }
-
     const { status } = req.body;
-    const previousStatus = order.status;
 
     if (
       ![
@@ -562,13 +834,54 @@ export const updateOrderStatus = async (req, res) => {
       });
     }
 
-    order.status = status;
-    if (status === "delivered") {
-      order.isDelivered = true;
-      order.deliveredAt = Date.now();
+    const session = await mongoose.startSession();
+    let updatedOrder;
+    let previousStatus;
+
+    try {
+      await session.withTransaction(async () => {
+        const order = await Order.findById(req.params.id).session(session);
+
+        if (!order) {
+          throw new Error("ORDER_NOT_FOUND");
+        }
+
+        previousStatus = order.status;
+
+        if (!canTransitionOrderStatus(previousStatus, status)) {
+          throw new Error(`INVALID_STATUS_TRANSITION:${previousStatus}->${status}`);
+        }
+
+        if (status === previousStatus) {
+          updatedOrder = order;
+          return;
+        }
+
+        if (isRefundOrCancelTransition(previousStatus, status)) {
+          await restoreStockFromOrderItems(order.orderItems, session);
+        }
+
+        order.status = status;
+        if (status === "delivered") {
+          order.isDelivered = true;
+          order.deliveredAt = Date.now();
+        }
+        if (status === "cancelled" || status === "refunded") {
+          order.isDelivered = false;
+        }
+
+        updatedOrder = await order.save({ session });
+      });
+    } finally {
+      session.endSession();
     }
 
-    const updatedOrder = await order.save();
+    if (!updatedOrder) {
+      return res.status(404).json({
+        success: false,
+        error: "Order not found",
+      });
+    }
 
     if (isCompletionTransition(previousStatus, updatedOrder.status)) {
       await processOrderMetricEvents({
@@ -595,6 +908,32 @@ export const updateOrderStatus = async (req, res) => {
       data: updatedOrder,
     });
   } catch (error) {
+    if (typeof error?.message === "string") {
+      if (error.message === "ORDER_NOT_FOUND") {
+        return res.status(404).json({
+          success: false,
+          error: "Order not found",
+        });
+      }
+
+      if (error.message.startsWith("INVALID_STATUS_TRANSITION:")) {
+        return res.status(409).json({
+          success: false,
+          error: `Invalid order status transition (${error.message.replace("INVALID_STATUS_TRANSITION:", "")})`,
+        });
+      }
+
+      if (
+        error.message.startsWith("BATCH_NOT_FOUND:") ||
+        error.message.startsWith("BATCH_RESTORE_OVERFLOW:")
+      ) {
+        return res.status(409).json({
+          success: false,
+          error: "Inventory reconciliation failed during status update",
+        });
+      }
+    }
+
     res.status(500).json({
       success: false,
       error: "Server error",
@@ -637,8 +976,18 @@ export const createPaymentIntent = async (req, res) => {
 // @route   POST /api/orders/confirm-payment
 // @access  Private
 export const confirmPayment = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      error: "Validation error",
+      details: errors.array(),
+    });
+  }
+
   try {
     const { orderId, paymentIntentId } = req.body;
+    const idempotencyKey = getRequestIdempotencyKey(req);
 
     const order = await Order.findById(orderId);
 
@@ -657,11 +1006,41 @@ export const confirmPayment = async (req, res) => {
       });
     }
 
+    if (["cancelled", "refunded"].includes(order.status)) {
+      return res.status(409).json({
+        success: false,
+        error: "Cannot confirm payment for cancelled or refunded orders",
+      });
+    }
+
+    if (
+      idempotencyKey &&
+      order.idempotency?.paymentConfirmKey &&
+      order.idempotency.paymentConfirmKey === idempotencyKey
+    ) {
+      return res.json({
+        success: true,
+        idempotentReplay: true,
+        message: order.isPaid ? "Payment already confirmed" : "Payment confirmation in progress",
+      });
+    }
+
+    if (order.isPaid) {
+      return res.json({
+        success: true,
+        message: "Payment already confirmed",
+      });
+    }
+
     order.isPaid = true;
     order.paidAt = Date.now();
     order.paymentResult = {
       id: paymentIntentId,
       status: "succeeded",
+    };
+    order.idempotency = {
+      ...(order.idempotency || {}),
+      paymentConfirmKey: idempotencyKey || order.idempotency?.paymentConfirmKey || "",
     };
 
     await order.save();
@@ -671,6 +1050,13 @@ export const confirmPayment = async (req, res) => {
       message: "Payment confirmed",
     });
   } catch (error) {
+    if (isDuplicateKeyError(error)) {
+      return res.status(409).json({
+        success: false,
+        error: "Idempotency key already used for another payment confirmation",
+      });
+    }
+
     res.status(500).json({
       success: false,
       error: "Payment confirmation failed",

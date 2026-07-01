@@ -54,6 +54,34 @@ const api = axios.create({
   withCredentials: true, // send cookies if needed
 });
 
+export const withAuth = (accessToken, config = {}) => {
+  if (!accessToken) {
+    return config;
+  }
+
+  return {
+    ...config,
+    headers: {
+      ...(config.headers || {}),
+      Authorization: `Bearer ${accessToken}`,
+    },
+  };
+};
+
+export const withIdempotency = (idempotencyKey, config = {}) => {
+  if (!idempotencyKey) {
+    return config;
+  }
+
+  return {
+    ...config,
+    headers: {
+      ...(config.headers || {}),
+      "x-idempotency-key": idempotencyKey,
+    },
+  };
+};
+
 api.interceptors.request.use(
   (config) => {
     const rateLimitUntil = getRateLimitUntil();

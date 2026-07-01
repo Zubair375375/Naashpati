@@ -149,6 +149,18 @@ const orderSchema = new mongoose.Schema(
       ],
       default: "pending",
     },
+    idempotency: {
+      createOrderKey: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      paymentConfirmKey: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+    },
   },
   {
     timestamps: true,
@@ -162,6 +174,24 @@ orderSchema.index({ isPaid: 1, createdAt: -1 });
 orderSchema.index({ isDelivered: 1, createdAt: -1 });
 orderSchema.index({ "orderItems.product": 1, createdAt: -1 });
 orderSchema.index({ "customerSnapshot.email": 1, createdAt: -1 });
+orderSchema.index(
+  { "idempotency.createOrderKey": 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      "idempotency.createOrderKey": { $type: "string", $ne: "" },
+    },
+  },
+);
+orderSchema.index(
+  { "idempotency.paymentConfirmKey": 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      "idempotency.paymentConfirmKey": { $type: "string", $ne: "" },
+    },
+  },
+);
 
 const Order = mongoose.model("Order", orderSchema);
 

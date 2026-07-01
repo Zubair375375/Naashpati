@@ -1,7 +1,10 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-
-const API_URL = import.meta.env.VITE_API_URL || "/api";
+import api, { withAuth, withIdempotency } from "../../api/axios";
+import {
+  createIdempotencyKey,
+  getOrCreateScopedIdempotencyKey,
+  clearScopedIdempotencyKey,
+} from "../../utils/idempotencyKey";
 
 // Initial state
 const initialState = {
@@ -23,14 +26,16 @@ export const createOrder = createAsyncThunk(
   async (orderData, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState();
-      const config = auth.accessToken
-        ? {
-            headers: {
-              Authorization: `Bearer ${auth.accessToken}`,
-            },
-          }
-        : undefined;
-      const response = await axios.post(`${API_URL}/orders`, orderData, config);
+      const idempotencyKey = orderData?.idempotencyKey || createIdempotencyKey();
+      const payload = {
+        ...orderData,
+        idempotencyKey,
+      };
+      const config = withIdempotency(
+        idempotencyKey,
+        withAuth(auth.accessToken),
+      );
+      const response = await api.post("/orders", payload, config);
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
@@ -45,11 +50,7 @@ export const getOrderById = createAsyncThunk(
   async (id, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState();
-      const response = await axios.get(`${API_URL}/orders/${id}`, {
-        headers: {
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-      });
+      const response = await api.get(`/orders/${id}`, withAuth(auth.accessToken));
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
@@ -64,11 +65,7 @@ export const getMyOrders = createAsyncThunk(
   async (_, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState();
-      const response = await axios.get(`${API_URL}/orders/myorders`, {
-        headers: {
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-      });
+      const response = await api.get("/orders/myorders", withAuth(auth.accessToken));
       return response.data.data;
     } catch (error) {
       return rejectWithValue(
@@ -84,11 +81,10 @@ export const getOrders = createAsyncThunk(
     try {
       const { auth } = getState();
       const queryParams = new URLSearchParams(params).toString();
-      const response = await axios.get(`${API_URL}/orders?${queryParams}`, {
-        headers: {
-          Authorization: `Bearer ${auth.accessToken}`,
-        },
-      });
+      const response = await api.get(
+        `/orders?${queryParams}`,
+        withAuth(auth.accessToken),
+      );
       return response.data;
     } catch (error) {
       return rejectWithValue(
@@ -103,14 +99,10 @@ export const updateOrderStatus = createAsyncThunk(
   async ({ id, status }, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState();
-      const response = await axios.put(
-        `${API_URL}/orders/${id}/status`,
+      const response = await api.put(
+        `/orders/${id}/status`,
         { status },
-        {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-        },
+        withAuth(auth.accessToken),
       );
       return response.data.data;
     } catch (error) {
@@ -126,14 +118,10 @@ export const createPaymentIntent = createAsyncThunk(
   async (amount, { getState, rejectWithValue }) => {
     try {
       const { auth } = getState();
-      const response = await axios.post(
-        `${API_URL}/orders/create-payment-intent`,
+      const response = await api.post(
+        "/orders/create-payment-intent",
         { amount },
-        {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-        },
+        withAuth(auth.accessToken),
       );
       return response.data.data;
     } catch (error) {
@@ -147,17 +135,21 @@ export const createPaymentIntent = createAsyncThunk(
 export const confirmPayment = createAsyncThunk(
   "orders/confirmPayment",
   async ({ orderId, paymentIntentId }, { getState, rejectWithValue }) => {
+    const scopeId = orderId || "unknown-order";
+    const idempotencyKey = getOrCreateScopedIdempotencyKey(
+      "confirm-payment",
+      scopeId,
+    );
+
     try {
       const { auth } = getState();
-      const response = await axios.post(
-        `${API_URL}/orders/confirm-payment`,
-        { orderId, paymentIntentId },
-        {
-          headers: {
-            Authorization: `Bearer ${auth.accessToken}`,
-          },
-        },
+      const response = await api.post(
+        "/orders/confirm-payment",
+        { orderId, paymentIntentId, idempotencyKey },
+        withIdempotency(idempotencyKey, withAuth(auth.accessToken)),
       );
+
+      clearScopedIdempotencyKey("confirm-payment", scopeId);
       return response.data;
     } catch (error) {
       return rejectWithValue(
