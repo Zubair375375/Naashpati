@@ -37,6 +37,7 @@ import {
   stopMetricsRecomputeJob,
 } from "./jobs/recomputeProductMetricsJob.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import { apiMonitor } from "./middleware/apiMonitor.js";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -117,6 +118,9 @@ app.use(
 );
 
 app.options("*", cors());
+
+// ---------------------- API MONITORING ----------------------
+app.use("/api", apiMonitor);
 
 // ---------------------- RATE LIMIT ----------------------
 const apiLimiter = rateLimit({

@@ -2,8 +2,21 @@ export const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  // Log error
-  console.error(err);
+  const requestId = req?.requestId || "n/a";
+  const errorLog = {
+    level: "error",
+    event: "api.unhandled_error",
+    requestId,
+    method: req?.method,
+    path: req?.originalUrl || req?.url,
+    statusCode: err.statusCode || 500,
+    errorName: err.name,
+    message: err.message,
+    stack: err.stack,
+    timestamp: new Date().toISOString(),
+  };
+
+  console.error(JSON.stringify(errorLog));
 
   // Mongoose bad ObjectId
   if (err.name === "CastError") {
@@ -39,6 +52,7 @@ export const errorHandler = (err, req, res, next) => {
   res.status(error.statusCode || 500).json({
     success: false,
     error: error.message || "Server Error",
+    requestId,
     ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
   });
 };
