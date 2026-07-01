@@ -4,27 +4,49 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser, setAuthChecked } from "./store/slices/authSlice";
 import Layout from "./components/Layout";
 import Loader from "./components/Loader";
+import { lazyWithRetry } from "./utils/lazyWithRetry";
 
-const Home = lazy(() => import("./pages/Home"));
-const Products = lazy(() => import("./pages/Products"));
-const ProductDetail = lazy(() => import("./pages/ProductDetail"));
-const SaleOffer = lazy(() => import("./pages/SaleOffer"));
-const Cart = lazy(() => import("./pages/Cart"));
-const Checkout = lazy(() => import("./pages/Checkout"));
-const Login = lazy(() => import("./pages/Login"));
-const Register = lazy(() => import("./pages/Register"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
-const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const Profile = lazy(() => import("./pages/Profile"));
-const Contact = lazy(() => import("./pages/Contact"));
-const About = lazy(() => import("./pages/About"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const EditProduct = lazy(() => import("./pages/admin/EditProduct"));
+const Home = lazyWithRetry(() => import("./pages/Home"), "Home");
+const Products = lazyWithRetry(() => import("./pages/Products"), "Products");
+const ProductDetail = lazyWithRetry(
+  () => import("./pages/ProductDetail"),
+  "ProductDetail",
+);
+const SaleOffer = lazyWithRetry(() => import("./pages/SaleOffer"), "SaleOffer");
+const Cart = lazyWithRetry(() => import("./pages/Cart"), "Cart");
+const Checkout = lazyWithRetry(() => import("./pages/Checkout"), "Checkout");
+const Login = lazyWithRetry(() => import("./pages/Login"), "Login");
+const Register = lazyWithRetry(() => import("./pages/Register"), "Register");
+const ForgotPassword = lazyWithRetry(
+  () => import("./pages/ForgotPassword"),
+  "ForgotPassword",
+);
+const ResetPassword = lazyWithRetry(
+  () => import("./pages/ResetPassword"),
+  "ResetPassword",
+);
+const Profile = lazyWithRetry(() => import("./pages/Profile"), "Profile");
+const Contact = lazyWithRetry(() => import("./pages/Contact"), "Contact");
+const About = lazyWithRetry(() => import("./pages/About"), "About");
+const AdminDashboard = lazyWithRetry(
+  () => import("./pages/AdminDashboard"),
+  "AdminDashboard",
+);
+const EditProduct = lazyWithRetry(
+  () => import("./pages/admin/EditProduct"),
+  "EditProduct",
+);
 
-const OrderDetail = lazy(() => import("./pages/admin/OrderDetail"));
-const UserDetail = lazy(() => import("./pages/admin/UserDetail"));
+const OrderDetail = lazyWithRetry(
+  () => import("./pages/admin/OrderDetail"),
+  "OrderDetail",
+);
+const UserDetail = lazyWithRetry(
+  () => import("./pages/admin/UserDetail"),
+  "UserDetail",
+);
 
-const NotFound = lazy(() => import("./pages/NotFound"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound"), "NotFound");
 
 function App() {
   const dispatch = useDispatch();

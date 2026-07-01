@@ -12,6 +12,7 @@ import {
   createCategory,
   fetchCategories,
   selectCategories,
+  selectCategoriesStatus,
 } from "../store/slices/productSlice";
 import {
   MdShoppingCart,
@@ -68,6 +69,7 @@ const Header = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectAuthUser);
   const categories = useSelector(selectCategories);
+  const categoriesStatus = useSelector(selectCategoriesStatus);
   const accessToken = useSelector((state) => state.auth.accessToken);
   const authChecked = useSelector(selectAuthChecked);
   const authLoading = useSelector(selectAuthIsLoading);
@@ -113,6 +115,10 @@ const Header = () => {
       return;
     }
 
+    if (categoriesStatus !== "succeeded") {
+      return;
+    }
+
     if (!user || user.role !== "admin") {
       return;
     }
@@ -133,7 +139,7 @@ const Header = () => {
     missingDefaults.forEach((category) => {
       dispatch(createCategory(category)).catch(() => {});
     });
-  }, [categories, dispatch, user]);
+  }, [categories, categoriesStatus, dispatch, user]);
 
   const handleLogout = () => {
     dispatch(logoutUser());
