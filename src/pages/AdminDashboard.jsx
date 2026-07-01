@@ -52,24 +52,12 @@ import {
   selectAllAnnouncements,
 } from "../store/slices/announcementSlice";
 import {
-  fetchAllHeroSlides,
-  createHeroSlide,
-  deleteHeroSlide,
-  selectAllHeroSlides,
-} from "../store/slices/heroSlideSlice";
-import {
   fetchHeroBadges,
   updateHeroBadges,
   updateHeroGenderImages,
   selectHeroBadges,
   selectHeroGenderImages,
 } from "../store/slices/heroBadgeSlice";
-import {
-  fetchAllProductBanners,
-  createProductBanner,
-  deleteProductBanner,
-  selectAllProductBanners,
-} from "../store/slices/productBannerSlice";
 import {
   fetchAllSaleOffers,
   createSaleOffer,
@@ -116,10 +104,8 @@ const AdminDashboard = () => {
   const productPagination = useSelector((state) => state.products.pagination);
   const orderPagination = useSelector((state) => state.orders.pagination);
   const userPagination = useSelector((state) => state.users.pagination);
-  const heroSlides = useSelector(selectAllHeroSlides);
   const heroBadgeImages = useSelector(selectHeroBadges);
   const heroGenderImages = useSelector(selectHeroGenderImages);
-  const productBanners = useSelector(selectAllProductBanners);
   const saleOffers = useSelector(selectAllSaleOffers);
 
   const [activeTab, setActiveTab] = useState("overview");
@@ -149,14 +135,6 @@ const AdminDashboard = () => {
   const [categoryEditImageFile, setCategoryEditImageFile] = useState(null);
   const [categoryEditImagePreview, setCategoryEditImagePreview] = useState("");
   const [savingCategoryEdit, setSavingCategoryEdit] = useState(false);
-  const [productBannerForm, setProductBannerForm] = useState({
-    displayOrder: 0,
-  });
-  const [productBannerImageFile, setProductBannerImageFile] = useState(null);
-  const [productBannerImagePreview, setProductBannerImagePreview] =
-    useState(null);
-  const [uploadingProductBannerImage, setUploadingProductBannerImage] =
-    useState(false);
   const [saleOfferForm, setSaleOfferForm] = useState({
     name: "",
     displayOrder: 0,
@@ -166,11 +144,6 @@ const AdminDashboard = () => {
   const [saleOfferBannerPreview, setSaleOfferBannerPreview] = useState(null);
   const [uploadingSaleOfferBanner, setUploadingSaleOfferBanner] =
     useState(false);
-  const [heroForm, setHeroForm] = useState({
-    displayOrder: 0,
-  });
-  const [heroImageFile, setHeroImageFile] = useState(null);
-  const [heroImagePreview, setHeroImagePreview] = useState(null);
   const [heroBadgeImageFiles, setHeroBadgeImageFiles] = useState([]);
   const [heroBadgeImagePreviews, setHeroBadgeImagePreviews] = useState([]);
   const [updatingHeroBadges, setUpdatingHeroBadges] = useState(false);
@@ -187,7 +160,6 @@ const AdminDashboard = () => {
     male: false,
   });
   const [savingGenderImages, setSavingGenderImages] = useState(false);
-  const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
   const aboutContent = useAboutContent();
   const { fetchAboutContent } = aboutContent;
   const [announcementForm, setAnnouncementForm] = useState({
@@ -406,8 +378,6 @@ const AdminDashboard = () => {
       dispatch(getOrders({ page: 1, limit: 200 }));
       dispatch(getUsers({ page: 1, limit: 200 }));
       dispatch(fetchAllAnnouncements());
-      dispatch(fetchAllHeroSlides());
-      dispatch(fetchAllProductBanners());
       dispatch(fetchAllSaleOffers());
       fetchAboutContent();
     }
@@ -418,7 +388,6 @@ const AdminDashboard = () => {
 
     if (activeTab === "products") {
       dispatch(fetchProducts(getDashboardProductsFetchParams()));
-      dispatch(fetchAllProductBanners());
     } else if (activeTab === "categories") {
       dispatch(fetchCategories());
     } else if (activeTab === "orders") {
@@ -428,7 +397,6 @@ const AdminDashboard = () => {
     } else if (activeTab === "announcements") {
       dispatch(fetchAllAnnouncements());
     } else if (activeTab === "hero") {
-      dispatch(fetchAllHeroSlides());
       dispatch(fetchHeroBadges());
     } else if (activeTab === "sales") {
       dispatch(
@@ -620,79 +588,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleCreateHeroSlide = async (e) => {
-    e.preventDefault();
-
-    if (!heroImageFile) {
-      toast.error("Hero image is required");
-      return;
-    }
-
-    try {
-      setUploadingHeroImage(true);
-      const imageUrl = await uploadDashboardImage(heroImageFile);
-
-      await dispatch(
-        createHeroSlide({
-          image: imageUrl,
-          displayOrder: Number(heroForm.displayOrder || 0),
-        }),
-      ).unwrap();
-      setHeroForm({ displayOrder: 0 });
-      setHeroImageFile(null);
-      setHeroImagePreview(null);
-      toast.success("Hero slide created successfully");
-    } catch (error) {
-      toast.error(error || "Failed to create hero slide");
-      toast.error(
-        error?.message || String(error) || "Failed to create hero slide",
-      );
-    } finally {
-      setUploadingHeroImage(false);
-    }
-  };
-
-  const handleCreateProductBanner = async (e) => {
-    e.preventDefault();
-
-    if (!productBannerImageFile) {
-      toast.error("Banner image is required");
-      return;
-    }
-
-    try {
-      setUploadingProductBannerImage(true);
-      const imageUrl = await uploadDashboardImage(productBannerImageFile);
-      await dispatch(
-        createProductBanner({
-          image: imageUrl,
-          displayOrder: Number(productBannerForm.displayOrder || 0),
-        }),
-      ).unwrap();
-      setProductBannerForm({ displayOrder: 0 });
-      setProductBannerImageFile(null);
-      setProductBannerImagePreview(null);
-      toast.success("Products banner created successfully");
-    } catch (error) {
-      toast.error(error || "Failed to create products banner");
-    } finally {
-      setUploadingProductBannerImage(false);
-    }
-  };
-
-  const handleDeleteProductBanner = async (bannerId) => {
-    if (!window.confirm("Delete this products banner?")) {
-      return;
-    }
-
-    try {
-      await dispatch(deleteProductBanner(bannerId)).unwrap();
-      toast.success("Products banner deleted successfully");
-    } catch (error) {
-      toast.error(error || "Failed to delete products banner");
-    }
-  };
-
   const handleSaleOfferProductToggle = (productId) => {
     setSaleOfferForm((prev) => {
       const selected = new Set(prev.productIds);
@@ -760,19 +655,6 @@ const AdminDashboard = () => {
       toast.success("Sale offer deleted successfully");
     } catch (error) {
       toast.error(error || "Failed to delete sale offer");
-    }
-  };
-
-  const handleDeleteHeroSlide = async (slideId) => {
-    if (!window.confirm("Delete this hero slide?")) {
-      return;
-    }
-
-    try {
-      await dispatch(deleteHeroSlide(slideId)).unwrap();
-      toast.success("Hero slide deleted successfully");
-    } catch (error) {
-      toast.error(error || "Failed to delete hero slide");
     }
   };
 
@@ -1437,13 +1319,6 @@ const AdminDashboard = () => {
           {/* Hero Tab */}
           {activeTab === "hero" && (
             <HeroTab
-              handleCreateHeroSlide={handleCreateHeroSlide}
-              heroImagePreview={heroImagePreview}
-              setHeroImageFile={setHeroImageFile}
-              setHeroImagePreview={setHeroImagePreview}
-              heroForm={heroForm}
-              setHeroForm={setHeroForm}
-              uploadingHeroImage={uploadingHeroImage}
               heroBadgeImages={heroBadgeImages}
               handleRemoveSavedHeroBadge={handleRemoveSavedHeroBadge}
               handleSaveHeroBadges={handleSaveHeroBadges}
@@ -1457,8 +1332,6 @@ const AdminDashboard = () => {
               handleGenderImageChange={handleGenderImageChange}
               handleRemoveGenderImage={handleRemoveGenderImage}
               savingGenderImages={savingGenderImages}
-              heroSlides={heroSlides}
-              handleDeleteHeroSlide={handleDeleteHeroSlide}
             />
           )}
 

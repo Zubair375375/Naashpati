@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { FaChevronLeft, FaChevronRight, FaChevronUp } from "react-icons/fa";
+import { FaChevronRight, FaChevronUp } from "react-icons/fa";
 import {
   MdGridView,
   MdFormatListBulleted,
@@ -16,16 +16,9 @@ import {
   selectProductsStatus,
   selectProductsError,
 } from "../store/slices/productSlice";
-import {
-  fetchProductBanners,
-  selectProductBanners,
-} from "../store/slices/productBannerSlice";
-import {
-  fetchHeroSlides,
-  selectHeroSlides,
-} from "../store/slices/heroSlideSlice";
 import ProductCard from "../components/ProductCard";
 import Loader from "../components/Loader";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 
 const getInitialViewMode = () => {
   const validModes = ["grid", "list", "compact", "tiny"];
@@ -42,12 +35,8 @@ const Products = ({ collectionType = "" }) => {
   const categories = useSelector(selectCategories);
   const status = useSelector(selectProductsStatus);
   const error = useSelector(selectProductsError);
-  const productBanners = useSelector(selectProductBanners);
-  const heroSlides = useSelector(selectHeroSlides);
   const initialCategory = searchParams.get("category") || "";
   const lensesOnly = searchParams.get("lenses") === "true";
-  const selectedBannerId = searchParams.get("banner") || "";
-  const selectedHeroBannerId = searchParams.get("heroBanner") || "";
   const rawGenderCategory = String(
     searchParams.get("gender-category") || searchParams.get("collection") || "",
   )
@@ -65,11 +54,7 @@ const Products = ({ collectionType = "" }) => {
     }
     return "";
   })();
-  const [currentBanner, setCurrentBanner] = useState(0);
-  const [isBannerTransition, setIsBannerTransition] = useState(true);
   const [viewMode, setViewMode] = useState(getInitialViewMode);
-  const API_URL = import.meta.env.VITE_API_URL || "/api";
-  const API_ORIGIN = API_URL.replace(/\/api\/?$/, "");
 
   const [filters, setFilters] = useState({
     category: initialCategory,
@@ -88,6 +73,10 @@ const Products = ({ collectionType = "" }) => {
   const regularCategories = categories.filter(
     (category) =>
       !GENDER_CATEGORY_VALUES.has(String(category.value || "").toLowerCase()),
+  );
+  const featuredCategories = useMemo(
+    () => regularCategories.slice(0, 8),
+    [regularCategories],
   );
 
   const isGenderRoute =
@@ -112,110 +101,13 @@ const Products = ({ collectionType = "" }) => {
 
     dispatch(fetchProducts(fetchParams));
     dispatch(fetchCategories());
-    dispatch(fetchProductBanners());
-    dispatch(fetchHeroSlides());
-  }, [dispatch, rawGenderCategory, collectionType, initialCategory, lensesOnly]);
-
-  const bannerSlides = useMemo(() => {
-    if (productBanners.length > 0) {
-      return productBanners.map((banner) => ({
-        _id: banner._id,
-        image: banner.image?.startsWith("http")
-          ? banner.image
-          : `${API_ORIGIN}${banner.image}`,
-      }));
-    }
-
-    return [];
-  }, [API_ORIGIN, productBanners]);
-
-  const loopedBannerSlides = useMemo(() => {
-    if (bannerSlides.length <= 1) return bannerSlides;
-    return [...bannerSlides, bannerSlides[0]];
-  }, [bannerSlides]);
-
-  const selectedBanner = useMemo(() => {
-    if (!selectedBannerId) {
-      return null;
-    }
-
-    return (
-      bannerSlides.find((banner) => banner._id === selectedBannerId) || null
-    );
-  }, [bannerSlides, selectedBannerId]);
-
-  const heroBannerSlides = useMemo(() => {
-    if (heroSlides.length === 0) {
-      return [];
-    }
-
-    return heroSlides.map((slide) => ({
-      _id: slide._id,
-      image:
-        slide.image?.startsWith("http://") ||
-        slide.image?.startsWith("https://")
-          ? slide.image
-          : `${API_ORIGIN}${slide.image}`,
-    }));
-  }, [API_ORIGIN, heroSlides]);
-
-  const selectedHeroBanner = useMemo(() => {
-    if (!selectedHeroBannerId) {
-      return null;
-    }
-
-    return (
-      heroBannerSlides.find((banner) => banner._id === selectedHeroBannerId) ||
-      null
-    );
-  }, [heroBannerSlides, selectedHeroBannerId]);
-
-  useEffect(() => {
-    setCurrentBanner(0);
-    setIsBannerTransition(true);
-  }, [bannerSlides.length]);
-
-  useEffect(() => {
-    if (bannerSlides.length <= 1) return undefined;
-    const intervalId = window.setInterval(() => {
-      setCurrentBanner((prev) => prev + 1);
-    }, 3000);
-    return () => window.clearInterval(intervalId);
-  }, [bannerSlides.length]);
-
-  useEffect(() => {
-    if (bannerSlides.length <= 1) return;
-    if (currentBanner > bannerSlides.length) {
-      setIsBannerTransition(false);
-      setCurrentBanner(0);
-    }
-  }, [currentBanner, bannerSlides.length]);
-
-  useEffect(() => {
-    if (isBannerTransition) return undefined;
-    const frameId = window.requestAnimationFrame(() =>
-      setIsBannerTransition(true),
-    );
-    return () => window.cancelAnimationFrame(frameId);
-  }, [isBannerTransition]);
-
-  const handleBannerTransitionEnd = () => {
-    if (bannerSlides.length <= 1) return;
-    if (currentBanner === bannerSlides.length) {
-      setIsBannerTransition(false);
-      setCurrentBanner(0);
-    }
-  };
-
-  const handlePrevBanner = () => {
-    setCurrentBanner(
-      (prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length,
-    );
-  };
-
-  const handleNextBanner = () => {
-    setCurrentBanner((prev) => prev + 1);
-  };
+  }, [
+    dispatch,
+    rawGenderCategory,
+    collectionType,
+    initialCategory,
+    lensesOnly,
+  ]);
 
   useEffect(() => {
     setFilters((prev) => ({
@@ -354,87 +246,54 @@ const Products = ({ collectionType = "" }) => {
 
   return (
     <div>
-      <section className="relative mb-8 overflow-hidden">
-        <div className="relative h-[220px] sm:h-[340px] lg:h-[560px]">
-          {selectedHeroBanner ? (
-            <img
-              src={selectedHeroBanner.image}
-              alt="Selected hero banner"
-              className="h-full w-full object-cover"
-            />
-          ) : selectedBanner ? (
-            <img
-              src={selectedBanner.image}
-              alt="Selected products banner"
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <>
-              <div
-                className={`flex h-full ${
-                  isBannerTransition
-                    ? "transition-transform duration-700 ease-in-out"
-                    : ""
-                }`}
-                style={{ transform: `translateX(-${currentBanner * 100}%)` }}
-                onTransitionEnd={handleBannerTransitionEnd}
-              >
-                {loopedBannerSlides.map((banner, index) => (
-                  <div
-                    key={`${banner._id}-${index}`}
-                    className="relative h-full min-w-full"
-                  >
-                    <img
-                      src={banner.image}
-                      alt="Products banner"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
+      {featuredCategories.length > 0 && (
+        <section className="w-full border-b border-gray-100 bg-white px-3 py-6 lg:px-4 xl:px-6 2xl:px-8">
+          <div className="mb-4 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => handleFilterChange("category", "")}
+              className="text-xs font-medium text-gray-600 hover:text-[#68a300]"
+            >
+              All products
+            </button>
+          </div>
 
-              {bannerSlides.length > 1 && (
-                <>
-                  <button
-                    type="button"
-                    onClick={handlePrevBanner}
-                    className="absolute left-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-gray-700 shadow transition hover:bg-white"
-                    aria-label="Previous products banner"
-                  >
-                    <FaChevronLeft />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNextBanner}
-                    className="absolute right-3 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/85 text-gray-700 shadow transition hover:bg-white"
-                    aria-label="Next products banner"
-                  >
-                    <FaChevronRight />
-                  </button>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+            {featuredCategories.map((category) => {
+              const isActive = filters.category === category.value;
 
-                  <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2">
-                    {bannerSlides.map((banner, index) => (
-                      <button
-                        key={banner._id}
-                        type="button"
-                        onClick={() => setCurrentBanner(index)}
-                        className={`w-3 h-3 rounded-full border border-black/70 transition p-0 m-0
-                          ${
-                            index === currentBanner % bannerSlides.length
-                              ? "bg-[#232323]"
-                              : "bg-none"
-                          }
-                        `}
-                        aria-label={`Go to products banner ${index + 1}`}
+              return (
+                <button
+                  key={category._id || category.value}
+                  type="button"
+                  onClick={() => handleFilterChange("category", category.value)}
+                  className={`group flex flex-col items-center rounded-xl bg-white px-3 py-3 text-center transition hover:-translate-y-0.5 hover:shadow-md ${
+                    isActive ? "shadow-md" : ""
+                  }`}
+                >
+                  <div className="h-36 w-36 overflow-hidden rounded-full bg-gray-100 lg:h-44 lg:w-44">
+                    {category.image ? (
+                      <img
+                        src={resolveMediaUrl(category.image)}
+                        alt={category.name}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
                       />
-                    ))}
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gray-50 text-lg font-semibold text-gray-400">
+                        {(category.name || "?").slice(0, 1).toUpperCase()}
+                      </div>
+                    )}
                   </div>
-                </>
-              )}
-            </>
-          )}
-        </div>
-      </section>
+                  <p className="mt-2 line-clamp-1 text-xs font-medium text-gray-800 group-hover:text-[#68a300]">
+                    {category.name}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <div className="w-full px-3 py-8 lg:px-4 xl:px-6 2xl:px-8">
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[210px,minmax(0,1fr)] 2xl:grid-cols-[220px,minmax(0,1fr)]">

@@ -37,8 +37,7 @@ const slugifyCategory = (value = "") =>
 const Header = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [shouldFocusMobileSearch, setShouldFocusMobileSearch] =
-    useState(false);
+  const [shouldFocusMobileSearch, setShouldFocusMobileSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
