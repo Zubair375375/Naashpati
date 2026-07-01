@@ -1,13 +1,13 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { FaChevronRight, FaChevronUp } from "react-icons/fa";
 import {
   MdGridView,
   MdFormatListBulleted,
   MdGridOn,
   MdApps,
 } from "react-icons/md";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import {
   fetchCategories,
   fetchProducts,
@@ -55,6 +55,7 @@ const Products = ({ collectionType = "" }) => {
     return "";
   })();
   const [viewMode, setViewMode] = useState(getInitialViewMode);
+  const categoryScrollRef = useRef(null);
 
   const [filters, setFilters] = useState({
     category: initialCategory,
@@ -78,6 +79,18 @@ const Products = ({ collectionType = "" }) => {
     () => regularCategories.slice(0, 8),
     [regularCategories],
   );
+
+  const scrollCategories = (direction) => {
+    const element = categoryScrollRef.current;
+    if (!element) {
+      return;
+    }
+
+    element.scrollBy({
+      left: direction * 360,
+      behavior: "smooth",
+    });
+  };
 
   const isGenderRoute =
     normalizedCollection === "male" || normalizedCollection === "female";
@@ -247,99 +260,43 @@ const Products = ({ collectionType = "" }) => {
   return (
     <div>
       {featuredCategories.length > 0 && (
-        <section className="w-full border-b border-gray-100 bg-white px-3 py-6 lg:px-4 xl:px-6 2xl:px-8">
-          <div className="mb-4 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => handleFilterChange("category", "")}
-              className="text-xs font-medium text-gray-600 hover:text-[#68a300]"
-            >
-              All products
-            </button>
-          </div>
+        <section className="border-b border-gray-100 bg-white px-3 py-6 lg:px-4 xl:px-6 2xl:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-4 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => handleFilterChange("category", "")}
+                className="text-xs font-medium text-gray-600 hover:text-[#68a300]"
+              >
+                All products
+              </button>
+            </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
-            {featuredCategories.map((category) => {
-              const isActive = filters.category === category.value;
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => scrollCategories(-1)}
+                className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-md transition hover:bg-white"
+                aria-label="Scroll categories left"
+              >
+                <FaChevronLeft className="text-sm" />
+              </button>
 
-              return (
-                <button
-                  key={category._id || category.value}
-                  type="button"
-                  onClick={() => handleFilterChange("category", category.value)}
-                  className={`group flex flex-col items-center rounded-xl bg-white px-3 py-3 text-center transition hover:-translate-y-0.5 hover:shadow-md ${
-                    isActive ? "shadow-md" : ""
-                  }`}
-                >
-                  <div className="h-36 w-36 overflow-hidden rounded-full bg-gray-100 lg:h-44 lg:w-44">
-                    {category.image ? (
-                      <img
-                        src={resolveMediaUrl(category.image)}
-                        alt={category.name}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gray-50 text-lg font-semibold text-gray-400">
-                        {(category.name || "?").slice(0, 1).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                  <p className="mt-2 line-clamp-1 text-xs font-medium text-gray-800 group-hover:text-[#68a300]">
-                    {category.name}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-      )}
+              <button
+                type="button"
+                onClick={() => scrollCategories(1)}
+                className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-md transition hover:bg-white"
+                aria-label="Scroll categories right"
+              >
+                <FaChevronRight className="text-sm" />
+              </button>
 
-      <div className="w-full px-3 py-8 lg:px-4 xl:px-6 2xl:px-8">
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[210px,minmax(0,1fr)] 2xl:grid-cols-[220px,minmax(0,1fr)]">
-          <aside className="space-y-6">
-            <div className="bg-white lg:sticky lg:top-24">
-              <div className="mb-5 flex items-center justify-between border-b border-gray-300 pb-4">
-                <h2 className="text-[14px] font-bold uppercase tracking-[0.12em] text-gray-900">
-                  Categories
-                </h2>
-                <FaChevronUp className="text-xs text-gray-500" />
-              </div>
-
-              <div className="space-y-1">
-                <button
-                  type="button"
-                  onClick={() => handleFilterChange("category", "")}
-                  className={`group flex w-full items-center gap-3 border-0 py-2 text-left text-[12px] outline-none ring-0 transition hover:border-0 hover:outline-none hover:ring-0 focus:outline-none focus:ring-0 ${
-                    !filters.category && !normalizedCollection
-                      ? "font-medium text-[#68a300]"
-                      : "text-gray-900 hover:text-[#68a300]"
-                  }`}
-                >
-                  <span
-                    className={`text-[10px] ${
-                      !filters.category && !normalizedCollection
-                        ? "text-gray-500"
-                        : "text-transparent"
-                    }`}
-                    aria-hidden="true"
-                  >
-                    <FaChevronRight />
-                  </span>
-                  <span
-                    className={`text-[12px] relative inline-block after:absolute after:bottom-[-2px] after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
-                      !filters.category
-                        ? "after:w-full"
-                        : "after:w-0 group-hover:after:w-full"
-                    }`}
-                  >
-                    All products
-                  </span>
-                </button>
-                {genderCategories.map((category) => {
-                  const isActiveGender =
-                    normalizedCollection &&
-                    category.value === `${normalizedCollection}-collection`;
+              <div
+                ref={categoryScrollRef}
+                className="flex flex-nowrap gap-2 overflow-x-auto px-14 pb-2 pt-1 sm:gap-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {featuredCategories.map((category) => {
+                  const isActive = filters.category === category.value;
 
                   return (
                     <button
@@ -348,70 +305,38 @@ const Products = ({ collectionType = "" }) => {
                       onClick={() =>
                         handleFilterChange("category", category.value)
                       }
-                      className={`group flex w-full items-center gap-3 border-0 py-2 text-left text-[12px] outline-none ring-0 transition hover:border-0 hover:outline-none hover:ring-0 focus:outline-none focus:ring-0 ${
-                        isActiveGender
-                          ? "font-medium text-[#68a300]"
-                          : "text-gray-900 hover:text-[#68a300]"
+                      className={`group flex min-w-[138px] shrink-0 flex-col items-center rounded-xl bg-white px-2 py-3 text-center transition hover:-translate-y-0.5 hover:shadow-md sm:min-w-[160px] sm:px-3 ${
+                        isActive ? "shadow-md" : ""
                       }`}
                     >
-                      <span
-                        className={`text-[10px] ${
-                          isActiveGender ? "text-gray-500" : "text-transparent"
-                        }`}
-                        aria-hidden="true"
-                      >
-                        <FaChevronRight />
-                      </span>
-                      <span
-                        className={`relative inline-block after:absolute after:bottom-[-2px] after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
-                          isActiveGender
-                            ? "after:w-full"
-                            : "after:w-0 group-hover:after:w-full"
-                        }`}
-                      >
+                      <div className="h-24 w-24 overflow-hidden rounded-full bg-gray-100 sm:h-28 sm:w-28 md:h-32 md:w-32 lg:h-44 lg:w-44">
+                        {category.image ? (
+                          <img
+                            src={resolveMediaUrl(category.image)}
+                            alt={category.name}
+                            className="h-full w-full object-cover"
+                            loading="lazy"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-gray-50 text-lg font-semibold text-gray-400">
+                            {(category.name || "?").slice(0, 1).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <p className="mt-2 line-clamp-1 text-xs font-medium text-gray-800 group-hover:text-[#68a300]">
                         {category.name}
-                      </span>
+                      </p>
                     </button>
                   );
                 })}
-                {regularCategories.map((category) => (
-                  <button
-                    key={category._id || category.value}
-                    type="button"
-                    onClick={() =>
-                      handleFilterChange("category", category.value)
-                    }
-                    className={`group flex w-full items-center gap-3 border-0 py-2 text-left text-[12px] outline-none ring-0 transition hover:border-0 hover:outline-none hover:ring-0 focus:outline-none focus:ring-0 ${
-                      filters.category === category.value
-                        ? "font-medium text-[#68a300]"
-                        : "text-gray-900 hover:text-[#68a300]"
-                    }`}
-                  >
-                    <span
-                      className={`text-[10px] ${
-                        filters.category === category.value
-                          ? "text-gray-500"
-                          : "text-transparent"
-                      }`}
-                      aria-hidden="true"
-                    >
-                      <FaChevronRight />
-                    </span>
-                    <span
-                      className={`relative inline-block after:absolute after:bottom-[-2px] after:left-0 after:h-px after:bg-current after:transition-all after:duration-300 ${
-                        filters.category === category.value
-                          ? "after:w-full"
-                          : "after:w-0 group-hover:after:w-full"
-                      }`}
-                    >
-                      {category.name}
-                    </span>
-                  </button>
-                ))}
               </div>
             </div>
-          </aside>
+          </div>
+        </section>
+      )}
 
+      <div className="px-3 py-8 lg:px-4 xl:px-6 2xl:px-8">
+        <div className="mx-auto max-w-7xl">
           <div className="mb-8 min-w-0">
             <div className="mb-6 rounded-lg bg-white p-6 shadow-md">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -568,7 +493,7 @@ const Products = ({ collectionType = "" }) => {
                       sortBy: "name",
                     })
                   }
-                  className="mt-4 bg-[#ffffff] px-4 py-2 text-[14px] text-[#232323] border border-[#232323] hover:bg-[#232323] hover:text-[#ffffff] hover:border-[#232323] transition-colors duration-300"
+                  className="mt-4 border border-[#232323] bg-[#ffffff] px-4 py-2 text-[14px] text-[#232323] transition-colors duration-300 hover:border-[#232323] hover:bg-[#232323] hover:text-[#ffffff]"
                 >
                   Clear Filters
                 </button>
