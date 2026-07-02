@@ -70,6 +70,13 @@ const TrendingProducts = () => {
   const hasProducts = visibleProducts.length > 0;
   const showEmptyState = !showLoader && !error && !hasProducts;
   const trendingAvailable = trendingProducts.length > 0;
+  const hasNewArrivals = newArrivals.length > 0;
+
+  useEffect(() => {
+    if (!hasNewArrivals && activeTab === "new-arrivals") {
+      setActiveTab("best-sellings");
+    }
+  }, [activeTab, hasNewArrivals]);
 
   return (
     <section className="trending-section">
@@ -89,14 +96,18 @@ const TrendingProducts = () => {
             >
               BEST SELLINGS
             </button>
-            <span className="trending-tab-divider">/</span>
-            <button
-              type="button"
-              className={`trending-tab ${activeTab === "new-arrivals" ? "trending-tab-active" : ""}`}
-              onClick={() => setActiveTab("new-arrivals")}
-            >
-              NEW ARRIVALS
-            </button>
+            {hasNewArrivals && (
+              <>
+                <span className="trending-tab-divider">/</span>
+                <button
+                  type="button"
+                  className={`trending-tab ${activeTab === "new-arrivals" ? "trending-tab-active" : ""}`}
+                  onClick={() => setActiveTab("new-arrivals")}
+                >
+                  NEW ARRIVALS
+                </button>
+              </>
+            )}
           </div>
         </div>
 

@@ -1,7 +1,14 @@
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { MdEco, MdShield, MdLocalShipping, MdFavorite } from "react-icons/md";
+import {
+  MdShield,
+  MdLocalShipping,
+  MdCalendarToday,
+  MdMonetizationOn,
+  MdAdd,
+  MdRemove,
+} from "react-icons/md";
 import { FaSeedling } from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import {
@@ -38,6 +45,33 @@ const BADGE_MARQUEE_STYLE = `
 
 const LATEST_PRODUCTS_BATCH_SIZE = 4;
 const LENSES_PRODUCTS_BATCH_SIZE = 4;
+const HOME_FAQS = [
+  {
+    question: "How can I customize my lens package?",
+    answer:
+      "You can choose lens type, power options, and add-ons on the product details page before adding to cart.",
+  },
+  {
+    question: "Can I reorder my previous items?",
+    answer:
+      "Yes. Visit your account orders page and use the reorder action to place the same items again quickly.",
+  },
+  {
+    question: "Can I restrict access to specific products?",
+    answer:
+      "Selected products can be set as private or member-only through catalog settings in the admin dashboard.",
+  },
+  {
+    question: "Does the product page show key details clearly?",
+    answer:
+      "Yes. Each product page includes highlights, pricing, ratings, stock, and shipping-related information.",
+  },
+  {
+    question: "How can I contact support for order help?",
+    answer:
+      "Use the contact page or order support options from your account dashboard for quick assistance.",
+  },
+];
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -55,6 +89,7 @@ const Home = () => {
     LENSES_PRODUCTS_BATCH_SIZE,
   );
   const [lensesProductsLoading, setLensesProductsLoading] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const categoryScrollRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -229,6 +264,59 @@ const Home = () => {
         </div>
       </section>
 
+      <section className="bg-white px-6 py-8">
+        <div className="mx-auto max-w-7xl rounded-lg bg-white-100/80 px-4 py-5 sm:px-6">
+          <div className="grid grid-cols-1 gap-4 text-center sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            <div className="flex items-center justify-center gap-2 lg:justify-start">
+              <MdLocalShipping className="text-4xl lg:text-5xl text-[#68a300]" />
+              <h3
+                style={{
+                  fontFamily: "Poppins, sans-serif, Inter, system-ui",
+                  fontSize: "14px",
+                }}
+              >
+                Free Shipping
+              </h3>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 lg:justify-start">
+              <MdCalendarToday className="text-4xl lg:text-5xl text-[#68a300]" />
+              <h3
+                style={{
+                  fontFamily: "Poppins, sans-serif, Inter, system-ui",
+                  fontSize: "14px",
+                }}
+              >
+                Cash on Delivery in all Pakistan
+              </h3>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 lg:justify-start">
+              <MdMonetizationOn className="text-4xl lg:text-5xl text-[#68a300]" />
+              <h3
+                style={{
+                  fontFamily: "Poppins, sans-serif, Inter, system-ui",
+                  fontSize: "14px",
+                }}
+              >
+                100% Money Back Guaranteed
+              </h3>
+            </div>
+
+            <div className="flex items-center justify-center gap-2 lg:justify-start">
+              <MdShield className="text-4xl lg:text-5xl text-[#68a300]" />
+              <h3
+                style={{
+                  fontFamily: "Poppins, sans-serif, Inter, system-ui",
+                  fontSize: "14px",
+                }}
+              >
+                Quality Assured
+              </h3>
+            </div>
+          </div>
+        </div>
+      </section>
       {/* Trending Products */}
       <TrendingProducts />
 
@@ -242,12 +330,6 @@ const Home = () => {
             >
               Shop by Category
             </h2>
-            <Link
-              to="/products"
-              className="text-sm font-semibold text-gray-600 hover:text-gray-900"
-            >
-              View all
-            </Link>
           </div>
 
           <div className="relative">
@@ -331,12 +413,6 @@ const Home = () => {
             >
               Latest Collection
             </h2>
-            <Link
-              to="/products?sort=newest"
-              className="text-sm font-semibold text-gray-600 hover:text-gray-900"
-            >
-              View all
-            </Link>
           </div>
 
           {latestProductsLoading ? (
@@ -488,54 +564,56 @@ const Home = () => {
         </section>
       )}
 
-      {/* Features */}
-      <section className="py-16 bg-white grid grid-cols-2 md:grid-cols-4 gap-8 text-center px-6">
-        <div>
-          <MdEco className="text-5xl mx-auto text-[#68a300] my-3" />
-          <h3
-            style={{
-              fontFamily: "Poppins, sans-serif, Inter, system-ui",
-              fontSize: "16px",
-            }}
+      <section className="bg-white px-6 pb-16 pt-6">
+        <div className="mx-auto max-w-7xl rounded-md bg-[#ffffff] px-4 py-6 sm:px-6">
+          <h2
+            className="mb-4 text-center text-2xl font-bold text-gray-700"
+            style={{ fontFamily: "Poppins, sans-serif, Inter, system-ui" }}
           >
-            100% Organic
-          </h3>
-        </div>
+            FAQ
+          </h2>
 
-        <div>
-          <MdShield className="text-5xl mx-auto text-[#68a300] my-3" />
-          <h3
-            style={{
-              fontFamily: "Poppins, sans-serif, Inter, system-ui",
-              fontSize: "16px",
-            }}
-          >
-            Quality Assured
-          </h3>
-        </div>
+          <div className="divide-y divide-gray-200 bg-white">
+            {HOME_FAQS.map((faq, index) => {
+              const isOpen = openFaqIndex === index;
 
-        <div>
-          <MdLocalShipping className="text-5xl mx-auto text-[#68a300] my-3" />
-          <h3
-            style={{
-              fontFamily: "Poppins, sans-serif, Inter, system-ui",
-              fontSize: "16px",
-            }}
-          >
-            Fast Shipping
-          </h3>
-        </div>
+              return (
+                <div key={faq.question}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenFaqIndex((current) =>
+                        current === index ? -1 : index,
+                      )
+                    }
+                    className="flex w-full items-center justify-between px-3 py-3 text-left text-sm font-bold text-gray-700 transition hover:bg-gray-50 sm:px-4"
+                    aria-expanded={isOpen}
+                  >
+                    <span>{faq.question}</span>
+                    {isOpen ? (
+                      <MdRemove className="h-5 w-5 text-[#68a300]" />
+                    ) : (
+                      <MdAdd className="h-5 w-5 text-gray-500" />
+                    )}
+                  </button>
 
-        <div>
-          <MdFavorite className="text-5xl mx-auto text-[#68a300] my-3" />
-          <h3
-            style={{
-              fontFamily: "Poppins, sans-serif, Inter, system-ui",
-              fontSize: "16px",
-            }}
-          >
-            Customer Care
-          </h3>
+                  <div
+                    className={`grid overflow-hidden transition-all duration-300 ease-in-out ${
+                      isOpen
+                        ? "grid-rows-[1fr] opacity-100"
+                        : "grid-rows-[0fr] opacity-0"
+                    }`}
+                  >
+                    <div className="min-h-0">
+                      <div className="border-t border-gray-100 bg-white px-3 py-3 text-xs leading-6 text-gray-600 sm:px-4 sm:text-sm">
+                        {faq.answer}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
     </div>

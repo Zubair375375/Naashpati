@@ -163,6 +163,25 @@ const ProductDetail = () => {
       reviewCount
     : 0;
 
+  const galleryImages = (() => {
+    const normalized = Array.isArray(product?.images)
+      ? product.images
+          .map((entry) => resolveMediaUrl(entry?.url || entry || ""))
+          .filter(Boolean)
+      : [];
+
+    const fallbackPrimary = resolveMediaUrl(product?.image || "");
+    if (fallbackPrimary && !normalized.includes(fallbackPrimary)) {
+      normalized.unshift(fallbackPrimary);
+    }
+
+    if (normalized.length === 0) {
+      return ["/placeholder-product.jpg"];
+    }
+
+    return normalized;
+  })();
+
   const formatReviewDate = (value) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "";
@@ -602,6 +621,12 @@ const ProductDetail = () => {
   }, [product]);
 
   useEffect(() => {
+    if (selectedImage >= galleryImages.length) {
+      setSelectedImage(0);
+    }
+  }, [galleryImages.length, selectedImage]);
+
+  useEffect(() => {
     if (!product?._id) return;
 
     const recentlyViewed = getRecentlyViewedItems().filter(
@@ -797,11 +822,7 @@ const ProductDetail = () => {
           <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
               <img
-                src={
-                  product.image
-                    ? resolveMediaUrl(product.image)
-                    : resolveMediaUrl(product.images?.[selectedImage]?.url)
-                }
+                src={galleryImages[selectedImage] || "/placeholder-product.jpg"}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
@@ -816,9 +837,9 @@ const ProductDetail = () => {
             ) : null}
 
             {/* Thumbnail Images */}
-            {product.images && product.images.length > 1 && (
+            {galleryImages.length > 1 && (
               <div className="flex space-x-2 overflow-x-auto">
-                {product.images.map((image, index) => (
+                {galleryImages.map((imageSrc, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
@@ -829,7 +850,7 @@ const ProductDetail = () => {
                     }`}
                   >
                     <img
-                      src={image.url || image || "/placeholder-product.jpg"}
+                      src={imageSrc}
                       alt={`${product.name} ${index + 1}`}
                       className="w-full h-full object-cover"
                     />

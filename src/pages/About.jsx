@@ -137,7 +137,6 @@ const About = () => {
   const [healthPrioritySection, setHealthPrioritySection] = useState(
     defaultHealthPrioritySection,
   );
-  const [teamMembers, setTeamMembers] = useState([]);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
 
   useEffect(() => {
@@ -225,12 +224,6 @@ const About = () => {
             ? result.data.healthPriorityImages
             : [],
         });
-
-        const remoteTeamMembers = Array.isArray(result?.data?.teamMembers)
-          ? result.data.teamMembers
-          : [];
-
-        setTeamMembers(remoteTeamMembers);
       } catch {
         setAboutVideoUrl("");
         setFacilitySection(defaultFacilitySection);
@@ -238,7 +231,6 @@ const About = () => {
         setWhyNutrifactorSection(defaultWhyNutrifactorSection);
         setMissionSection(defaultMissionSection);
         setHealthPrioritySection(defaultHealthPrioritySection);
-        setTeamMembers([]);
       }
     };
 
@@ -634,53 +626,6 @@ const About = () => {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* Team */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="text-center mb-14">
-          <span className="inline-block bg-[#68a300]/10 text-[#4a7a00] text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
-            The People Behind the Plants
-          </span>
-          <h2 className="font-bold text-gray-900 text-[24px]">Meet Our Team</h2>
-        </div>
-        {teamMembers.length > 0 ? (
-          <div className="flex flex-wrap justify-center gap-10">
-            {teamMembers.map((member, index) => (
-              <div
-                key={`${member.name}-${index}`}
-                className="w-full text-center group sm:w-[calc(50%-1.25rem)] lg:w-[calc(33.333%-1.75rem)]"
-              >
-                <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-5 shadow-medium border border-[#d8e6bf] bg-[#f3f8ea]">
-                  {member.image ? (
-                    <img
-                      src={resolveMediaUrl(member.image)}
-                      alt={`${member.name || "Team member"} profile`}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="h-full w-full flex items-center justify-center text-[11px] font-semibold text-[#4a7a00]">
-                      No Image
-                    </div>
-                  )}
-                </div>
-                <h3 className="text-xl font-bold text-gray-900">
-                  {member.name || "No Content"}
-                </h3>
-                <p className="text-[#68a300] font-semibold text-sm mb-3">
-                  {member.role || "No Content"}
-                </p>
-                <p className="mx-auto max-w-[18rem] px-1 text-gray-500 leading-relaxed text-sm">
-                  {member.bio || "Team member bio is not available right now."}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 px-6 py-10 text-center text-gray-500">
-            No team members added yet.
-          </div>
-        )}
       </section>
 
       {/* Certifications */}
