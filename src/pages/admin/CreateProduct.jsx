@@ -46,6 +46,7 @@ const CreateProduct = ({
   const isLoading = useSelector(selectProductsStatus);
   const error = useSelector(selectProductsError);
   const categories = useSelector(selectCategories);
+  const accessToken = useSelector((state) => state.auth.accessToken);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -66,7 +67,6 @@ const CreateProduct = ({
     sku: "",
     barcode: "",
     stock: "0",
-    image: null,
     thumbnail: "",
     videoUrl: "",
     status: "published",
@@ -102,7 +102,8 @@ const CreateProduct = ({
     },
     isActive: true,
   });
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [uploading, setUploading] = useState(false);
   const defaultCategoriesEnsured = useRef(false);
 
@@ -294,17 +295,34 @@ const CreateProduct = ({
     setFormData((prev) => ({ ...prev, faqContent: value }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        image: file,
-      }));
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => setImagePreview(e.target.result);
-      reader.readAsDataURL(file);
+  const readFilesAsDataUrls = async (files) =>
+    Promise.all(
+      files.map(
+        (file) =>
+          new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result || ""));
+            reader.onerror = () => reject(new Error("Failed to read file"));
+            reader.readAsDataURL(file);
+          }),
+      ),
+    );
+
+  const handleImageChange = async (e) => {
+    const files = Array.from(e.target.files || []);
+    setImageFiles(files);
+
+    if (files.length === 0) {
+      setImagePreviews([]);
+      return;
+    }
+
+    try {
+      const previews = await readFilesAsDataUrls(files);
+      setImagePreviews(previews.filter(Boolean));
+    } catch {
+      setImagePreviews([]);
+      toast.error("Unable to generate image previews.");
     }
   };
 
@@ -312,9 +330,17 @@ const CreateProduct = ({
     const formDataUpload = new FormData();
     formDataUpload.append("image", file);
 
-    // Token is stored JSON-stringified, so parse it before use
     const rawToken = localStorage.getItem("accessToken");
-    const token = rawToken ? JSON.parse(rawToken) : null;
+    let token = null;
+    if (accessToken) {
+      token = accessToken;
+    } else if (rawToken) {
+      try {
+        token = JSON.parse(rawToken);
+      } catch {
+        token = rawToken;
+      }
+    }
 
     const response = await fetch(
       `${import.meta.env.VITE_API_URL || "/api"}/upload`,
@@ -325,9 +351,15 @@ const CreateProduct = ({
       },
     );
 
-    if (!response.ok) throw new Error("Failed to upload image");
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(result?.error || "Failed to upload image");
+    }
 
-    const result = await response.json();
+    if (!result?.data?.url) {
+      throw new Error("Upload succeeded but image URL is missing");
+    }
+
     return result.data; // { url: "/uploads/filename", public_id: "filename" }
   };
 
@@ -352,7 +384,6 @@ const CreateProduct = ({
       sku,
       barcode,
       stock,
-      image,
       thumbnail,
       videoUrl,
       status,
@@ -514,20 +545,48 @@ const CreateProduct = ({
         images: [],
       };
 
-      if (image) {
+      if (imageFiles.length > 0) {
         setUploading(true);
-        toast.loading("Uploading image...", { id: "upload" });
+        toast.loading("Uploading images...", { id: "upload" });
         try {
-          const imageData = await uploadImage(image);
-          productData.image = imageData.url; // e.g. "/uploads/abc.jpg"
-          if (!productData.thumbnail) {
-            productData.thumbnail = imageData.url;
+          const settledUploads = await Promise.allSettled(
+            imageFiles.map((file) => uploadImage(file)),
+          );
+
+          const uploadedImages = settledUploads
+            .filter((item) => item.status === "fulfilled")
+            .map((item) => item.value)
+            .filter((item) => item?.url);
+
+          const failedUploads = settledUploads.filter(
+            (item) => item.status === "rejected",
+          );
+
+          if (uploadedImages.length > 0) {
+            const primaryImage = uploadedImages[0];
+            productData.images = uploadedImages;
+            productData.image = primaryImage?.url || "";
+            if (!productData.thumbnail) {
+              productData.thumbnail = primaryImage?.url || "";
+            }
           }
-          productData.images = [imageData];
-          toast.success("Image uploaded", { id: "upload" });
+
+          if (failedUploads.length === 0) {
+            toast.success("Images uploaded", { id: "upload" });
+          } else if (uploadedImages.length > 0) {
+            toast.error(
+              `${failedUploads.length} image(s) failed to upload. Remaining images were saved.`,
+              { id: "upload" },
+            );
+          } else {
+            const firstError = failedUploads[0]?.reason?.message;
+            toast.error(firstError || "Image upload failed", {
+              id: "upload",
+            });
+          }
         } catch (uploadError) {
           console.error("Image upload failed:", uploadError);
-          toast.error("Image upload failed, product saved without image", {
+          toast.error(uploadError.message || "Image upload failed", {
             id: "upload",
           });
         } finally {
@@ -916,26 +975,30 @@ const CreateProduct = ({
             htmlFor="image"
             className="block text-sm font-medium text-gray-700"
           >
-            Product Image
+            Product Images
           </label>
           <input
             id="image"
             name="image"
             type="file"
             accept="image/*"
+            multiple
             onChange={handleImageChange}
             className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
           />
           <p className="mt-2 text-sm text-gray-500">
-            Upload a product image (max 5MB, JPG, PNG, GIF).
+            Upload one or more product images (max 15MB each, JPG, PNG, GIF).
           </p>
-          {imagePreview && (
-            <div className="mt-4">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="w-32 h-32 object-cover rounded-lg border"
-              />
+          {imagePreviews.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {imagePreviews.map((preview, index) => (
+                <img
+                  key={`create-product-preview-${index}`}
+                  src={preview}
+                  alt={`Preview ${index + 1}`}
+                  className="h-24 w-full rounded-lg border object-cover"
+                />
+              ))}
             </div>
           )}
         </div>
@@ -1063,7 +1126,6 @@ const CreateProduct = ({
             />
             <span className="ml-2 text-sm text-gray-700">Lenses</span>
           </label>
-
         </div>
 
         <div className="space-y-4 rounded-md border border-gray-200 p-4">

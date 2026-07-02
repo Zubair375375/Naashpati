@@ -20,19 +20,16 @@ const Carousel = ({
     setCanScrollNext(scrollLeft + clientWidth < scrollWidth - 2);
   }, []);
 
-  const handleScroll = useCallback(
-    (direction) => {
-      const track = trackRef.current;
-      if (!track) return;
+  const handleScroll = useCallback((direction) => {
+    const track = trackRef.current;
+    if (!track) return;
 
-      const scrollAmount = Math.max(240, track.clientWidth * 0.85);
-      track.scrollBy({
-        left: direction * scrollAmount,
-        behavior: "smooth",
-      });
-    },
-    [],
-  );
+    const scrollAmount = Math.max(240, track.clientWidth * 0.85);
+    track.scrollBy({
+      left: direction * scrollAmount,
+      behavior: "smooth",
+    });
+  }, []);
 
   useEffect(() => {
     updateScrollState();
@@ -60,7 +57,7 @@ const Carousel = ({
     <div className="relative">
       <div
         ref={trackRef}
-        className="flex gap-4 overflow-x-auto scroll-smooth pb-4 pt-1 snap-x snap-mandatory"
+        className="flex gap-4 overflow-x-auto scroll-smooth pb-4 pt-1 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         aria-label={ariaLabel}
       >
         {items.map((item, index) => (
