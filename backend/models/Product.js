@@ -213,7 +213,7 @@ const productSchema = new mongoose.Schema(
     barcode: {
       type: String,
       trim: true,
-      default: "",
+      required: [true, "Barcode is required"],
       maxlength: [128, "Barcode cannot be more than 128 characters"],
     },
     stock: {

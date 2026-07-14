@@ -18,6 +18,15 @@ const normalizeBarcode = (value = "") => {
   return raw;
 };
 
+const buildSkuSeed = (value = "") => {
+  const normalized = normalizeSku(value)
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return (normalized || "SKU").slice(0, 16);
+};
+
 const toSlug = (value = "") =>
   String(value)
     .toLowerCase()
@@ -116,6 +125,28 @@ const isSkuDuplicate = async (sku, excludeProductId = null) => {
   return Boolean(existingProduct);
 };
 
+const buildSkuCandidate = (seedValue = "") => {
+  const seed = buildSkuSeed(seedValue);
+  const timePart = Date.now().toString().slice(-8);
+  const randomPart = Math.floor(Math.random() * 10_000)
+    .toString()
+    .padStart(4, "0");
+  return `${seed}-${timePart}-${randomPart}`.slice(0, 64);
+};
+
+const generateUniqueSku = async (seedValue, excludeProductId = null) => {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const candidate = buildSkuCandidate(seedValue);
+    if (!(await isSkuDuplicate(candidate, excludeProductId))) {
+      return candidate;
+    }
+  }
+
+  return `${buildSkuSeed(seedValue)}-${Date.now()}-${Math.floor(
+    Math.random() * 1_000_000,
+  )}`.slice(0, 64);
+};
+
 const isBarcodeDuplicate = async (barcode, excludeProductId = null) => {
   const normalized = String(barcode || "").trim();
   if (!normalized) return false;
@@ -127,6 +158,27 @@ const isBarcodeDuplicate = async (barcode, excludeProductId = null) => {
 
   const existingProduct = await Product.findOne(query).select("_id").lean();
   return Boolean(existingProduct);
+};
+
+const buildBarcodeCandidate = () => {
+  const timestampPart = Date.now().toString();
+  const randomPart = Math.floor(Math.random() * 1_000_000)
+    .toString()
+    .padStart(6, "0");
+  return `${timestampPart}${randomPart}`.slice(-18);
+};
+
+const generateUniqueBarcode = async (excludeProductId = null) => {
+  for (let attempt = 0; attempt < 50; attempt += 1) {
+    const candidate = buildBarcodeCandidate();
+    if (!(await isBarcodeDuplicate(candidate, excludeProductId))) {
+      return candidate;
+    }
+  }
+
+  return `${Date.now().toString()}${Math.floor(Math.random() * 1_000_000)
+    .toString()
+    .padStart(6, "0")}`;
 };
 
 const generateUniqueSlug = async (seedValue, excludeProductId = null) => {
@@ -230,10 +282,7 @@ export const getProducts = async (req, res) => {
           { collection: { $in: ["female", "both"] } },
         ];
       } else if (normalizedCollection === "both") {
-        query.$or = [
-          { productCollection: "both" },
-          { collection: "both" },
-        ];
+        query.$or = [{ productCollection: "both" }, { collection: "both" }];
       }
     }
 
@@ -413,11 +462,18 @@ export const createProduct = async (req, res) => {
       seo: normalizeSeo(incomingBody.seo, incomingBody.seoKeywords),
     };
 
-    const normalizedProductCollection = hasOwn(incomingBody, "productCollection")
-      ? String(incomingBody.productCollection || "").trim().toLowerCase()
+    const normalizedProductCollection = hasOwn(
+      incomingBody,
+      "productCollection",
+    )
+      ? String(incomingBody.productCollection || "")
+          .trim()
+          .toLowerCase()
       : hasOwn(incomingBody, "collection")
-      ? String(incomingBody.collection || "").trim().toLowerCase()
-      : undefined;
+        ? String(incomingBody.collection || "")
+            .trim()
+            .toLowerCase()
+        : undefined;
 
     if (normalizedProductCollection) {
       payload.productCollection = normalizedProductCollection;
@@ -431,6 +487,14 @@ export const createProduct = async (req, res) => {
 
     if (!hasOwn(incomingBody, "isActive")) {
       payload.isActive = payload.status === "published";
+    }
+
+    if (!payload.sku) {
+      payload.sku = await generateUniqueSku(incomingBody.name || "SKU");
+    }
+
+    if (!payload.barcode) {
+      payload.barcode = await generateUniqueBarcode();
     }
 
     payload.slug = await generateUniqueSlug(
@@ -597,6 +661,14 @@ export const updateProduct = async (req, res) => {
 
     if (hasOwn(incomingBody, "sku")) {
       payload.sku = normalizeSku(incomingBody.sku);
+      if (!payload.sku) {
+        payload.sku = await generateUniqueSku(
+          incomingBody.name || product.name || "SKU",
+          product._id,
+        );
+      }
+    } else if (!product.sku) {
+      payload.sku = await generateUniqueSku(product.name || "SKU", product._id);
     }
 
     if (hasOwn(incomingBody, "price") || hasOwn(incomingBody, "salePrice")) {
@@ -641,6 +713,9 @@ export const updateProduct = async (req, res) => {
 
     if (hasOwn(incomingBody, "barcode")) {
       payload.barcode = normalizeBarcode(incomingBody.barcode);
+      if (!payload.barcode) {
+        payload.barcode = await generateUniqueBarcode(product._id);
+      }
     }
 
     if (hasOwn(incomingBody, "thumbnail") || hasOwn(incomingBody, "image")) {
@@ -689,11 +764,18 @@ export const updateProduct = async (req, res) => {
       payload.attributes = normalizeAttributes(incomingBody.attributes);
     }
 
-    const normalizedProductCollection = hasOwn(incomingBody, "productCollection")
-      ? String(incomingBody.productCollection || "").trim().toLowerCase()
+    const normalizedProductCollection = hasOwn(
+      incomingBody,
+      "productCollection",
+    )
+      ? String(incomingBody.productCollection || "")
+          .trim()
+          .toLowerCase()
       : hasOwn(incomingBody, "collection")
-      ? String(incomingBody.collection || "").trim().toLowerCase()
-      : undefined;
+        ? String(incomingBody.collection || "")
+            .trim()
+            .toLowerCase()
+        : undefined;
 
     if (normalizedProductCollection) {
       payload.productCollection = normalizedProductCollection;
