@@ -739,7 +739,11 @@ export const updateProduct = async (req, res) => {
     if (hasOwn(incomingBody, "images")) {
       payload.images = normalizeProductImages(incomingBody.images);
 
-      if (!hasOwn(incomingBody, "image") && !payload.image && payload.images.length > 0) {
+      if (
+        !hasOwn(incomingBody, "image") &&
+        !payload.image &&
+        payload.images.length > 0
+      ) {
         payload.image = payload.images[0].url;
       }
 

@@ -307,14 +307,18 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
         ? product.images
             .map((entry) => ({
               url: String(entry?.url || entry || "").trim(),
-              public_id: String(entry?.public_id || entry?.url || entry || "").trim(),
+              public_id: String(
+                entry?.public_id || entry?.url || entry || "",
+              ).trim(),
             }))
             .filter((entry) => entry.url && entry.public_id)
         : [];
 
       if (nextExistingImages.length > 0) {
         setExistingImages(nextExistingImages);
-        setImagePreviews(nextExistingImages.map((entry) => resolveMediaUrl(entry.url)));
+        setImagePreviews(
+          nextExistingImages.map((entry) => resolveMediaUrl(entry.url)),
+        );
       } else if (product.image) {
         const fallbackExistingImage = {
           url: String(product.image).trim(),
@@ -623,7 +627,9 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
 
   const handleRemoveImage = (index) => {
     if (index < existingImages.length) {
-      setExistingImages((prevImages) => prevImages.filter((_, i) => i !== index));
+      setExistingImages((prevImages) =>
+        prevImages.filter((_, i) => i !== index),
+      );
       setImagePreviews((prevPreviews) =>
         prevPreviews.filter((_, i) => i !== index),
       );
@@ -824,7 +830,6 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
               id: "upload",
             });
           }
-
         } catch (uploadError) {
           console.error("Image upload failed:", uploadError);
           toast.error(uploadError.message || "Image upload failed", {
@@ -1146,9 +1151,7 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
             </div>
 
             <div>
-              <label
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label className="block text-sm font-medium text-gray-700">
                 SKU
               </label>
               <p className="mt-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
@@ -1212,9 +1215,7 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
             </div>
 
             <div>
-              <label
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label className="block text-sm font-medium text-gray-700">
                 Barcode
               </label>
               <p className="mt-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
@@ -1303,7 +1304,10 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
             {imagePreviews.length > 0 && (
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {imagePreviews.map((preview, index) => (
-                  <div key={`edit-product-preview-${index}`} className="relative">
+                  <div
+                    key={`edit-product-preview-${index}`}
+                    className="relative"
+                  >
                     <img
                       src={preview}
                       alt={`Preview ${index + 1}`}

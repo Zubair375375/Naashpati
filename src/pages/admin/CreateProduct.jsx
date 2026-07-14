@@ -596,7 +596,6 @@ const CreateProduct = ({
               id: "upload",
             });
           }
-
         } catch (uploadError) {
           console.error("Image upload failed:", uploadError);
           toast.error(uploadError.message || "Image upload failed", {
@@ -888,9 +887,7 @@ const CreateProduct = ({
           </div>
 
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label className="block text-sm font-medium text-gray-700">
               Barcode
             </label>
             <p className="mt-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
@@ -918,9 +915,7 @@ const CreateProduct = ({
           </div>
 
           <div>
-            <label
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label className="block text-sm font-medium text-gray-700">
               SKU
             </label>
             <p className="mt-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
@@ -988,7 +983,10 @@ const CreateProduct = ({
           {imagePreviews.length > 0 && (
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {imagePreviews.map((preview, index) => (
-                <div key={`create-product-preview-${index}`} className="relative">
+                <div
+                  key={`create-product-preview-${index}`}
+                  className="relative"
+                >
                   <img
                     src={preview}
                     alt={`Preview ${index + 1}`}
