@@ -47,6 +47,22 @@ const slugifyCategory = (value = "") =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
+const generateClientBarcode = () => {
+  const timestampPart = Date.now().toString();
+  const randomPart = Math.floor(Math.random() * 1_000_000)
+    .toString()
+    .padStart(6, "0");
+  return `${timestampPart}${randomPart}`.slice(-18);
+};
+
+const generateClientSku = () => {
+  const timePart = Date.now().toString().slice(-8);
+  const randomPart = Math.floor(Math.random() * 10_000)
+    .toString()
+    .padStart(4, "0");
+  return `SKU-${timePart}-${randomPart}`;
+};
+
 const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -216,8 +232,8 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
         category: product.lenses
           ? ""
           : product.category || availableCategories[0]?.value || "",
-        sku: product.sku || "",
-        barcode: product.barcode || "",
+        sku: product.sku || generateClientSku(),
+        barcode: product.barcode || generateClientBarcode(),
         stock: product.stock?.toString() || "0",
         thumbnail: product.thumbnail || product.image || "",
         videoUrl: product.videoUrl || "",
@@ -674,7 +690,6 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
       !price ||
       !costPrice ||
       (!lenses && !category) ||
-      !sku ||
       stock === ""
     ) {
       toast.error("Please fill in all required fields.");
@@ -708,14 +723,6 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
 
     if (Number.isNaN(costPriceNum) || costPriceNum < 0) {
       toast.error("Cost price must be a positive number.");
-      return;
-    }
-
-    const normalizedSku = sku.trim().toUpperCase();
-    if (!/^[A-Z0-9_-]{3,64}$/.test(normalizedSku)) {
-      toast.error(
-        "SKU must be 3-64 characters and use letters, numbers, hyphen, or underscore.",
-      );
       return;
     }
 
@@ -825,7 +832,9 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
         costPrice: Number(costPrice),
         category: lenses ? "" : category,
         productCollection: lenses ? "" : collection,
-        sku: normalizedSku,
+        sku: String(sku || "")
+          .trim()
+          .toUpperCase(),
         barcode: String(barcode || "").trim(),
         stock: Number(stock),
         thumbnail: String(thumbnail || "").trim(),
@@ -1123,13 +1132,15 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
                 name="sku"
                 type="text"
                 value={formData.sku}
-                onChange={handleChange}
+                readOnly
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
-                placeholder="e.g. DH-ASH-60"
+                placeholder="Auto-generated"
                 minLength={3}
                 maxLength={64}
-                required
               />
+              <p className="mt-1 text-xs text-gray-500">
+                SKU is auto-generated.
+              </p>
             </div>
 
             <div>
@@ -1199,10 +1210,13 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
                 name="barcode"
                 type="text"
                 value={formData.barcode}
-                onChange={handleChange}
+                readOnly
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
-                placeholder="e.g. 8901234567890"
+                placeholder="Auto-generated"
               />
+              <p className="mt-1 text-xs text-gray-500">
+                Barcode is auto-generated.
+              </p>
             </div>
 
             <div>

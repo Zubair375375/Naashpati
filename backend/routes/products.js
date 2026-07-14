@@ -126,6 +126,7 @@ const createProductValidation = [
     .isFloat({ min: 0 })
     .withMessage("Sale price must be a positive number"),
   body("sku")
+    .optional()
     .trim()
     .isLength({ min: 3, max: 64 })
     .withMessage("SKU must be between 3 and 64 characters")
@@ -149,24 +150,23 @@ const createProductValidation = [
     }
     return true;
   }),
-  body("productCollection")
-    .custom((value, { req }) => {
-      if (isLensesPayload(req)) {
-        return true;
-      }
-
-      if (!value) {
-        throw new Error("Product collection is required");
-      }
-
-      if (!["male", "female", "both"].includes(String(value).trim())) {
-        throw new Error(
-          'Product collection must be one of "male", "female", or "both"',
-        );
-      }
-
+  body("productCollection").custom((value, { req }) => {
+    if (isLensesPayload(req)) {
       return true;
-    }),
+    }
+
+    if (!value) {
+      throw new Error("Product collection is required");
+    }
+
+    if (!["male", "female", "both"].includes(String(value).trim())) {
+      throw new Error(
+        'Product collection must be one of "male", "female", or "both"',
+      );
+    }
+
+    return true;
+  }),
   body("faqContent")
     .optional()
     .trim()
@@ -204,10 +204,7 @@ const createProductValidation = [
     .optional()
     .isBoolean()
     .withMessage("New arrival must be a boolean"),
-  body("lenses")
-    .optional()
-    .isBoolean()
-    .withMessage("Lenses must be a boolean"),
+  body("lenses").optional().isBoolean().withMessage("Lenses must be a boolean"),
   body("status")
     .optional()
     .isIn(["draft", "published"])
@@ -363,7 +360,9 @@ const updateProductValidation = [
     .optional()
     .trim()
     .isIn(["male", "female", "both", ""])
-    .withMessage('Product collection must be one of "male", "female", or "both"'),
+    .withMessage(
+      'Product collection must be one of "male", "female", or "both"',
+    ),
   body("stock")
     .optional()
     .isInt({ min: 0 })
@@ -392,10 +391,7 @@ const updateProductValidation = [
     .optional()
     .isBoolean()
     .withMessage("New arrival must be a boolean"),
-  body("lenses")
-    .optional()
-    .isBoolean()
-    .withMessage("Lenses must be a boolean"),
+  body("lenses").optional().isBoolean().withMessage("Lenses must be a boolean"),
   body("status")
     .optional()
     .isIn(["draft", "published"])
@@ -532,7 +528,11 @@ const answerQuestionValidation = [
 
 // Routes
 // Trending products (must be before /:id to avoid conflicts)
-router.get("/trending", cacheResponse("trendingProducts", 120), getTrendingProducts);
+router.get(
+  "/trending",
+  cacheResponse("trendingProducts", 120),
+  getTrendingProducts,
+);
 router.post(
   "/trending/cache/clear",
   protect,
