@@ -106,8 +106,6 @@ const productSchema = new mongoose.Schema(
       type: String,
       trim: true,
       lowercase: true,
-      unique: true,
-      sparse: true,
       maxlength: [160, "Slug cannot be more than 160 characters"],
     },
     name: {
@@ -407,6 +405,15 @@ productSchema.methods.calculateAverageRating = function () {
   this.numReviews = this.reviews.length;
 };
 
+productSchema.index(
+  { slug: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      slug: { $type: "string", $ne: "" },
+    },
+  },
+);
 productSchema.index(
   { barcode: 1 },
   {

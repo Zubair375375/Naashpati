@@ -29,7 +29,9 @@ const setRefreshCookie = (res, refreshToken) => {
 };
 
 const clearRefreshCookie = (res) => {
-  res.clearCookie("refreshToken", getRefreshCookieOptions());
+  const { maxAge, ...clearOptions } = getRefreshCookieOptions();
+  void maxAge;
+  res.clearCookie("refreshToken", clearOptions);
 };
 
 const generateToken = (id) => {
