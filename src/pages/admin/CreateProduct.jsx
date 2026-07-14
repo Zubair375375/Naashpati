@@ -14,6 +14,8 @@ import {
   selectIsAuthenticated,
 } from "../../store/slices/authSlice";
 import RichTextEditor from "../../components/RichTextEditor";
+import ImageCropperModal from "../../components/ImageCropperModal";
+import { useImageCropQueue } from "./hooks/useImageCropQueue";
 
 const ATTRIBUTE_FIELDS = [
   { key: "color", label: "Color" },
@@ -122,6 +124,13 @@ const CreateProduct = ({
   const [imagePreviews, setImagePreviews] = useState([]);
   const [uploading, setUploading] = useState(false);
   const defaultCategoriesEnsured = useRef(false);
+  const {
+    currentFile: cropFile,
+    isOpen: isCropperOpen,
+    enqueueFiles: enqueueCropFiles,
+    completeCurrent: completeCrop,
+    skipCurrent: skipCrop,
+  } = useImageCropQueue();
 
   useEffect(() => {
     dispatch(fetchCategories());
@@ -311,35 +320,28 @@ const CreateProduct = ({
     setFormData((prev) => ({ ...prev, faqContent: value }));
   };
 
-  const readFilesAsDataUrls = async (files) =>
-    Promise.all(
-      files.map(
-        (file) =>
-          new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(String(reader.result || ""));
-            reader.onerror = () => reject(new Error("Failed to read file"));
-            reader.readAsDataURL(file);
-          }),
-      ),
-    );
-
   const handleImageChange = async (e) => {
     const files = Array.from(e.target.files || []);
-    setImageFiles(files);
 
     if (files.length === 0) {
-      setImagePreviews([]);
       return;
     }
 
-    try {
-      const previews = await readFilesAsDataUrls(files);
-      setImagePreviews(previews.filter(Boolean));
-    } catch {
-      setImagePreviews([]);
-      toast.error("Unable to generate image previews.");
-    }
+    enqueueCropFiles(files);
+    e.target.value = "";
+  };
+
+  const handleCropConfirm = ({ file, previewUrl }) => {
+    setImageFiles((prevFiles) => [...prevFiles, file]);
+    setImagePreviews((prevPreviews) => [...prevPreviews, previewUrl]);
+    completeCrop({ file, previewUrl });
+  };
+
+  const handleRemoveImage = (index) => {
+    setImageFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
+    setImagePreviews((prevPreviews) =>
+      prevPreviews.filter((_, i) => i !== index),
+    );
   };
 
   const uploadImage = async (file) => {
@@ -594,6 +596,7 @@ const CreateProduct = ({
               id: "upload",
             });
           }
+
         } catch (uploadError) {
           console.error("Image upload failed:", uploadError);
           toast.error(uploadError.message || "Image upload failed", {
@@ -886,22 +889,12 @@ const CreateProduct = ({
 
           <div>
             <label
-              htmlFor="barcode"
               className="block text-sm font-medium text-gray-700"
             >
               Barcode
             </label>
-            <input
-              id="barcode"
-              name="barcode"
-              type="text"
-              value={formData.barcode}
-              readOnly
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
-              placeholder="Auto-generated"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Barcode is auto-generated.
+            <p className="mt-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+              {formData.barcode || "Auto-generated"}
             </p>
           </div>
 
@@ -926,23 +919,13 @@ const CreateProduct = ({
 
           <div>
             <label
-              htmlFor="sku"
               className="block text-sm font-medium text-gray-700"
             >
               SKU
             </label>
-            <input
-              id="sku"
-              name="sku"
-              type="text"
-              value={formData.sku}
-              readOnly
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
-              placeholder="Auto-generated"
-              minLength={3}
-              maxLength={64}
-            />
-            <p className="mt-1 text-xs text-gray-500">SKU is auto-generated.</p>
+            <p className="mt-1 rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+              {formData.sku || "Auto-generated"}
+            </p>
           </div>
         </div>
 
@@ -1005,16 +988,33 @@ const CreateProduct = ({
           {imagePreviews.length > 0 && (
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               {imagePreviews.map((preview, index) => (
-                <img
-                  key={`create-product-preview-${index}`}
-                  src={preview}
-                  alt={`Preview ${index + 1}`}
-                  className="h-24 w-full rounded-lg border object-cover"
-                />
+                <div key={`create-product-preview-${index}`} className="relative">
+                  <img
+                    src={preview}
+                    alt={`Preview ${index + 1}`}
+                    className="h-24 w-full rounded-lg border object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute right-2 top-2 rounded-full bg-black/70 px-2 py-1 text-xs font-medium text-white hover:bg-black"
+                  >
+                    Remove
+                  </button>
+                </div>
               ))}
             </div>
           )}
         </div>
+
+        <ImageCropperModal
+          isOpen={isCropperOpen}
+          file={cropFile}
+          onCancel={skipCrop}
+          onConfirm={handleCropConfirm}
+          aspect={1}
+          outputSize={1024}
+        />
 
         <div>
           <label className="block text-sm font-medium text-gray-700">
