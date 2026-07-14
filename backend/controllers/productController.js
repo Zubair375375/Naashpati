@@ -18,6 +18,29 @@ const normalizeBarcode = (value = "") => {
   return raw;
 };
 
+const normalizeProductImage = (value) => {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const url = String(value.url || "").trim();
+  const publicId = String(value.public_id || "").trim();
+
+  if (!url || !publicId) {
+    return null;
+  }
+
+  return {
+    url,
+    public_id: publicId,
+  };
+};
+
+const normalizeProductImages = (images = []) =>
+  (Array.isArray(images) ? images : [])
+    .map((image) => normalizeProductImage(image))
+    .filter(Boolean);
+
 const buildSkuSeed = (value = "") => {
   const normalized = normalizeSku(value)
     .replace(/[^A-Z0-9]+/g, "-")
@@ -426,7 +449,6 @@ export const createProduct = async (req, res) => {
 
     const payload = {
       ...incomingBody,
-      sku: normalizeSku(req.body.sku),
       stock: normalizeNumber(req.body.stock || 0, 0),
       shortDescription: String(incomingBody.shortDescription || "")
         .trim()
@@ -443,7 +465,6 @@ export const createProduct = async (req, res) => {
         incomingBody.originalPrice ?? incomingBody.price,
         0,
       ),
-      barcode: normalizeBarcode(incomingBody.barcode),
       thumbnail: String(
         incomingBody.thumbnail || incomingBody.image || "",
       ).trim(),
@@ -489,13 +510,8 @@ export const createProduct = async (req, res) => {
       payload.isActive = payload.status === "published";
     }
 
-    if (!payload.sku) {
-      payload.sku = await generateUniqueSku(incomingBody.name || "SKU");
-    }
-
-    if (!payload.barcode) {
-      payload.barcode = await generateUniqueBarcode();
-    }
+    payload.sku = await generateUniqueSku(incomingBody.name || "SKU");
+    payload.barcode = await generateUniqueBarcode();
 
     payload.slug = await generateUniqueSlug(
       incomingBody.slug || incomingBody.name,
@@ -659,15 +675,9 @@ export const updateProduct = async (req, res) => {
       ...incomingBody,
     };
 
-    if (hasOwn(incomingBody, "sku")) {
-      payload.sku = normalizeSku(incomingBody.sku);
-      if (!payload.sku) {
-        payload.sku = await generateUniqueSku(
-          incomingBody.name || product.name || "SKU",
-          product._id,
-        );
-      }
-    } else if (!product.sku) {
+    if (product.sku) {
+      payload.sku = product.sku;
+    } else {
       payload.sku = await generateUniqueSku(product.name || "SKU", product._id);
     }
 
@@ -711,11 +721,10 @@ export const updateProduct = async (req, res) => {
       payload.tags = normalizeStringArray(incomingBody.tags);
     }
 
-    if (hasOwn(incomingBody, "barcode")) {
-      payload.barcode = normalizeBarcode(incomingBody.barcode);
-      if (!payload.barcode) {
-        payload.barcode = await generateUniqueBarcode(product._id);
-      }
+    if (product.barcode) {
+      payload.barcode = product.barcode;
+    } else {
+      payload.barcode = await generateUniqueBarcode(product._id);
     }
 
     if (hasOwn(incomingBody, "thumbnail") || hasOwn(incomingBody, "image")) {
@@ -725,6 +734,22 @@ export const updateProduct = async (req, res) => {
       payload.image = String(
         incomingBody.image ?? incomingBody.thumbnail ?? product.image ?? "",
       ).trim();
+    }
+
+    if (hasOwn(incomingBody, "images")) {
+      payload.images = normalizeProductImages(incomingBody.images);
+
+      if (!hasOwn(incomingBody, "image") && !payload.image && payload.images.length > 0) {
+        payload.image = payload.images[0].url;
+      }
+
+      if (
+        !hasOwn(incomingBody, "thumbnail") &&
+        !payload.thumbnail &&
+        payload.images.length > 0
+      ) {
+        payload.thumbnail = payload.images[0].url;
+      }
     }
 
     if (hasOwn(incomingBody, "videoUrl")) {

@@ -627,6 +627,36 @@ const ProductDetail = () => {
   }, [galleryImages.length, selectedImage]);
 
   useEffect(() => {
+    const handleKeyDown = (event) => {
+      const target = event.target;
+      const isTypingField =
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable);
+
+      if (isTypingField || galleryImages.length <= 1) {
+        return;
+      }
+
+      if (event.key === "ArrowRight") {
+        setSelectedImage((currentIndex) => (currentIndex + 1) % galleryImages.length);
+      }
+
+      if (event.key === "ArrowLeft") {
+        setSelectedImage(
+          (currentIndex) =>
+            (currentIndex - 1 + galleryImages.length) % galleryImages.length,
+        );
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [galleryImages.length]);
+
+  useEffect(() => {
     if (!product?._id) return;
 
     const recentlyViewed = getRecentlyViewedItems().filter(
@@ -838,12 +868,12 @@ const ProductDetail = () => {
 
             {/* Thumbnail Images */}
             {galleryImages.length > 1 && (
-              <div className="flex space-x-2 overflow-x-auto">
+              <div className="grid grid-cols-4 gap-2">
                 {galleryImages.map((imageSrc, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded border-2 overflow-hidden ${
+                    className={`aspect-square overflow-hidden rounded border-2 ${
                       selectedImage === index
                         ? "border-green-500"
                         : "border-gray-200"
@@ -852,12 +882,13 @@ const ProductDetail = () => {
                     <img
                       src={imageSrc}
                       alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </button>
                 ))}
               </div>
             )}
+
           </div>
 
           {/* Product Info */}
