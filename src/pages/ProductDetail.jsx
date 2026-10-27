@@ -14,6 +14,7 @@ import {
   trackProductView,
   trackAddToCart,
 } from "../utils/trendingMetricsTracker";
+import { canManageWishlist } from "../utils/wishlistAuth";
 import {
   selectAuthUser,
   selectIsAuthenticated,
@@ -641,7 +642,9 @@ const ProductDetail = () => {
       }
 
       if (event.key === "ArrowRight") {
-        setSelectedImage((currentIndex) => (currentIndex + 1) % galleryImages.length);
+        setSelectedImage(
+          (currentIndex) => (currentIndex + 1) % galleryImages.length,
+        );
       }
 
       if (event.key === "ArrowLeft") {
@@ -760,6 +763,12 @@ const ProductDetail = () => {
 
   const handleToggleWishlist = () => {
     if (!product?._id) return;
+
+    if (!canManageWishlist(Boolean(isAuthenticated && user))) {
+      toast.error("Please login or register to add products to wishlist");
+      navigate("/login");
+      return;
+    }
 
     const wishlistItems = getWishlistItems();
     const existingIndex = wishlistItems.findIndex(
@@ -888,7 +897,6 @@ const ProductDetail = () => {
                 ))}
               </div>
             )}
-
           </div>
 
           {/* Product Info */}

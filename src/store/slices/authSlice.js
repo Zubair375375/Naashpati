@@ -28,6 +28,14 @@ const removeTokensFromStorage = () => {
   localStorage.removeItem("accessToken");
 };
 
+const clearWishlistStorage = () => {
+  try {
+    localStorage.removeItem("wishlistItems");
+  } catch {
+    // ignore storage issues
+  }
+};
+
 const initialState = {
   user: null,
   accessToken: getTokenFromStorage(),
@@ -302,6 +310,7 @@ const authSlice = createSlice({
       state.refreshToken = null;
       state.hasCheckedAuth = true;
       removeTokensFromStorage();
+      clearWishlistStorage();
     },
     setAuthChecked: (state, action) => {
       state.hasCheckedAuth = action.payload;
@@ -348,6 +357,7 @@ const authSlice = createSlice({
         state.accessToken = null;
         state.refreshToken = null;
         state.hasCheckedAuth = true;
+        clearWishlistStorage();
       })
       .addCase(logout.rejected, (state) => {
         state.isLoading = false;
@@ -355,6 +365,7 @@ const authSlice = createSlice({
         state.accessToken = null;
         state.refreshToken = null;
         state.hasCheckedAuth = true;
+        clearWishlistStorage();
       })
       .addCase(refreshAccessToken.fulfilled, (state, action) => {
         state.accessToken = action.payload.accessToken;
@@ -414,6 +425,7 @@ const authSlice = createSlice({
         state.accessToken = null;
         state.refreshToken = null;
         state.hasCheckedAuth = true;
+        clearWishlistStorage();
       })
       .addCase(deleteAccount.rejected, (state, action) => {
         state.isLoading = false;
