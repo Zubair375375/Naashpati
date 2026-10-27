@@ -35,9 +35,23 @@ const Checkout = () => {
     zipCode: "",
     country: "",
   });
+  const [billingAddress, setBillingAddress] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    street: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "",
+  });
   const [selectedAddressId, setSelectedAddressId] = useState("");
 
-  const [paymentMethod] = useState("demo");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [deliveryOption, setDeliveryOption] = useState("standard");
+  const [billingAddressOption, setBillingAddressOption] = useState("same");
+  const [paymentOption, setPaymentOption] = useState("cod");
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasPlacedOrder, setHasPlacedOrder] = useState(false);
   const orderSubmitKeyRef = useRef("");
@@ -121,6 +135,21 @@ const Checkout = () => {
       [name]: value,
     });
     setSelectedAddressId("manual");
+
+    if (billingAddressOption === "same") {
+      setBillingAddress({
+        ...billingAddress,
+        [name]: value,
+      });
+    }
+  };
+
+  const handleBillingInputChange = (e) => {
+    const { name, value } = e.target;
+    setBillingAddress({
+      ...billingAddress,
+      [name]: value,
+    });
   };
 
   const handleSelectSavedAddress = (entry) => {
@@ -147,8 +176,16 @@ const Checkout = () => {
     setSelectedAddressId(entry._id || "manual");
   };
 
+  const handlePaymentOptionChange = (nextOption) => {
+    setPaymentOption(nextOption);
+    setPaymentMethod(nextOption === "bank" ? "bank" : "cod");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const effectiveBillingAddress =
+      billingAddressOption === "same" ? shippingAddress : billingAddress;
 
     if (
       !shippingAddress.firstName ||
@@ -162,6 +199,22 @@ const Checkout = () => {
       !shippingAddress.country
     ) {
       toast.error("Please fill in all shipping address fields");
+      return;
+    }
+
+    if (
+      billingAddressOption === "different" &&
+      (!effectiveBillingAddress.firstName ||
+        !effectiveBillingAddress.lastName ||
+        !effectiveBillingAddress.email ||
+        !effectiveBillingAddress.phone ||
+        !effectiveBillingAddress.street ||
+        !effectiveBillingAddress.city ||
+        !effectiveBillingAddress.state ||
+        !effectiveBillingAddress.zipCode ||
+        !effectiveBillingAddress.country)
+    ) {
+      toast.error("Please fill in all billing address fields");
       return;
     }
 
@@ -185,6 +238,7 @@ const Checkout = () => {
           quantity: item.quantity,
         })),
         shippingAddress,
+        billingAddress: effectiveBillingAddress,
         paymentMethod,
         taxPrice: taxAmount,
         shippingPrice: 0,
@@ -249,56 +303,9 @@ const Checkout = () => {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-800 mb-8">Checkout</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Order Summary */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              {/* <FaTruck className="mr-2" /> */}
-              Order Summary
-            </h2>
-
-            <div className="space-y-4">
-              {cartItems.map((item) => (
-                <div
-                  key={item.product._id}
-                  className="flex items-center space-x-4"
-                >
-                  <img
-                    src={getProductImage(item.product)}
-                    alt={item.product.name}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-medium">{item.product.name}</h3>
-                    <p className="text-[14px] text-gray-600">
-                      Quantity: {item.quantity} × {item.price.toFixed(2)}
-                    </p>
-                  </div>
-                  <p className="font-semibold text-[16px]">
-                    Rs. {(item.quantity * item.price).toFixed(2)}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-t mt-4 pt-4">
-              <div className="flex justify-between text-[16px] text-gray-700 mb-2">
-                <span>Subtotal:</span>
-                <span>Rs. {subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-[16px] text-gray-700 mb-2">
-                <span>Tax (8%):</span>
-                <span>Rs. {taxAmount.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-[16px] font-semibold">
-                <span>Total:</span>
-                <span>Rs. {grandTotal.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 lg:grid-cols-[6fr_4fr] gap-8">
           {/* Checkout Form */}
-          <div className="space-y-6">
+          <div className="space-y-6 order-2 lg:order-1">
             {/* Shipping Address */}
             <div className="bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-semibold mb-4 flex items-center">
@@ -486,21 +493,404 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                {/* Demo payment */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <h2 className="text-xl font-semibold mb-4 flex items-center">
-                    <FaCreditCard className="mr-2" />
-                    Demo Order Placement
+                <div className="space-y-3">
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Delivery Options
                   </h2>
 
-                  <div className="rounded-md border border-green-100 bg-green-50 p-4 text-sm text-gray-700">
-                    <p className="font-medium text-green-700">
-                      Demo checkout is enabled.
-                    </p>
-                    <p className="mt-1">
-                      No card or payment details are required. Your order will
-                      be placed directly for demonstration purposes.
-                    </p>
+                  <div className="rounded-xl border border-gray-400 bg-white p-3">
+                    <label className="flex cursor-pointer items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                            deliveryOption === "standard"
+                              ? "border-gray-900 bg-gray-900"
+                              : "border-gray-500 bg-white"
+                          }`}
+                        >
+                          {deliveryOption === "standard" ? (
+                            <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                          ) : null}
+                        </span>
+                        <span className="text-base font-medium text-gray-900">
+                          Standard Shipping
+                        </span>
+                      </div>
+                      <span className="text-base font-medium text-gray-900">
+                        Rs.249
+                      </span>
+                    </label>
+                    <input
+                      type="radio"
+                      name="deliveryOption"
+                      value="standard"
+                      checked={deliveryOption === "standard"}
+                      onChange={() => setDeliveryOption("standard")}
+                      className="sr-only"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Payment
+                  </h2>
+                  <p className="mt-1 text-base text-gray-600">
+                    All transactions are secure and encrypted.
+                  </p>
+                </div>
+
+                <div
+                  className={`cursor-pointer rounded-xl border p-3 ${
+                    paymentOption === "cod"
+                      ? "border-gray-900 bg-gray-100"
+                      : "border-gray-300 bg-white"
+                  }`}
+                  onClick={() => handlePaymentOptionChange("cod")}
+                  role="radio"
+                  aria-checked={paymentOption === "cod"}
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      handlePaymentOptionChange("cod");
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                        paymentOption === "cod"
+                          ? "border-gray-900 bg-gray-900"
+                          : "border-gray-400 bg-white"
+                      }`}
+                    >
+                      {paymentOption === "cod" ? (
+                        <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                      ) : null}
+                    </span>
+                    <span className="text-base font-medium text-gray-900">
+                      Cash on Delivery (COD)
+                    </span>
+                  </div>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="cod"
+                    checked={paymentOption === "cod"}
+                    onChange={() => handlePaymentOptionChange("cod")}
+                    className="sr-only"
+                  />
+                </div>
+
+                <div
+                  className={`cursor-pointer rounded-xl border p-3 ${
+                    paymentOption === "bank"
+                      ? "border-gray-900 bg-gray-100"
+                      : "border-gray-300 bg-white"
+                  }`}
+                  onClick={() => handlePaymentOptionChange("bank")}
+                  role="radio"
+                  aria-checked={paymentOption === "bank"}
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      handlePaymentOptionChange("bank");
+                    }
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                        paymentOption === "bank"
+                          ? "border-gray-900 bg-gray-900"
+                          : "border-gray-400 bg-white"
+                      }`}
+                    >
+                      {paymentOption === "bank" ? (
+                        <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                      ) : null}
+                    </span>
+                    <span className="text-base font-medium text-gray-900">
+                      Bank Deposit
+                    </span>
+                  </div>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="bank"
+                    checked={paymentOption === "bank"}
+                    onChange={() => handlePaymentOptionChange("bank")}
+                    className="sr-only"
+                  />
+                </div>
+
+                <div
+                  className={`grid transition-all duration-300 ease-in-out overflow-hidden ${
+                    paymentOption === "bank"
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="rounded-xl bg-gray-200 p-4 mt-1 text-base text-gray-600">
+                      <p>Bank Name : Nayapay</p>
+                      <p>Title : Azhar Khan</p>
+                      <p>Account: 03345336570</p>
+                      {/* <p>IBAN</p>
+                        <p>PK84MEZN0033010102554625</p> */}
+                      <div className="mt-4">
+                        <p>
+                          1) Make your payment directly into our Bank Account.
+                        </p>
+                        <p>
+                          2) Share Screenshot of transaction on
+                          Whatsapp(03400980990)
+                        </p>
+                        <p>
+                          3) Please share your Order ID as Payment Reference
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    Billing Address
+                  </h2>
+
+                  <div
+                    className={`cursor-pointer rounded-xl border p-3 ${
+                      billingAddressOption === "same"
+                        ? "border-gray-900 bg-gray-100"
+                        : "border-gray-300 bg-white"
+                    }`}
+                    onClick={() => setBillingAddressOption("same")}
+                    role="radio"
+                    aria-checked={billingAddressOption === "same"}
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setBillingAddressOption("same");
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                          billingAddressOption === "same"
+                            ? "border-gray-900 bg-gray-900"
+                            : "border-gray-400 bg-white"
+                        }`}
+                      >
+                        {billingAddressOption === "same" ? (
+                          <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                        ) : null}
+                      </span>
+                      <span className="text-base font-medium text-gray-900">
+                        Same as shipping address
+                      </span>
+                    </div>
+                    <input
+                      type="radio"
+                      name="billingAddressOption"
+                      value="same"
+                      checked={billingAddressOption === "same"}
+                      onChange={() => setBillingAddressOption("same")}
+                      className="sr-only"
+                    />
+                  </div>
+
+                  <div
+                    className={`cursor-pointer rounded-xl border p-3 ${
+                      billingAddressOption === "different"
+                        ? "border-gray-900 bg-gray-100"
+                        : "border-gray-300 bg-white"
+                    }`}
+                    onClick={() => setBillingAddressOption("different")}
+                    role="radio"
+                    aria-checked={billingAddressOption === "different"}
+                    tabIndex={0}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        setBillingAddressOption("different");
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+                          billingAddressOption === "different"
+                            ? "border-gray-900 bg-gray-900"
+                            : "border-gray-400 bg-white"
+                        }`}
+                      >
+                        {billingAddressOption === "different" ? (
+                          <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                        ) : null}
+                      </span>
+                      <span className="text-base font-medium text-gray-900">
+                        Use a different billing address
+                      </span>
+                    </div>
+                    <input
+                      type="radio"
+                      name="billingAddressOption"
+                      value="different"
+                      checked={billingAddressOption === "different"}
+                      onChange={() => setBillingAddressOption("different")}
+                      className="sr-only"
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className={`grid transition-all duration-300 ease-in-out overflow-hidden ${
+                    billingAddressOption === "different"
+                      ? "grid-rows-[1fr] opacity-100"
+                      : "grid-rows-[0fr] opacity-0"
+                  }`}
+                >
+                  <div className="overflow-hidden">
+                    <div className="mt-1 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Billing First Name
+                            </label>
+                            <input
+                              type="text"
+                              name="firstName"
+                              value={billingAddress.firstName}
+                              onChange={handleBillingInputChange}
+                              className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-0"
+                              required={billingAddressOption === "different"}
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Billing Last Name
+                            </label>
+                            <input
+                              type="text"
+                              name="lastName"
+                              value={billingAddress.lastName}
+                              onChange={handleBillingInputChange}
+                              className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-0"
+                              required={billingAddressOption === "different"}
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Billing Email
+                          </label>
+                          <input
+                            type="email"
+                            name="email"
+                            value={billingAddress.email}
+                            onChange={handleBillingInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-0"
+                            required={billingAddressOption === "different"}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Billing Phone
+                          </label>
+                          <input
+                            type="tel"
+                            name="phone"
+                            value={billingAddress.phone}
+                            onChange={handleBillingInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-0"
+                            required={billingAddressOption === "different"}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Billing Street Address
+                          </label>
+                          <input
+                            type="text"
+                            name="street"
+                            value={billingAddress.street}
+                            onChange={handleBillingInputChange}
+                            className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-0"
+                            required={billingAddressOption === "different"}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Billing City
+                            </label>
+                            <input
+                              type="text"
+                              name="city"
+                              value={billingAddress.city}
+                              onChange={handleBillingInputChange}
+                              className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-0"
+                              required={billingAddressOption === "different"}
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Billing State
+                            </label>
+                            <input
+                              type="text"
+                              name="state"
+                              value={billingAddress.state}
+                              onChange={handleBillingInputChange}
+                              className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-0"
+                              required={billingAddressOption === "different"}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Billing ZIP Code
+                            </label>
+                            <input
+                              type="text"
+                              name="zipCode"
+                              value={billingAddress.zipCode}
+                              onChange={handleBillingInputChange}
+                              className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-0"
+                              required={billingAddressOption === "different"}
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                              Billing Country
+                            </label>
+                            <input
+                              type="text"
+                              name="country"
+                              value={billingAddress.country}
+                              onChange={handleBillingInputChange}
+                              className="w-full px-3 py-2 border border-gray-300 focus:outline-none focus:ring-0"
+                              required={billingAddressOption === "different"}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -515,10 +905,57 @@ const Checkout = () => {
                       <span className="ml-2">Processing...</span>
                     </>
                   ) : (
-                    "Place Demo Order"
+                    "Complete Order"
                   )}
                 </button>
               </form>
+            </div>
+          </div>
+
+          {/* Order Summary */}
+          <div className="bg-white rounded-lg shadow-md p-6 order-1 lg:order-2">
+            <h2 className="text-xl font-semibold mb-4 flex items-center">
+              {/* <FaTruck className="mr-2" /> */}
+              Order Summary
+            </h2>
+
+            <div className="space-y-4">
+              {cartItems.map((item) => (
+                <div
+                  key={item.product._id}
+                  className="flex items-center space-x-4"
+                >
+                  <img
+                    src={getProductImage(item.product)}
+                    alt={item.product.name}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-medium">{item.product.name}</h3>
+                    <p className="text-[14px] text-gray-600">
+                      Quantity: {item.quantity} × {item.price.toFixed(2)}
+                    </p>
+                  </div>
+                  <p className="font-semibold text-[16px]">
+                    Rs. {(item.quantity * item.price).toFixed(2)}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t mt-4 pt-4">
+              <div className="flex justify-between text-[16px] text-gray-700 mb-2">
+                <span>Subtotal:</span>
+                <span>Rs. {subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-[16px] text-gray-700 mb-2">
+                <span>Tax (8%):</span>
+                <span>Rs. {taxAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-[16px] font-semibold">
+                <span>Total:</span>
+                <span>Rs. {grandTotal.toFixed(2)}</span>
+              </div>
             </div>
           </div>
         </div>

@@ -106,7 +106,9 @@ const OrderDetail = () => {
             </div>
             <p className="mb-6 text-gray-600">{error}</p>
             <button
-              onClick={() => navigate(user?.role === "admin" ? "/admin" : "/profile")}
+              onClick={() =>
+                navigate(user?.role === "admin" ? "/admin" : "/profile")
+              }
               className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
             >
               {user?.role === "admin"
@@ -126,7 +128,9 @@ const OrderDetail = () => {
           <div className="text-center">
             <div className="mb-4 text-lg text-gray-600">Order not found</div>
             <button
-              onClick={() => navigate(user?.role === "admin" ? "/admin" : "/profile")}
+              onClick={() =>
+                navigate(user?.role === "admin" ? "/admin" : "/profile")
+              }
               className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
             >
               {user?.role === "admin"
@@ -145,7 +149,9 @@ const OrderDetail = () => {
         <div className="rounded-lg bg-white p-6 shadow">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <button
-              onClick={() => navigate(user?.role === "admin" ? "/admin" : "/profile")}
+              onClick={() =>
+                navigate(user?.role === "admin" ? "/admin" : "/profile")
+              }
               className="inline-flex items-center text-gray-600 hover:text-gray-900"
             >
               <FaArrowLeft className="mr-2" />
@@ -274,9 +280,15 @@ const OrderDetail = () => {
                 </p>
                 <p>
                   <span className="font-medium">Payment:</span>{" "}
-                  {order.paymentMethod === "demo"
-                    ? "Demo Order"
-                    : order.paymentMethod}
+                  {order.paymentMethod === "cod"
+                    ? "Cash on Delivery"
+                    : order.paymentMethod === "bank"
+                      ? "Bank Deposit"
+                      : order.paymentMethod === "stripe"
+                        ? "Stripe"
+                        : order.paymentMethod === "paypal"
+                          ? "PayPal"
+                          : order.paymentMethod || "N/A"}
                 </p>
                 <p>
                   <span className="font-medium">Paid:</span>{" "}

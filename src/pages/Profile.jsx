@@ -1145,9 +1145,15 @@ const Profile = () => {
                           </p>
                           <p className="text-sm text-gray-600">
                             Payment:{" "}
-                            {order.paymentMethod === "demo"
-                              ? "Demo Order"
-                              : order.paymentMethod}
+                            {order.paymentMethod === "cod"
+                              ? "Cash on Delivery"
+                              : order.paymentMethod === "bank"
+                                ? "Bank Deposit"
+                                : order.paymentMethod === "stripe"
+                                  ? "Stripe"
+                                  : order.paymentMethod === "paypal"
+                                    ? "PayPal"
+                                    : order.paymentMethod || "N/A"}
                           </p>
                         </div>
                         <div className="flex items-center gap-4">
