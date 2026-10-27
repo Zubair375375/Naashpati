@@ -145,7 +145,15 @@ const Cart = () => {
               </p>
               <p className="mt-1">
                 <span className="font-semibold">Payment method:</span>{" "}
-                {orderSummary.paymentMethod || "N/A"}
+                {orderSummary.paymentMethod === "cod"
+                  ? "Cash on Delivery"
+                  : orderSummary.paymentMethod === "bank"
+                    ? "Bank Deposit"
+                    : orderSummary.paymentMethod === "stripe"
+                      ? "Stripe"
+                      : orderSummary.paymentMethod === "paypal"
+                        ? "PayPal"
+                        : orderSummary.paymentMethod || "N/A"}
               </p>
               <p className="mt-1">
                 <span className="font-semibold">Delivery city:</span>{" "}

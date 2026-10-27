@@ -76,7 +76,7 @@ const createOrderValidation = [
     .notEmpty()
     .withMessage("Country is required"),
   body("paymentMethod")
-    .isIn(["stripe", "paypal", "demo"])
+    .isIn(["cod", "bank", "stripe", "paypal"])
     .withMessage("Invalid payment method"),
   body("taxPrice")
     .isFloat({ min: 0 })
@@ -131,6 +131,11 @@ router.put(
 
 // Payment routes
 router.post("/create-payment-intent", protect, createPaymentIntent);
-router.post("/confirm-payment", protect, confirmPaymentValidation, confirmPayment);
+router.post(
+  "/confirm-payment",
+  protect,
+  confirmPaymentValidation,
+  confirmPayment,
+);
 
 export default router;

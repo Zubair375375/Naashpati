@@ -314,8 +314,8 @@ const canTransitionOrderStatus = (fromStatus, toStatus) => {
   return (ORDER_STATUS_TRANSITIONS[fromStatus] || []).includes(toStatus);
 };
 
-const isDuplicateKeyError =
-  (error) => Number(error?.code) === 11000 || error?.name === "MongoServerError";
+const isDuplicateKeyError = (error) =>
+  Number(error?.code) === 11000 || error?.name === "MongoServerError";
 
 const normalizeIdempotencyKey = (value) => {
   if (typeof value !== "string") {
@@ -331,9 +331,15 @@ const normalizeIdempotencyKey = (value) => {
 };
 
 const getRequestIdempotencyKey = (req) =>
-  normalizeIdempotencyKey(req.get("x-idempotency-key") || req.body?.idempotencyKey);
+  normalizeIdempotencyKey(
+    req.get("x-idempotency-key") || req.body?.idempotencyKey,
+  );
 
-const getOrderCreateReplayQuery = ({ req, idempotencyKey, shippingAddress }) => {
+const getOrderCreateReplayQuery = ({
+  req,
+  idempotencyKey,
+  shippingAddress,
+}) => {
   if (!idempotencyKey) {
     return null;
   }
@@ -345,7 +351,8 @@ const getOrderCreateReplayQuery = ({ req, idempotencyKey, shippingAddress }) => 
     };
   }
 
-  const shippingEmail = getGuestEmailFromShipping(shippingAddress).toLowerCase();
+  const shippingEmail =
+    getGuestEmailFromShipping(shippingAddress).toLowerCase();
   if (!shippingEmail) {
     return null;
   }
@@ -370,11 +377,18 @@ export const createOrder = async (req, res) => {
     });
   }
 
+  let idempotencyKey = "";
+
   try {
-    const { shippingAddress, paymentMethod, taxPrice, shippingPrice, totalPrice } =
-      req.body;
+    const {
+      shippingAddress,
+      paymentMethod,
+      taxPrice,
+      shippingPrice,
+      totalPrice,
+    } = req.body;
     const normalizedOrderItems = normalizeOrderItems(req.body.orderItems || []);
-    const idempotencyKey = getRequestIdempotencyKey(req);
+    idempotencyKey = getRequestIdempotencyKey(req);
 
     if (normalizedOrderItems.length === 0) {
       return res.status(400).json({
@@ -403,142 +417,166 @@ export const createOrder = async (req, res) => {
     const session = await mongoose.startSession();
     let createdOrder;
 
-    try {
-      await session.withTransaction(async () => {
-        const productIds = normalizedOrderItems.map((item) => item.product);
-        const products = await Product.find({ _id: { $in: productIds } }).session(
+    const executeOrderCreation = async () => {
+      const productIds = normalizedOrderItems.map((item) => item.product);
+      const products = await Product.find({ _id: { $in: productIds } }).session(
+        session,
+      );
+      const productMap = new Map(
+        products.map((product) => [String(product._id), product]),
+      );
+      const requestedQtyByProduct =
+        aggregateRequestedQuantities(normalizedOrderItems);
+      const stockMap = await getStockTotalsByProductIds(
+        Array.from(requestedQtyByProduct.keys()),
+        session,
+      );
+
+      let expectedSubtotal = 0;
+
+      for (const [productId, requestedQty] of requestedQtyByProduct.entries()) {
+        const product = productMap.get(productId);
+        if (!product) {
+          throw new Error(`PRODUCT_NOT_FOUND:${productId}`);
+        }
+
+        const availableStock = stockMap.get(productId) || 0;
+        if (availableStock < requestedQty) {
+          throw new Error(`INSUFFICIENT_STOCK:${product.name}`);
+        }
+      }
+
+      for (const item of normalizedOrderItems) {
+        const product = productMap.get(String(item.product));
+        if (!product) {
+          throw new Error(`PRODUCT_NOT_FOUND:${item.product}`);
+        }
+
+        const normalizedQty = Number(item.quantity || 0);
+        if (!Number.isFinite(normalizedQty) || normalizedQty <= 0) {
+          throw new Error(`INVALID_QUANTITY:${product.name}`);
+        }
+
+        const expectedUnitPrice = getProductEffectiveUnitPrice(product);
+        const incomingUnitPrice = roundCurrency(item.price);
+        if (incomingUnitPrice !== expectedUnitPrice) {
+          throw new Error(`PRICE_MISMATCH:${product.name}`);
+        }
+
+        expectedSubtotal += expectedUnitPrice * normalizedQty;
+      }
+
+      const normalizedTax = roundCurrency(taxPrice);
+      const normalizedShipping = roundCurrency(shippingPrice);
+      const computedTotal = roundCurrency(
+        roundCurrency(expectedSubtotal) + normalizedTax + normalizedShipping,
+      );
+
+      if (computedTotal !== roundCurrency(totalPrice)) {
+        throw new Error("TOTAL_MISMATCH");
+      }
+
+      const allocationQueueMap = new Map();
+      for (const [productId, requestedQty] of requestedQtyByProduct.entries()) {
+        const allocations = await deductStockFIFO(
+          productId,
+          requestedQty,
           session,
         );
-        const productMap = new Map(
-          products.map((product) => [String(product._id), product]),
+        allocationQueueMap.set(
+          productId,
+          allocations.map((allocation) => ({
+            batchId: allocation.batchId,
+            batchNumber: allocation.batchNumber,
+            remaining: Number(allocation.deducted || 0),
+          })),
         );
-        const requestedQtyByProduct = aggregateRequestedQuantities(
-          normalizedOrderItems,
-        );
-        const stockMap = await getStockTotalsByProductIds(
-          Array.from(requestedQtyByProduct.keys()),
-          session,
-        );
+      }
 
-        let expectedSubtotal = 0;
+      const orderItemsWithBatches = normalizedOrderItems.map((item) => {
+        const product = productMap.get(String(item.product));
+        const queue = allocationQueueMap.get(String(item.product)) || [];
+        let qtyNeeded = Number(item.quantity || 0);
+        const batchAllocations = [];
 
-        for (const [productId, requestedQty] of requestedQtyByProduct.entries()) {
-          const product = productMap.get(productId);
-          if (!product) {
-            throw new Error(`PRODUCT_NOT_FOUND:${productId}`);
-          }
+        while (qtyNeeded > 0 && queue.length > 0) {
+          const head = queue[0];
+          const consumed = Math.min(head.remaining, qtyNeeded);
 
-          const availableStock = stockMap.get(productId) || 0;
-          if (availableStock < requestedQty) {
-            throw new Error(`INSUFFICIENT_STOCK:${product.name}`);
+          batchAllocations.push({
+            batchId: head.batchId,
+            batchNumber: head.batchNumber,
+            quantity: consumed,
+          });
+
+          head.remaining -= consumed;
+          qtyNeeded -= consumed;
+
+          if (head.remaining <= 0) {
+            queue.shift();
           }
         }
 
-        for (const item of normalizedOrderItems) {
-          const product = productMap.get(String(item.product));
-          if (!product) {
-            throw new Error(`PRODUCT_NOT_FOUND:${item.product}`);
-          }
-
-          const normalizedQty = Number(item.quantity || 0);
-          if (!Number.isFinite(normalizedQty) || normalizedQty <= 0) {
-            throw new Error(`INVALID_QUANTITY:${product.name}`);
-          }
-
-          const expectedUnitPrice = getProductEffectiveUnitPrice(product);
-          const incomingUnitPrice = roundCurrency(item.price);
-          if (incomingUnitPrice !== expectedUnitPrice) {
-            throw new Error(`PRICE_MISMATCH:${product.name}`);
-          }
-
-          expectedSubtotal += expectedUnitPrice * normalizedQty;
-        }
-
-        const normalizedTax = roundCurrency(taxPrice);
-        const normalizedShipping = roundCurrency(shippingPrice);
-        const computedTotal = roundCurrency(
-          roundCurrency(expectedSubtotal) + normalizedTax + normalizedShipping,
-        );
-
-        if (computedTotal !== roundCurrency(totalPrice)) {
-          throw new Error("TOTAL_MISMATCH");
-        }
-
-        const allocationQueueMap = new Map();
-        for (const [productId, requestedQty] of requestedQtyByProduct.entries()) {
-          const allocations = await deductStockFIFO(productId, requestedQty, session);
-          allocationQueueMap.set(
-            productId,
-            allocations.map((allocation) => ({
-              batchId: allocation.batchId,
-              batchNumber: allocation.batchNumber,
-              remaining: Number(allocation.deducted || 0),
-            })),
+        if (qtyNeeded > 0) {
+          throw new Error(
+            `ALLOCATION_MISMATCH:${product?.name || item.product}`,
           );
         }
 
-        const orderItemsWithBatches = normalizedOrderItems.map((item) => {
-          const product = productMap.get(String(item.product));
-          const queue = allocationQueueMap.get(String(item.product)) || [];
-          let qtyNeeded = Number(item.quantity || 0);
-          const batchAllocations = [];
+        const fallbackImage =
+          product?.image ||
+          product?.images?.[0]?.url ||
+          product?.images?.[0] ||
+          "";
 
-          while (qtyNeeded > 0 && queue.length > 0) {
-            const head = queue[0];
-            const consumed = Math.min(head.remaining, qtyNeeded);
-
-            batchAllocations.push({
-              batchId: head.batchId,
-              batchNumber: head.batchNumber,
-              quantity: consumed,
-            });
-
-            head.remaining -= consumed;
-            qtyNeeded -= consumed;
-
-            if (head.remaining <= 0) {
-              queue.shift();
-            }
-          }
-
-          if (qtyNeeded > 0) {
-            throw new Error(`ALLOCATION_MISMATCH:${product?.name || item.product}`);
-          }
-
-          const fallbackImage =
-            product?.image || product?.images?.[0]?.url || product?.images?.[0] || "";
-
-          return {
-            product: item.product,
-            name: product?.name || item.name,
-            image: item.image || fallbackImage,
-            price: getProductEffectiveUnitPrice(product),
-            quantity: Number(item.quantity),
-            batchAllocations,
-          };
-        });
-
-        const order = new Order({
-          user: req.user?._id || null,
-          customerSnapshot: {
-            name: req.user?.name || getGuestNameFromShipping(shippingAddress),
-            email:
-              req.user?.email ||
-              getGuestEmailFromShipping(shippingAddress).toLowerCase(),
-          },
-          orderItems: orderItemsWithBatches,
-          shippingAddress,
-          paymentMethod,
-          taxPrice: normalizedTax,
-          shippingPrice: normalizedShipping,
-          totalPrice: computedTotal,
-          idempotency: {
-            createOrderKey: idempotencyKey || "",
-          },
-        });
-
-        createdOrder = await order.save({ session });
+        return {
+          product: item.product,
+          name: product?.name || item.name,
+          image: item.image || fallbackImage,
+          price: getProductEffectiveUnitPrice(product),
+          quantity: Number(item.quantity),
+          batchAllocations,
+        };
       });
+
+      const order = new Order({
+        user: req.user?._id || null,
+        customerSnapshot: {
+          name: req.user?.name || getGuestNameFromShipping(shippingAddress),
+          email:
+            req.user?.email ||
+            getGuestEmailFromShipping(shippingAddress).toLowerCase(),
+        },
+        orderItems: orderItemsWithBatches,
+        shippingAddress,
+        paymentMethod,
+        taxPrice: normalizedTax,
+        shippingPrice: normalizedShipping,
+        totalPrice: computedTotal,
+        idempotency: {
+          createOrderKey: idempotencyKey || "",
+        },
+      });
+
+      createdOrder = await order.save({ session });
+    };
+
+    try {
+      try {
+        await session.withTransaction(executeOrderCreation);
+      } catch (error) {
+        const isStandaloneMongoError =
+          error?.code === 20 ||
+          /Transaction numbers are only allowed on a replica set member or mongos/i.test(
+            String(error?.message || ""),
+          );
+
+        if (!isStandaloneMongoError) {
+          throw error;
+        }
+
+        await executeOrderCreation();
+      }
     } finally {
       session.endSession();
     }
@@ -608,7 +646,8 @@ export const createOrder = async (req, res) => {
       if (error.message === "TOTAL_MISMATCH") {
         return res.status(409).json({
           success: false,
-          error: "Order total mismatch. Please refresh your cart and try again.",
+          error:
+            "Order total mismatch. Please refresh your cart and try again.",
         });
       }
 
@@ -636,7 +675,8 @@ export const createOrder = async (req, res) => {
       if (error.message.startsWith("BATCH_RESTORE_OVERFLOW:")) {
         return res.status(409).json({
           success: false,
-          error: "Inventory reconciliation conflict detected. Please contact support.",
+          error:
+            "Inventory reconciliation conflict detected. Please contact support.",
         });
       }
     }
@@ -849,7 +889,9 @@ export const updateOrderStatus = async (req, res) => {
         previousStatus = order.status;
 
         if (!canTransitionOrderStatus(previousStatus, status)) {
-          throw new Error(`INVALID_STATUS_TRANSITION:${previousStatus}->${status}`);
+          throw new Error(
+            `INVALID_STATUS_TRANSITION:${previousStatus}->${status}`,
+          );
         }
 
         if (status === previousStatus) {
@@ -1021,7 +1063,9 @@ export const confirmPayment = async (req, res) => {
       return res.json({
         success: true,
         idempotentReplay: true,
-        message: order.isPaid ? "Payment already confirmed" : "Payment confirmation in progress",
+        message: order.isPaid
+          ? "Payment already confirmed"
+          : "Payment confirmation in progress",
       });
     }
 
@@ -1040,7 +1084,8 @@ export const confirmPayment = async (req, res) => {
     };
     order.idempotency = {
       ...(order.idempotency || {}),
-      paymentConfirmKey: idempotencyKey || order.idempotency?.paymentConfirmKey || "",
+      paymentConfirmKey:
+        idempotencyKey || order.idempotency?.paymentConfirmKey || "",
     };
 
     await order.save();
