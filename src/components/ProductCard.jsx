@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../store/slices/cartSlice";
 import { selectAuthUser } from "../store/slices/authSlice";
 import toast from "react-hot-toast";
 import { resolveMediaUrl } from "../utils/mediaUrl";
+import { canManageWishlist } from "../utils/wishlistAuth";
 import {
   MdStar,
   MdShoppingCart,
@@ -13,6 +14,7 @@ import {
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const user = useSelector(selectAuthUser);
   const isAdmin = user?.role === "admin";
   const ratingValue = product.averageRating ?? product.rating ?? 0;
@@ -59,6 +61,14 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   const handleWishlistClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!canManageWishlist(Boolean(user))) {
+      toast.error("Please login or register to add products to wishlist");
+      navigate("/login");
+      return;
+    }
+
+    toast.error("Wishlist access is available to registered users only");
   };
 
   const handleQuickViewClick = (e) => {
