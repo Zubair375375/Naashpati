@@ -91,6 +91,40 @@ const toLocalDateBoundaryIso = (dateValue, boundary) => {
   return date.toISOString();
 };
 
+const uploadDashboardImage = async (file) => {
+  if (!file) {
+    return "";
+  }
+
+  const formDataUpload = new FormData();
+  formDataUpload.append("image", file);
+
+  const rawToken = localStorage.getItem("accessToken");
+  const token = rawToken ? JSON.parse(rawToken) : null;
+
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL || "/api"}/upload`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formDataUpload,
+      credentials: "include",
+    },
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || "Failed to upload image");
+  }
+
+  const result = await response.json();
+  if (!result?.data?.url) {
+    throw new Error("Upload succeeded but image URL is missing");
+  }
+
+  return result.data.url;
+};
+
 const AdminDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
