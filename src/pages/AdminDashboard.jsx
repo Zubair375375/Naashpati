@@ -100,7 +100,14 @@ const uploadDashboardImage = async (file) => {
   formDataUpload.append("image", file);
 
   const rawToken = localStorage.getItem("accessToken");
-  const token = rawToken ? JSON.parse(rawToken) : null;
+  let token = null;
+  if (rawToken) {
+    try {
+      token = JSON.parse(rawToken);
+    } catch {
+      token = rawToken;
+    }
+  }
 
   const response = await fetch(
     `${import.meta.env.VITE_API_URL || "/api"}/upload`,
@@ -117,12 +124,19 @@ const uploadDashboardImage = async (file) => {
     throw new Error(errorText || "Failed to upload image");
   }
 
-  const result = await response.json();
-  if (!result?.data?.url) {
+  const result = await response.json().catch(() => ({}));
+  const uploadedUrl =
+    result?.data?.url ||
+    result?.url ||
+    result?.secure_url ||
+    result?.imageUrl ||
+    result?.data?.imageUrl;
+
+  if (!uploadedUrl) {
     throw new Error("Upload succeeded but image URL is missing");
   }
 
-  return result.data.url;
+  return uploadedUrl;
 };
 
 const AdminDashboard = () => {
@@ -528,8 +542,14 @@ const AdminDashboard = () => {
           },
         );
         if (!response.ok) throw new Error("Failed to upload image");
-        const result = await response.json();
-        imageUrl = result.data.url;
+        const result = await response.json().catch(() => ({}));
+        imageUrl =
+          result?.data?.url ||
+          result?.url ||
+          result?.secure_url ||
+          result?.imageUrl ||
+          result?.data?.imageUrl ||
+          "";
         setUploadingCategoryImage(false);
       }
       const createdCategory = await dispatch(

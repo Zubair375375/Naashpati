@@ -20,8 +20,15 @@ const uploadImage = async (file) => {
     credentials: "include",
   });
   if (!res.ok) throw new Error("Failed to upload image");
-  const result = await res.json();
-  return result.data.url;
+  const result = await res.json().catch(() => ({}));
+  const uploadedUrl =
+    result?.data?.url ||
+    result?.url ||
+    result?.secure_url ||
+    result?.imageUrl ||
+    result?.data?.imageUrl;
+  if (!uploadedUrl) throw new Error("Upload succeeded but image URL is missing");
+  return uploadedUrl;
 };
 
 const uploadVideo = async (file) => {

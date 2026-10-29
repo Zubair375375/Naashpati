@@ -374,11 +374,21 @@ const CreateProduct = ({
       throw new Error(result?.error || "Failed to upload image");
     }
 
-    if (!result?.data?.url) {
+    const uploadedUrl =
+      result?.data?.url ||
+      result?.url ||
+      result?.secure_url ||
+      result?.imageUrl ||
+      result?.data?.imageUrl;
+
+    if (!uploadedUrl) {
       throw new Error("Upload succeeded but image URL is missing");
     }
 
-    return result.data; // { url: "/uploads/filename", public_id: "filename" }
+    return {
+      url: uploadedUrl,
+      public_id: result?.data?.public_id || result?.public_id || "",
+    };
   };
 
   const handleSubmit = async (e) => {
