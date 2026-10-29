@@ -639,7 +639,11 @@ const AdminDashboard = () => {
       setSaleOfferBannerPreview(null);
       toast.success("Sale offer created successfully");
     } catch (error) {
-      toast.error(error || "Failed to create sale offer");
+      const message =
+        typeof error === "string"
+          ? error
+          : error?.message || error?.error || "Failed to create sale offer";
+      toast.error(message);
     } finally {
       setUploadingSaleOfferBanner(false);
     }
@@ -654,7 +658,11 @@ const AdminDashboard = () => {
       await dispatch(deleteSaleOffer(offerId)).unwrap();
       toast.success("Sale offer deleted successfully");
     } catch (error) {
-      toast.error(error || "Failed to delete sale offer");
+      const message =
+        typeof error === "string"
+          ? error
+          : error?.message || error?.error || "Failed to delete sale offer";
+      toast.error(message);
     }
   };
 
