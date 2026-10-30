@@ -29,6 +29,7 @@ import announcementRoutes from "./routes/announcements.js";
 import heroBadgeRoutes from "./routes/heroBadges.js";
 import saleOfferRoutes from "./routes/saleOffers.js";
 import aboutContentRoutes from "./routes/aboutContent.js";
+import contactRoutes from "./routes/contact.js";
 import batchRoutes from "./routes/batches.js";
 import {
   startMetricsRecomputeJob,
@@ -174,6 +175,7 @@ app.use("/api/announcements", announcementRoutes);
 app.use("/api/hero-badges", heroBadgeRoutes);
 app.use("/api/sale-offers", saleOfferRoutes);
 app.use("/api/about-content", aboutContentRoutes);
+app.use("/api/contact", contactRoutes);
 app.use("/api/batches", batchRoutes);
 
 // ---------------------- HEALTH ----------------------

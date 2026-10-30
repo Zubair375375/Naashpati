@@ -22,7 +22,7 @@ const Contact = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!formData.name || !formData.email || !formData.comment) {
       toast.error(
@@ -31,14 +31,41 @@ const Contact = () => {
       return;
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      comment: prev.comment,
-      phone: prev.phone,
-    }));
-    toast.success(
-      "Thank you! Your message has been sent. We will contact you soon.",
-    );
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || "/api"}/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          comment: formData.comment,
+          orderId: formData.orderId,
+        }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result?.error || "Unable to send your message.");
+      }
+
+      toast.success(
+        result?.message || "Thank you! Your message has been sent. We will contact you soon.",
+      );
+      setFormData({
+        name: "",
+        phone: "",
+        email: "",
+        comment: "",
+        orderId: "",
+      });
+    } catch (error) {
+      toast.error(error?.message || "Unable to send your message.");
+    }
   };
 
   const handleRequestCall = () => {
