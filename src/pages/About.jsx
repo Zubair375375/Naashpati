@@ -250,9 +250,11 @@ const About = () => {
             <FaLeaf className="w-4 h-4" />
             Our Story
           </span>
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
-            Nature's Best,{" "}
-            <span className="text-[#68a300]">Delivered to You</span>
+          <h1 className="text-5xl md:text-6xl font-bold leading-tight mb-6">
+            <span className="text-[#68a300]">Naashpati</span>
+            <span className="block text-gray-900">
+              Beyond The Box
+            </span>
           </h1>
           <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto mb-10">
             Naashpati was founded on a simple belief — that nature holds the
