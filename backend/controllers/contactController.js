@@ -1,7 +1,8 @@
 import { validationResult } from "express-validator";
 import { sendEmail } from "../utils/sendEmail.js";
 
-const ADMIN_CONTACT_EMAIL = process.env.ADMIN_CONTACT_EMAIL;
+const ADMIN_CONTACT_EMAIL =
+  process.env.ADMIN_CONTACT_EMAIL || "info@naashpati.com";
 
 export const sendContactMessage = async (req, res) => {
   try {
