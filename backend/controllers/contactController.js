@@ -1,8 +1,7 @@
 import { validationResult } from "express-validator";
 import { sendEmail } from "../utils/sendEmail.js";
 
-const ADMIN_CONTACT_EMAIL =
-  process.env.ADMIN_CONTACT_EMAIL || "muhammadzubair375375@gmail.com";
+const ADMIN_CONTACT_EMAIL = process.env.ADMIN_CONTACT_EMAIL;
 
 export const sendContactMessage = async (req, res) => {
   try {
@@ -10,7 +9,8 @@ export const sendContactMessage = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         success: false,
-        error: errors.array()[0]?.msg || "Please provide valid contact details.",
+        error:
+          errors.array()[0]?.msg || "Please provide valid contact details.",
       });
     }
 
@@ -69,7 +69,8 @@ export const sendContactMessage = async (req, res) => {
     return res.status(500).json({
       success: false,
       error:
-        error?.message || "Unable to send your message right now. Please try again later.",
+        error?.message ||
+        "Unable to send your message right now. Please try again later.",
     });
   }
 };
