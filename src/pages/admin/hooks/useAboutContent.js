@@ -27,7 +27,8 @@ const uploadImage = async (file) => {
     result?.secure_url ||
     result?.imageUrl ||
     result?.data?.imageUrl;
-  if (!uploadedUrl) throw new Error("Upload succeeded but image URL is missing");
+  if (!uploadedUrl)
+    throw new Error("Upload succeeded but image URL is missing");
   return uploadedUrl;
 };
 

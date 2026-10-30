@@ -135,12 +135,6 @@ const AdminSidebarNav = ({
           Batches
         </button>
         <button
-          onClick={() => setActiveTab("about-video")}
-          className={getTabButtonClass("about-video")}
-        >
-          About
-        </button>
-        <button
           onClick={() => setActiveTab("announcements")}
           className={getTabButtonClass("announcements")}
         >
