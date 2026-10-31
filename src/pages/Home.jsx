@@ -203,8 +203,8 @@ const Home = () => {
       )}
 
       <section className="bg-white px-4 pb-10 pt-5 sm:px-5 lg:px-6">
-        <div className="mx-auto max-w-[1600px]">
-          <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="mx-auto max-w-[1600px] px-1 sm:px-2">
+          <div className="flex snap-x snap-mandatory justify-start gap-4 overflow-x-auto scroll-px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {categories
               .filter((category) => {
                 const value = String(category.value || "")
@@ -218,7 +218,7 @@ const Home = () => {
                 <Link
                   key={category.value}
                   to={`/products?category=${category.value}`}
-                  className="group relative block aspect-[3/5] w-[280px] shrink-0 overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[300px] md:w-[340px]"
+                  className="group relative block aspect-[3/5] w-[280px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[300px] md:w-[340px]"
                   aria-label={`Open ${category.name}`}
                 >
                   <div className="absolute inset-0">
