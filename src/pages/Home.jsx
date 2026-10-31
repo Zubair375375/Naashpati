@@ -163,6 +163,11 @@ const Home = () => {
   );
   const canLoadMoreLensesProducts =
     visibleLensesProductCount < lensesProducts.length;
+  const filteredHomeCategories = categories.filter((category) => {
+    const value = String(category.value || "").trim().toLowerCase();
+    return value !== "male-collection" && value !== "female-collection";
+  });
+  const isCategoryRowCentered = filteredHomeCategories.length <= 4;
 
   const scrollCategories = (direction) => {
     const element = categoryScrollRef.current;
@@ -204,17 +209,12 @@ const Home = () => {
 
       <section className="bg-white px-4 pb-10 pt-5 sm:px-5 lg:px-6">
         <div className="mx-auto max-w-[1600px] px-1 sm:px-2">
-          <div className="flex snap-x snap-mandatory justify-start gap-4 overflow-x-auto scroll-px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {categories
-              .filter((category) => {
-                const value = String(category.value || "")
-                  .trim()
-                  .toLowerCase();
-                return (
-                  value !== "male-collection" && value !== "female-collection"
-                );
-              })
-              .map((category) => (
+          <div
+            className={`flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+              isCategoryRowCentered ? "justify-center" : "justify-start"
+            }`}
+          >
+            {filteredHomeCategories.map((category) => (
                 <Link
                   key={category.value}
                   to={`/products?category=${category.value}`}
