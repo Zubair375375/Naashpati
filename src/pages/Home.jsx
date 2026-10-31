@@ -179,8 +179,8 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       {saleOffers.length > 0 && (
-        <section className="bg-white px-4 py-6 sm:px-6">
-          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-5">
+        <section className="bg-white py-0">
+          <div className="grid w-full grid-cols-1 gap-0">
             {saleOffers.map((offer) => (
               <Link
                 key={offer._id}
@@ -188,11 +188,11 @@ const Home = () => {
                 className="group block"
                 aria-label={`Open ${offer.name}`}
               >
-                <div className="relative h-[180px] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm sm:h-[260px] lg:h-[500px]">
+                <div className="relative h-[220px] overflow-hidden bg-white shadow-sm sm:h-[300px] lg:h-[86vh]">
                   <img
                     src={resolveMediaUrl(offer.banner)}
                     alt={offer.name}
-                    className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.01]"
+                    className="h-full w-full object-cover"
                     loading="lazy"
                   />
                 </div>
@@ -202,64 +202,61 @@ const Home = () => {
         </section>
       )}
 
-      <section className="bg-white px-6 py-10">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="text-left text-2xl font-bold text-[#232323]">
-            Shop By Gender
-          </h2>
+      <section className="bg-white px-4 pb-10 pt-5 sm:px-5 lg:px-6">
+        <div className="mx-auto max-w-[1600px]">
+          <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {categories
+              .filter((category) => {
+                const value = String(category.value || "")
+                  .trim()
+                  .toLowerCase();
+                return (
+                  value !== "male-collection" && value !== "female-collection"
+                );
+              })
+              .map((category) => (
+                <Link
+                  key={category.value}
+                  to={`/products?category=${category.value}`}
+                  className="group relative block aspect-[3/5] w-[280px] shrink-0 overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[300px] md:w-[340px]"
+                  aria-label={`Open ${category.name}`}
+                >
+                  <div className="absolute inset-0">
+                    {category.image ? (
+                      <img
+                        src={resolveMediaUrl(category.image)}
+                        alt={category.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
+                        <FaSeedling className="text-6xl text-white/80" />
+                      </div>
+                    )}
+                  </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3 md:gap-5">
-            <Link
-              to="/products?gender-category=male-collection"
-              className="group relative block overflow-hidden rounded-xl border border-gray-200"
-              aria-label="Open male collection"
-            >
-              <img
-                src={maleCollectionImage}
-                alt="Male collection"
-                className="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/90">
-                    Men
-                  </p>
-                  <h3 className="mt-1 text-base font-bold text-white sm:text-2xl">
-                    Male Collection
-                  </h3>
-                </div>
-                <span className="rounded bg-white/90 px-2 py-1 text-[10px] font-semibold text-[#232323] sm:px-3 sm:text-xs">
-                  Explore
-                </span>
-              </div>
-            </Link>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-            <Link
-              to="/products?gender-category=female-collection"
-              className="group relative block overflow-hidden rounded-xl border border-gray-200"
-              aria-label="Open female collection"
-            >
-              <img
-                src={femaleCollectionImage}
-                alt="Female collection"
-                className="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/90">
-                    Women
-                  </p>
-                  <h3 className="mt-1 text-base font-bold text-white sm:text-2xl">
-                    Female Collection
-                  </h3>
-                </div>
-                <span className="rounded bg-white/90 px-2 py-1 text-[10px] font-semibold text-[#232323] sm:px-3 sm:text-xs">
-                  Explore
-                </span>
-              </div>
-            </Link>
+                  <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
+                    <div className="space-y-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                        Collection
+                      </p>
+                      <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
+                        {category.name}
+                      </h3>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                    >
+                      Shop Now
+                    </button>
+                  </div>
+                </Link>
+              ))}
           </div>
         </div>
       </section>
@@ -320,84 +317,59 @@ const Home = () => {
       {/* Trending Products */}
       <TrendingProducts />
 
-      {/* Categories */}
-      <section className="bg-white py-16 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-10 flex items-center justify-between border-b border-gray-900 pb-4">
-            <h2
-              className="text-xl font-semibold text-gray-900"
-              style={{ fontFamily: "Poppins, sans-serif, Inter, system-ui" }}
-            >
-              Shop by Category
-            </h2>
-          </div>
-
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => scrollCategories(-1)}
-              className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-md transition hover:bg-white"
-              aria-label="Scroll categories left"
-            >
-              <FaChevronLeft className="text-sm" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => scrollCategories(1)}
-              className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-md transition hover:bg-white"
-              aria-label="Scroll categories right"
-            >
-              <FaChevronRight className="text-sm" />
-            </button>
-
-            <div
-              ref={categoryScrollRef}
-              className="flex gap-5 overflow-x-auto px-14 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
-              {categories
-                .filter((category) => {
-                  const value = String(category.value || "")
-                    .trim()
-                    .toLowerCase();
-                  return (
-                    value !== "male-collection" && value !== "female-collection"
-                  );
-                })
-                .map((category) => (
-                  <Link
-                    key={category.value}
-                    to={`/products?category=${category.value}`}
-                    className="group min-w-[220px] shrink-0"
-                  >
-                    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gray-100">
-                      {category.image ? (
-                        <img
-                          src={resolveMediaUrl(category.image)}
-                          alt={category.name}
-                          loading="lazy"
-                          className="h-[224px] w-[224px] object-cover transition duration-300 group-hover:scale-[1.03]"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                          <FaSeedling className="text-4xl text-[#68a300]" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="mt-3 text-center text-sm font-medium text-gray-700">
-                      {category.name}
-                    </p>
-                  </Link>
-                ))}
-            </div>
-          </div>
-
-          <div className="mt-10 text-center">
+      <section className="bg-white pt-0 pb-0">
+        <div className="w-full">
+          <div className="grid grid-cols-1 gap-0 md:grid-cols-2">
             <Link
-              to="/products"
-              className="inline-flex items-center justify-center bg-[#232323] border border-[#232323] text-white px-4 py-2 text-[14px] font-semibold text-black transition hover:bg-[#ffffff] hover:text-black hover:border hover:border-[#232323]"
+              to="/products?gender-category=male-collection"
+              className="group relative block overflow-hidden"
+              aria-label="Open male collection"
             >
-              View All Products
+              <img
+                src={maleCollectionImage}
+                alt="Male collection"
+                className="h-[50vh] w-full object-cover md:h-[75vh]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/90">
+                    Men
+                  </p>
+                  <h3 className="mt-1 text-base font-bold text-white sm:text-2xl">
+                    Male Collection
+                  </h3>
+                </div>
+                <span className="rounded bg-white/90 px-2 py-1 text-[10px] font-semibold text-[#232323] sm:px-3 sm:text-xs">
+                  Explore
+                </span>
+              </div>
+            </Link>
+
+            <Link
+              to="/products?gender-category=female-collection"
+              className="group relative block overflow-hidden"
+              aria-label="Open female collection"
+            >
+              <img
+                src={femaleCollectionImage}
+                alt="Female collection"
+                className="h-[50vh] w-full object-cover md:h-[75vh]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/90">
+                    Women
+                  </p>
+                  <h3 className="mt-1 text-base font-bold text-white sm:text-2xl">
+                    Female Collection
+                  </h3>
+                </div>
+                <span className="rounded bg-white/90 px-2 py-1 text-[10px] font-semibold text-[#232323] sm:px-3 sm:text-xs">
+                  Explore
+                </span>
+              </div>
             </Link>
           </div>
         </div>

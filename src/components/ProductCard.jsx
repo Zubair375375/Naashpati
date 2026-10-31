@@ -93,20 +93,20 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     return (
       <Link
         to={productUrl}
-        className="group flex flex-col overflow-hidden rounded-lg bg-white shadow-soft transition-shadow duration-300 hover:shadow-large sm:flex-row"
+        className="group flex flex-col overflow-hidden rounded-lg bg-white shadow-soft sm:flex-row"
       >
         <div className="h-52 w-full overflow-hidden sm:h-auto sm:w-56">
           <img
             src={productImage}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover"
           />
         </div>
 
         <div className="flex flex-1 flex-col justify-between p-4">
           <div>
-            <h3 className="mb-2 text-lg font-semibold text-secondary-900 transition-colors group-hover:text-primary-600">
+            <h3 className="mb-2 text-lg font-semibold text-secondary-900 transition-colors duration-150 group-hover:text-blue-600">
               {product.name}
             </h3>
 
@@ -164,7 +164,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               className="bg-transparent border-0 p-0 text-[#68a300] disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Add to cart"
             >
-              <MdShoppingCart className="h-5 w-5 transition-transform duration-150 hover:scale-125" />
+              <MdShoppingCart className="h-5 w-5" />
             </button>
           </div>
 
@@ -180,14 +180,14 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     return (
       <Link
         to={productUrl}
-        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+        className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
       >
         <div className="relative aspect-square overflow-hidden bg-gray-50">
           <img
             src={productImage}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover"
           />
           <div className="absolute left-3 top-3 flex flex-col gap-2">
             {hasDiscount ? (
@@ -209,7 +209,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             type="button"
             onClick={handleWishlistClick}
             aria-label="Add to wishlist"
-            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm transition hover:scale-105"
+            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-sm"
           >
             <MdFavoriteBorder className="h-5 w-5" />
           </button>
@@ -221,7 +221,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               {product.category}
             </p>
           ) : null}
-          <h3 className="mt-2 line-clamp-2 text-base font-semibold text-gray-900">
+          <h3 className="mt-2 line-clamp-2 text-base font-semibold text-gray-900 transition-colors duration-150 group-hover:text-blue-600">
             {product.name}
           </h3>
 
@@ -243,7 +243,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock || isAdmin}
-              className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#68a300] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#5f9600] disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#68a300] px-3 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               <MdShoppingCart className="h-4 w-4" />
               Add to Cart
@@ -251,7 +251,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             <button
               type="button"
               onClick={handleQuickViewClick}
-              className="inline-flex items-center justify-center rounded-full border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700 transition hover:border-gray-300"
+              className="inline-flex items-center justify-center rounded-full border border-gray-200 px-3 py-2 text-xs font-semibold text-gray-700"
             >
               <MdVisibility className="h-4 w-4" />
             </button>
@@ -265,19 +265,19 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     return (
       <Link
         to={productUrl}
-        className="group overflow-hidden rounded-lg bg-white shadow-soft transition-shadow duration-300 hover:shadow-large"
+        className="group overflow-hidden rounded-lg bg-white shadow-soft"
       >
         <div className="aspect-[4/3] overflow-hidden">
           <img
             src={productImage}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover"
           />
         </div>
 
         <div className="p-3">
-          <h3 className="mb-1 line-clamp-1 text-sm font-semibold text-secondary-900 transition-colors group-hover:text-primary-600">
+          <h3 className="mb-1 line-clamp-1 text-sm font-semibold text-secondary-900 transition-colors duration-150 group-hover:text-blue-600">
             {product.name}
           </h3>
 
@@ -311,7 +311,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               className="bg-transparent border-0 p-0 text-[#68a300] disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Add to cart"
             >
-              <MdShoppingCart className="h-5 w-5 transition-transform duration-150 hover:scale-125" />
+              <MdShoppingCart className="h-5 w-5" />
             </button>
           </div>
 
@@ -327,19 +327,19 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     return (
       <Link
         to={productUrl}
-        className="group overflow-hidden rounded-md bg-white shadow-soft transition-shadow duration-300 hover:shadow-large"
+        className="group overflow-hidden rounded-md bg-white shadow-soft"
       >
         <div className="aspect-square overflow-hidden">
           <img
             src={productImage}
             alt={product.name}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="h-full w-full object-cover"
           />
         </div>
 
         <div className="p-2">
-          <h3 className="mb-1 line-clamp-1 text-xs font-semibold text-secondary-900 transition-colors group-hover:text-primary-600">
+          <h3 className="mb-1 line-clamp-1 text-xs font-semibold text-secondary-900 transition-colors duration-150 group-hover:text-blue-600">
             {product.name}
           </h3>
 
@@ -361,7 +361,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               className="bg-transparent border-0 p-0 text-[#68a300] disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Add to cart"
             >
-              <MdShoppingCart className="h-4 w-4 transition-transform duration-150 hover:scale-125" />
+              <MdShoppingCart className="h-4 w-4" />
             </button>
           </div>
         </div>
@@ -372,19 +372,19 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   return (
     <Link
       to={productUrl}
-      className="group bg-white rounded-lg shadow-soft overflow-hidden hover:shadow-large transition-shadow duration-300"
+      className="group bg-white rounded-lg shadow-soft overflow-hidden"
     >
       <div className="aspect-square overflow-hidden">
         <img
           src={productImage}
           alt={product.name}
           loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-cover"
         />
       </div>
 
       <div className="p-4">
-        <h3 className="font-semibold text-secondary-900 mb-2 line-clamp-2 group-hover:text-primary-600 transition-colors">
+        <h3 className="font-semibold text-secondary-900 mb-2 line-clamp-2 transition-colors duration-150 group-hover:text-blue-600">
           {product.name}
         </h3>
 
@@ -416,7 +416,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             className="bg-transparent border-0 p-0 text-[#68a300] disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Add to cart"
           >
-            <MdShoppingCart className="h-5 w-5 transition-transform duration-150 hover:scale-125" />
+            <MdShoppingCart className="h-5 w-5" />
           </button>
         </div>
 
