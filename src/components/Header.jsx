@@ -14,13 +14,8 @@ import {
   selectCategories,
   selectCategoriesStatus,
 } from "../store/slices/productSlice";
-import {
-  MdShoppingCart,
-  MdPerson,
-  MdMenu,
-  MdClose,
-  MdSearch,
-} from "react-icons/md";
+import { MdMenu, MdClose, MdSearch } from "react-icons/md";
+import { FiShoppingCart, FiUser } from "react-icons/fi";
 
 const DEFAULT_CATEGORIES = [
   { name: "Male Collection", description: "" },
@@ -37,11 +32,26 @@ const slugifyCategory = (value = "") =>
 const Header = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
   const [shouldFocusMobileSearch, setShouldFocusMobileSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const mobileSearchInputRef = useRef(null);
+  const loginButtonRef = useRef(null);
+  const loginPopupRef = useRef(null);
+  const dispatch = useDispatch();
+  const user = useSelector(selectAuthUser);
+  const categories = useSelector(selectCategories);
+  const categoriesStatus = useSelector(selectCategoriesStatus);
+  const accessToken = useSelector((state) => state.auth.accessToken);
+  const authChecked = useSelector(selectAuthChecked);
+  const authLoading = useSelector(selectAuthIsLoading);
+  const cartItemCount = useSelector(selectCartItemCount);
+  const API_URL = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
+  const showAuthPendingState =
+    !!accessToken && (!authChecked || (authLoading && !user));
+  const defaultCategoriesEnsured = useRef(false);
 
   useEffect(() => {
     if (!isMobileMenuOpen) return undefined;
@@ -65,18 +75,34 @@ const Header = () => {
     return () => window.clearTimeout(focusTimer);
   }, [isMobileMenuOpen, shouldFocusMobileSearch]);
 
-  const dispatch = useDispatch();
-  const user = useSelector(selectAuthUser);
-  const categories = useSelector(selectCategories);
-  const categoriesStatus = useSelector(selectCategoriesStatus);
-  const accessToken = useSelector((state) => state.auth.accessToken);
-  const authChecked = useSelector(selectAuthChecked);
-  const authLoading = useSelector(selectAuthIsLoading);
-  const cartItemCount = useSelector(selectCartItemCount);
-  const API_URL = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
-  const showAuthPendingState =
-    !!accessToken && (!authChecked || (authLoading && !user));
-  const defaultCategoriesEnsured = useRef(false);
+  useEffect(() => {
+    if (!isLoginPopupOpen) return undefined;
+
+    const handlePointerDown = (event) => {
+      const clickedInsideButton = loginButtonRef.current?.contains(
+        event.target,
+      );
+      const clickedInsidePopup = loginPopupRef.current?.contains(event.target);
+
+      if (!clickedInsideButton && !clickedInsidePopup) {
+        setIsLoginPopupOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [isLoginPopupOpen]);
+
+  useEffect(() => {
+    if (
+      !user &&
+      !showAuthPendingState &&
+      !location.pathname.startsWith("/login") &&
+      !location.pathname.startsWith("/register")
+    ) {
+      setIsLoginPopupOpen(true);
+    }
+  }, [user, showAuthPendingState, location.pathname]);
 
   const avatarCandidates = useMemo(() => {
     if (!user?.avatar) return [];
@@ -336,7 +362,10 @@ const Header = () => {
       </button>
 
       <Link to="/cart" className="relative">
-        <MdShoppingCart className="text-xl text-[#68a300]" />
+        <FiShoppingCart
+          className="text-[1.55rem] text-black"
+          strokeWidth={1.8}
+        />
         {cartItemCount > 0 && (
           <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
             {cartItemCount}
@@ -360,7 +389,7 @@ const Header = () => {
               <img
                 src={avatarCandidates[avatarSrcIndex] || ""}
                 alt={user?.name || "Profile"}
-                className="h-7 w-7 rounded-full object-cover"
+                className="h-8 w-8 rounded-full object-cover"
                 onError={() => {
                   if (avatarSrcIndex < avatarCandidates.length - 1) {
                     setAvatarSrcIndex((prev) => prev + 1);
@@ -368,7 +397,7 @@ const Header = () => {
                 }}
               />
             ) : (
-              <MdPerson className="text-xl" />
+              <FiUser className="text-[1.8rem]" />
             )}
           </button>
 
@@ -396,25 +425,56 @@ const Header = () => {
           )}
         </div>
       ) : (
-        <div className="hidden space-x-2 text-sm md:flex">
-          <Link to="/login" className="text-gray-700 hover:text-[#68a300]">
-            Login
-          </Link>
-          <Link to="/register" className="text-gray-700 hover:text-[#68a300]">
-            Sign Up
-          </Link>
+        <div className="relative hidden md:flex">
+          <button
+            ref={loginButtonRef}
+            type="button"
+            aria-label="Login options"
+            onClick={() => setIsLoginPopupOpen((prev) => !prev)}
+            className="flex items-center rounded-md px-2 py-1 text-left text-black transition"
+          >
+            <FiUser size={24} strokeWidth={2} className="text-black" />
+          </button>
+
+          {isLoginPopupOpen && (
+            <div
+              ref={loginPopupRef}
+              className="absolute right-0 top-full z-[80] mt-2 w-48 rounded-md border border-gray-200 bg-white p-3 shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
+            >
+              <Link
+                to="/login"
+                onClick={() => setIsLoginPopupOpen(false)}
+                className="block rounded-md bg-[#f5c400] px-3 py-2 text-center text-sm text-black transition hover:bg-[#f0ba00]"
+              >
+                Sign in
+              </Link>
+
+              <p className="mt-3 text-center text-xs text-gray-700">
+                New customer?{" "}
+                <Link
+                  to="/register"
+                  onClick={() => setIsLoginPopupOpen(false)}
+                  className="text-[#0055AA] underline hover:underline hover:text-[#068a00]"
+                >
+                  start here
+                </Link>
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 
   return (
-    <header className="bg-white border-b sticky top-0 z-50 shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
       <div className="mx-auto max-w-[1600px] px-4 xl:px-8">
         {/* ── Top row: logo + search + icons ── */}
         <div
           className={`relative flex h-16 items-center justify-between ${
-            isProfileMenuOpen ? "overflow-visible" : "overflow-hidden"
+            isProfileMenuOpen || isLoginPopupOpen
+              ? "overflow-visible"
+              : "overflow-hidden"
           }`}
         >
           {mobileMenuButton}
@@ -507,7 +567,7 @@ const Header = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex items-center gap-2 rounded px-2 py-2.5 font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#68a300]"
               >
-                <MdPerson className="text-xl" />
+                <FiUser className="text-xl" />
                 Profile
               </Link>
             </div>
@@ -516,16 +576,16 @@ const Header = () => {
               <Link
                 to="/login"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block rounded px-2 py-2.5 font-semibold text-[#68a300] hover:bg-gray-50"
+                aria-label="Login"
+                className="flex w-full items-center justify-center rounded-full border border-gray-300 bg-transparent p-3 text-black transition hover:border-[#68a300] hover:text-[#68a300]"
+                style={{ width: "3.2rem", height: "3.2rem" }}
               >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block rounded px-2 py-2.5 font-semibold text-blue-600 hover:bg-gray-50"
-              >
-                Sign Up
+                <FiUser
+                  size={30}
+                  strokeWidth={2.2}
+                  color="black"
+                  style={{ width: "2.5rem", height: "2.5rem" }}
+                />
               </Link>
             </div>
           ) : null}
