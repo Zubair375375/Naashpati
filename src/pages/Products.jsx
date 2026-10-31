@@ -285,7 +285,7 @@ const Products = ({ collectionType = "" }) => {
                       onClick={() =>
                         handleFilterChange("category", category.value)
                       }
-                      className={`group flex min-w-[138px] shrink-0 flex-col items-center rounded-xl bg-white px-2 py-3 text-center transition hover:-translate-y-0.5 hover:shadow-md sm:min-w-[160px] sm:px-3 ${
+                      className={`group flex min-w-[138px] shrink-0 flex-col items-center rounded-xl bg-white px-2 py-3 text-center sm:min-w-[160px] sm:px-3 ${
                         isActive ? "shadow-md" : ""
                       }`}
                     >
@@ -303,7 +303,7 @@ const Products = ({ collectionType = "" }) => {
                           </div>
                         )}
                       </div>
-                      <p className="mt-2 line-clamp-1 text-xs font-medium text-gray-800 group-hover:text-[#68a300]">
+                      <p className="mt-2 line-clamp-1 text-xs font-medium text-gray-800 transition-colors duration-150 group-hover:text-blue-600">
                         {category.name}
                       </p>
                     </button>
