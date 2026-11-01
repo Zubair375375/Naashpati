@@ -39,16 +39,52 @@ const SalesTab = ({
               </label>
               <input
                 type="text"
-                value={saleOfferForm.name}
+                value={saleOfferForm.saleName}
                 onChange={(e) =>
                   setSaleOfferForm((prev) => ({
                     ...prev,
-                    name: e.target.value,
+                    saleName: e.target.value,
                   }))
                 }
                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
                 placeholder="Summer Sale"
                 required
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Product Name
+              </label>
+              <input
+                type="text"
+                value={saleOfferForm.productName}
+                onChange={(e) =>
+                  setSaleOfferForm((prev) => ({
+                    ...prev,
+                    productName: e.target.value,
+                  }))
+                }
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+                placeholder="Premium Glasses"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700">
+                Product Description
+              </label>
+              <textarea
+                value={saleOfferForm.productDescription}
+                onChange={(e) =>
+                  setSaleOfferForm((prev) => ({
+                    ...prev,
+                    productDescription: e.target.value,
+                  }))
+                }
+                rows={3}
+                className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+                placeholder="Describe this product"
               />
             </div>
 
@@ -179,11 +215,21 @@ const SalesTab = ({
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className="font-semibold text-gray-900">
-                        {offer.name}
+                        {offer.saleName || offer.name || "Sale Offer"}
                       </h3>
+                      {offer.productName && (
+                        <p className="mt-1 text-sm font-medium text-gray-700">
+                          {offer.productName}
+                        </p>
+                      )}
                       <p className="mt-1 text-sm text-gray-500">
                         Order: {offer.displayOrder || 0}
                       </p>
+                      {offer.productDescription && (
+                        <p className="mt-2 text-sm text-gray-600 line-clamp-3">
+                          {offer.productDescription}
+                        </p>
+                      )}
                       <p className="mt-1 text-sm text-gray-500">
                         {(offer.products || []).length} product
                         {(offer.products || []).length === 1 ? "" : "s"}

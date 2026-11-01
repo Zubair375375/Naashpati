@@ -184,7 +184,9 @@ const AdminDashboard = () => {
   const [categoryEditImagePreview, setCategoryEditImagePreview] = useState("");
   const [savingCategoryEdit, setSavingCategoryEdit] = useState(false);
   const [saleOfferForm, setSaleOfferForm] = useState({
-    name: "",
+    saleName: "",
+    productName: "",
+    productDescription: "",
     displayOrder: 0,
     productIds: [],
   });
@@ -661,7 +663,7 @@ const AdminDashboard = () => {
   const handleCreateSaleOffer = async (e) => {
     e.preventDefault();
 
-    if (!saleOfferForm.name.trim()) {
+    if (!saleOfferForm.saleName.trim()) {
       toast.error("Sale name is required");
       return;
     }
@@ -681,14 +683,22 @@ const AdminDashboard = () => {
       const bannerUrl = await uploadDashboardImage(saleOfferBannerFile);
       await dispatch(
         createSaleOffer({
-          name: saleOfferForm.name.trim(),
+          saleName: saleOfferForm.saleName.trim(),
+          productName: saleOfferForm.productName.trim(),
+          productDescription: saleOfferForm.productDescription.trim(),
           banner: bannerUrl,
           products: saleOfferForm.productIds,
           displayOrder: Number(saleOfferForm.displayOrder || 0),
         }),
       ).unwrap();
 
-      setSaleOfferForm({ name: "", displayOrder: 0, productIds: [] });
+      setSaleOfferForm({
+        saleName: "",
+        productName: "",
+        productDescription: "",
+        displayOrder: 0,
+        productIds: [],
+      });
       setSaleOfferBannerFile(null);
       setSaleOfferBannerPreview(null);
       toast.success("Sale offer created successfully");
