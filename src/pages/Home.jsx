@@ -90,6 +90,7 @@ const Home = () => {
   );
   const [lensesProductsLoading, setLensesProductsLoading] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
+  const [activeSaleOfferIndex, setActiveSaleOfferIndex] = useState(0);
   const categoryScrollRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -105,6 +106,20 @@ const Home = () => {
     dispatch(fetchHeroBadges());
     dispatch(fetchSaleOffers());
   }, [dispatch]);
+
+  useEffect(() => {
+    if (!saleOffers.length || saleOffers.length === 1) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setActiveSaleOfferIndex(
+        (previousIndex) => (previousIndex + 1) % saleOffers.length,
+      );
+    }, 4000);
+
+    return () => window.clearInterval(intervalId);
+  }, [saleOffers]);
 
   useEffect(() => {
     let isMounted = true;
@@ -164,7 +179,9 @@ const Home = () => {
   const canLoadMoreLensesProducts =
     visibleLensesProductCount < lensesProducts.length;
   const filteredHomeCategories = categories.filter((category) => {
-    const value = String(category.value || "").trim().toLowerCase();
+    const value = String(category.value || "")
+      .trim()
+      .toLowerCase();
     return value !== "male-collection" && value !== "female-collection";
   });
   const isCategoryRowCentered = filteredHomeCategories.length <= 4;
@@ -185,23 +202,78 @@ const Home = () => {
     <div className="min-h-screen">
       {saleOffers.length > 0 && (
         <section className="bg-white py-0">
-          <div className="grid w-full grid-cols-1 gap-0">
-            {saleOffers.map((offer) => (
-              <Link
-                key={offer._id}
-                to={`/sales/${offer.slug || offer._id}`}
-                className="group block"
-                aria-label={`Open ${offer.name}`}
-              >
-                <div className="relative h-[220px] overflow-hidden bg-white shadow-sm sm:h-[300px] lg:h-[86vh]">
-                  <img
-                    src={resolveMediaUrl(offer.banner)}
-                    alt={offer.name}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
+          <div className="overflow-hidden bg-white">
+            <Link
+              to={`/sales/${saleOffers[activeSaleOfferIndex]?.slug || saleOffers[activeSaleOfferIndex]?._id || ""}`}
+              className="group block"
+              aria-label={`Open ${saleOffers[activeSaleOfferIndex]?.saleName || saleOffers[activeSaleOfferIndex]?.name || "sale offer"}`}
+            >
+              <div className="relative h-[220px] w-full overflow-hidden bg-white shadow-[0_2px_14px_rgba(0,0,0,0.04)] sm:h-[300px] lg:h-[86vh]">
+                <img
+                  key={
+                    saleOffers[activeSaleOfferIndex]?._id ||
+                    activeSaleOfferIndex
+                  }
+                  src={resolveMediaUrl(
+                    saleOffers[activeSaleOfferIndex]?.banner,
+                  )}
+                  alt={
+                    saleOffers[activeSaleOfferIndex]?.saleName ||
+                    saleOffers[activeSaleOfferIndex]?.name ||
+                    "Sale offer"
+                  }
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+
+                <div className="absolute inset-0 z-10 flex items-center p-5 text-left text-[#383838] sm:p-8 lg:p-12">
+                  <div className="max-w-3xl">
+                    <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-black/75 sm:text-base">
+                      {saleOffers[activeSaleOfferIndex]?.saleName ||
+                        saleOffers[activeSaleOfferIndex]?.name ||
+                        "Sale Offer"}
+                    </p>
+                    <h3 className="text-2xl font-black uppercase tracking-[-0.06em] text-[##4F4F4F] sm:text-4xl lg:text-5xl">
+                      {saleOffers[activeSaleOfferIndex]?.productName ||
+                        "Featured Product"}
+                    </h3>
+                    {saleOffers[activeSaleOfferIndex]?.productDescription && (
+                      <p className="mt-3 max-w-lg text-xl text-[#383838]/80 sm:text-[1.9rem]">
+                        {saleOffers[activeSaleOfferIndex].productDescription}
+                      </p>
+                    )}
+
+                    <div className="mt-5 flex flex-wrap items-center gap-3">
+                      <Link
+                        to="/products?gender-category=male-collection"
+                        className="inline-flex items-center justify-center rounded-full bg-[#111111] px-9 py-5 text-lg font-semibold text-white transition hover:bg-[#2a2a2a]"
+                      >
+                        Explore Men&apos;s
+                      </Link>
+                      <Link
+                        to="/products?gender-category=female-collection"
+                        className="inline-flex items-center justify-center rounded-full border border-[#111111]/20 bg-white/80 px-9 py-5 text-lg font-semibold text-[#111111] backdrop-blur-sm transition hover:bg-white"
+                      >
+                        Explore Women&apos;s
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-              </Link>
+              </div>
+            </Link>
+          </div>
+
+          <div className="flex items-center justify-center gap-2 bg-white px-4 py-3">
+            {saleOffers.map((offer, index) => (
+              <span
+                key={`${offer._id}-dot`}
+                className={`h-2.5 w-2.5 rounded-full border transition-all duration-300 ${
+                  index === activeSaleOfferIndex
+                    ? "border-[#1d1d1d] bg-[#1d1d1d]"
+                    : "border-[#1d1d1d] bg-white"
+                }`}
+                aria-label={`Slide ${index + 1}`}
+              />
             ))}
           </div>
         </section>
@@ -215,107 +287,185 @@ const Home = () => {
             }`}
           >
             {filteredHomeCategories.map((category) => (
-                <Link
-                  key={category.value}
-                  to={`/products?category=${category.value}`}
-                  className="group relative block aspect-[3/5] w-[280px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[300px] md:w-[340px]"
-                  aria-label={`Open ${category.name}`}
-                >
-                  <div className="absolute inset-0">
-                    {category.image ? (
-                      <img
-                        src={resolveMediaUrl(category.image)}
-                        alt={category.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
-                        <FaSeedling className="text-6xl text-white/80" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-                  <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
-                    <div className="space-y-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                        Collection
-                      </p>
-                      <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
-                        {category.name}
-                      </h3>
+              <Link
+                key={category.value}
+                to={`/products?category=${category.value}`}
+                className="group relative block aspect-[3/5] w-[280px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[300px] md:w-[340px]"
+                aria-label={`Open ${category.name}`}
+              >
+                <div className="absolute inset-0">
+                  {category.image ? (
+                    <img
+                      src={resolveMediaUrl(category.image)}
+                      alt={category.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
+                      <FaSeedling className="text-6xl text-white/80" />
                     </div>
+                  )}
+                </div>
 
-                    <button
-                      type="button"
-                      className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
-                    >
-                      Shop Now
-                    </button>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                      Collection
+                    </p>
+                    <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
+                      {category.name}
+                    </h3>
                   </div>
-                </Link>
-              ))}
+
+                  <button
+                    type="button"
+                    className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                  >
+                    Shop Now
+                  </button>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-white px-6 py-8">
-        <div className="mx-auto max-w-7xl rounded-lg bg-white-100/80 px-4 py-5 sm:px-6">
-          <div className="grid grid-cols-1 gap-4 text-center sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-            <div className="flex items-center justify-center gap-2 lg:justify-start">
-              <MdLocalShipping className="text-4xl lg:text-5xl text-[#68a300]" />
-              <h3
-                style={{
-                  fontFamily: "Poppins, sans-serif, Inter, system-ui",
-                  fontSize: "14px",
-                }}
-              >
-                Free Shipping
-              </h3>
+      <section className="bg-white px-5 pb-5 pt-5 sm:px-5 lg:px-6">
+        <div className="mx-auto grid max-w-[1600px] items-center gap-0 overflow-hidden bg-white lg:grid-cols-[1.2fr_1fr]">
+          <div className="flex h-full flex-col justify-center bg-white px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+            <div className="mb-6 flex items-start justify-start">
+              <span className="text-[3.2rem] font-black leading-[0.8] tracking-[-0.08em] sm:text-[4rem] lg:text-[6.4rem]">
+                <span className="inline-block text-[#e10098]">C</span>
+                <span className="inline-block text-[#00b5ff]">H</span>
+                <span className="inline-block text-[#ffb400]">R</span>
+                <span className="inline-block text-[#04c29f]">O</span>
+                <span className="inline-block text-[#ff6f41]">M</span>
+                <span className="inline-block text-[#6a34ff]">A</span>
+                <span className="inline-block text-[#ff7f00]"> </span>
+                <span className="inline-block text-black ml-5">R</span>
+                <span className="inline-block text-gray-500">U</span>
+                <span className="inline-block text-[#ff7f00]">S</span>
+                <span className="inline-block text-[#00b3b3]">H</span>
+              </span>
             </div>
 
-            <div className="flex items-center justify-center gap-2 lg:justify-start">
-              <MdCalendarToday className="text-4xl lg:text-5xl text-[#68a300]" />
-              <h3
-                style={{
-                  fontFamily: "Poppins, sans-serif, Inter, system-ui",
-                  fontSize: "14px",
-                }}
-              >
-                Cash on Delivery in all Pakistan
-              </h3>
-            </div>
+            <h2 className="mb-4 text-[2.3rem] leading-[1.2] tracking-[0.04em] text-[#171717] sm:text-[1rem] lg:text-[2rem]">
+              <span className="inline-block mr-3">Experience</span>
+              <span className="inline-block mr-3">every</span>
+              <span className="inline-block mr-3">view</span>
+              <br className="mt-2" />
+              <span className="inline-block mr-3">like</span>
+              <span className="inline-block mr-3">never</span>
+              <span className="inline-block">before</span>
+            </h2>
 
-            <div className="flex items-center justify-center gap-2 lg:justify-start">
-              <MdMonetizationOn className="text-4xl lg:text-5xl text-[#68a300]" />
-              <h3
-                style={{
-                  fontFamily: "Poppins, sans-serif, Inter, system-ui",
-                  fontSize: "14px",
-                }}
-              >
-                100% Money Back Guaranteed
-              </h3>
-            </div>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="flex items-center gap-3">
+                <span className="relative h-7 w-7 overflow-hidden rounded-full shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
+                  <span className="absolute left-[3px] top-[3px] h-3.5 w-3.5 rounded-full bg-[#00d7ff]" />
+                  <span className="absolute right-[3px] top-[3px] h-3.5 w-3.5 rounded-full bg-[#ffd84d]" />
+                  <span className="absolute bottom-[3px] left-[3px] h-3.5 w-3.5 rounded-full bg-[#ff4d7a]" />
+                  <span className="absolute bottom-[3px] right-[3px] h-3.5 w-3.5 rounded-full bg-[#33d17a]" />
+                </span>
+                <span className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#1a1a1a]">
+                  Advanced Color
+                  <br />
+                  Vision Technology
+                </span>
+              </div>
 
-            <div className="flex items-center justify-center gap-2 lg:justify-start">
-              <MdShield className="text-4xl lg:text-5xl text-[#68a300]" />
-              <h3
-                style={{
-                  fontFamily: "Poppins, sans-serif, Inter, system-ui",
-                  fontSize: "14px",
-                }}
-              >
-                Quality Assured
-              </h3>
+              <div className="flex items-center gap-3">
+                <span className="relative h-7 w-7 overflow-hidden rounded-full border border-[#1b1b1b] bg-[#111111] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
+                  <span className="absolute inset-[3px] rounded-full border border-white/10 bg-[#0b0b0b]" />
+                  <span className="absolute left-[7px] top-[7px] h-3.5 w-3 rounded-[0.45rem] border border-[#2a2a2a] bg-[#dfeaf0]/90" />
+                  <span className="absolute right-[7px] top-[7px] h-3.5 w-3 rounded-[0.45rem] border border-[#2a2a2a] bg-[#dfeaf0]/90" />
+                  <span className="absolute left-[6px] top-[11px] h-1 w-3.5 rounded-full bg-[#1a1a1a]" />
+                  <span className="absolute right-[6px] top-[11px] h-1 w-3.5 rounded-full bg-[#1a1a1a]" />
+                  <span className="absolute left-1/2 top-[10px] h-2 w-1 -translate-x-1/2 rounded-full bg-[#1a1a1a]" />
+                  <span className="absolute inset-1/2 h-[6px] w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#1a1a1a]" />
+                </span>
+                <span className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#1a1a1a]">
+                  Precision Optical
+                  <br />
+                  Performance
+                </span>
+              </div>
             </div>
+          </div>
+
+          <div className="relative min-h-[360px] max-h-[360px] bg-[#dfeee9]">
+            <img
+              src="/assets/logos/pexels-cottonbro-8718335.jpg"
+              alt="Chroma Rush experience"
+              className="h-full w-full object-cover"
+            />
           </div>
         </div>
       </section>
+
       {/* Trending Products */}
       <TrendingProducts />
+
+      <section className="relative flex min-h-[300px] items-center overflow-hidden bg-[#111111] md:min-h-[340px]">
+        <div className="absolute inset-0 bg-black/30" />
+
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-10 pt-8 text-white sm:px-8 lg:px-10 lg:pb-12 lg:pt-10">
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+            <div className="max-w-xl">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-white/80">
+                Style That Moves With You.
+              </p>
+              <h3 className="text-2xl font-black uppercase tracking-[-0.06em] text-white sm:text-4xl lg:text-5xl">
+                Your Satisfaction Comes First
+              </h3>
+              <p className="mt-4 max-w-xl text-sm text-white/80 sm:text-base">
+                Discover statement pieces, everyday staples, and
+                precision-crafted eyewear designed for every look, every moment,
+                and every view.
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <Link
+                  to="/products"
+                  className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#111111] transition hover:bg-[#f3f3f3]"
+                >
+                  Shop Collection
+                </Link>
+                <Link
+                  to="/products?category=eyewear"
+                  className="inline-flex items-center justify-center rounded-full border border-white/60 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/10"
+                >
+                  Explore Frames
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:pt-8">
+              <div className="space-y-3 rounded-2xl p-4 backdrop-blur-[2px] sm:p-5 sm:space-y-4">
+                {[
+                  "Free Shipping",
+                  "Cash on Delivery in all Pakistan",
+                  "100% Money Back Guaranteed",
+                  "Quality Assured",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-3 text-sm font-medium text-white/90 sm:text-base"
+                  >
+                    <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/15 text-[10px] text-white">
+                      ✓
+                    </span>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="bg-white pt-0 pb-0">
         <div className="w-full">

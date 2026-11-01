@@ -2,12 +2,27 @@ import mongoose from "mongoose";
 
 const saleOfferSchema = new mongoose.Schema(
   {
-    name: {
+    saleName: {
       type: String,
       required: [true, "Sale name is required"],
       trim: true,
       minlength: [2, "Sale name must be at least 2 characters"],
       maxlength: [100, "Sale name cannot be more than 100 characters"],
+    },
+    productName: {
+      type: String,
+      trim: true,
+      maxlength: [100, "Product name cannot be more than 100 characters"],
+      default: "",
+    },
+    productDescription: {
+      type: String,
+      trim: true,
+      maxlength: [
+        500,
+        "Product description cannot be more than 500 characters",
+      ],
+      default: "",
     },
     slug: {
       type: String,
