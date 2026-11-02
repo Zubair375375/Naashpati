@@ -255,6 +255,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    instagramPicture: {
+      type: String,
+      default: "",
+    },
     videoUrl: {
       type: String,
       trim: true,

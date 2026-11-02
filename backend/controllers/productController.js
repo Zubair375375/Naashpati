@@ -468,6 +468,7 @@ export const createProduct = async (req, res) => {
       thumbnail: String(
         incomingBody.thumbnail || incomingBody.image || "",
       ).trim(),
+      instagramPicture: String(incomingBody.instagramPicture || "").trim(),
       image: String(incomingBody.image || incomingBody.thumbnail || "").trim(),
       videoUrl: String(incomingBody.videoUrl || "").trim(),
       featured: normalizeBoolean(incomingBody.featured, false),
@@ -733,6 +734,12 @@ export const updateProduct = async (req, res) => {
       ).trim();
       payload.image = String(
         incomingBody.image ?? incomingBody.thumbnail ?? product.image ?? "",
+      ).trim();
+    }
+
+    if (hasOwn(incomingBody, "instagramPicture")) {
+      payload.instagramPicture = String(
+        incomingBody.instagramPicture ?? product.instagramPicture ?? "",
       ).trim();
     }
 
