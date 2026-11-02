@@ -730,7 +730,7 @@ const Home = () => {
                   <div
                     key={`${image}-${index}`}
                     className={[
-                      "overflow-hidden bg-white",
+                      "group relative overflow-hidden bg-white",
                       shopOurInstagramImages.length === 1
                         ? "aspect-square w-full"
                         : "aspect-square w-full",
@@ -740,8 +740,24 @@ const Home = () => {
                       src={image}
                       alt="Shop our Instagram feature"
                       loading="lazy"
-                      className="h-full w-full rounded-none object-cover"
+                      className="h-full w-full rounded-none object-cover transition duration-300 group-hover:scale-[1.02] group-hover:brightness-[0.96]"
                     />
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/60 opacity-0 transition duration-300 group-hover:opacity-100">
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="h-10 w-10 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.24)]"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
+                        <circle cx="12" cy="12" r="4.2" />
+                        <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+                      </svg>
+                    </div>
                   </div>
                 );
               })}
