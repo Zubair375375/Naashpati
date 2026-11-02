@@ -97,6 +97,7 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
     barcode: "",
     stock: "0",
     thumbnail: "",
+    instagramPicture: "",
     videoUrl: "",
     status: "published",
     featured: false,
@@ -134,6 +135,7 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
   });
   const [imageFiles, setImageFiles] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
+  const [instagramPictureFile, setInstagramPictureFile] = useState(null);
   const [existingImages, setExistingImages] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [reviewRecords, setReviewRecords] = useState([]);
@@ -246,6 +248,7 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
         barcode: product.barcode || generateClientBarcode(),
         stock: product.stock?.toString() || "0",
         thumbnail: product.thumbnail || product.image || "",
+        instagramPicture: product.instagramPicture || "",
         videoUrl: product.videoUrl || "",
         status: product.status || "published",
         featured: product.featured ?? false,
@@ -711,6 +714,7 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
       barcode,
       stock,
       thumbnail,
+      instagramPicture,
       videoUrl,
       status,
       newArrival,
@@ -801,6 +805,12 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
     try {
       let finalImages = [...existingImages];
       let finalImage = product?.image || "";
+      let finalInstagramPicture = (instagramPicture || "").trim();
+
+      if (instagramPictureFile) {
+        const uploadedInstagramPicture = await uploadImage(instagramPictureFile);
+        finalInstagramPicture = uploadedInstagramPicture?.url || finalInstagramPicture;
+      }
 
       if (imageFiles.length > 0) {
         setUploading(true);
@@ -878,6 +888,7 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
         barcode: String(barcode || "").trim(),
         stock: Number(stock),
         thumbnail: String(thumbnail || "").trim(),
+        instagramPicture: finalInstagramPicture,
         videoUrl: String(videoUrl || "").trim(),
         status,
         newArrival,
@@ -1272,6 +1283,35 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
               />
             </div>
 
+            <div>
+              <label
+                htmlFor="instagram-picture"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Instagram picture
+              </label>
+              <input
+                id="instagram-picture"
+                name="instagramPicture"
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0] || null;
+                  setInstagramPictureFile(file);
+                }}
+                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+              />
+              {formData.instagramPicture && !instagramPictureFile && (
+                <img
+                  src={formData.instagramPicture}
+                  alt="Instagram preview"
+                  className="mt-3 h-20 w-20 rounded-md object-cover"
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
               <label
                 htmlFor="videoUrl"
