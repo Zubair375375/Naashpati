@@ -1631,9 +1631,7 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
                 onChange={handleChange}
                 className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
               />
-              <span className="ml-2 text-sm text-gray-700">
-                Latest Collection
-              </span>
+              <span className="ml-2 text-sm text-gray-700">New Arrival</span>
             </label>
 
             <label className="inline-flex items-center">
