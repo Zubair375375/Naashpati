@@ -358,7 +358,7 @@ const Home = () => {
                         src={resolveMediaUrl(category.image)}
                         alt={category.name}
                         loading="lazy"
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
@@ -411,7 +411,7 @@ const Home = () => {
                             src={resolveMediaUrl(item.image)}
                             alt={item.title || "New arrival"}
                             loading="lazy"
-                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                            className="h-full w-full object-cover"
                           />
                         </div>
 
@@ -740,9 +740,9 @@ const Home = () => {
                       src={image}
                       alt="Shop our Instagram feature"
                       loading="lazy"
-                      className="h-full w-full rounded-none object-cover transition duration-300 group-hover:scale-[1.02] group-hover:brightness-[0.96]"
+                      className="h-full w-full rounded-none object-cover"
                     />
-                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/60 opacity-0 transition duration-300 group-hover:opacity-100">
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/60 opacity-0 group-hover:opacity-100">
                       <svg
                         viewBox="0 0 24 24"
                         aria-hidden="true"
