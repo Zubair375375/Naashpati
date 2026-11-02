@@ -45,6 +45,51 @@ const BADGE_MARQUEE_STYLE = `
 
 const LATEST_PRODUCTS_BATCH_SIZE = 4;
 const LENSES_PRODUCTS_BATCH_SIZE = 4;
+const INSTAGRAM_IMAGES = [
+  {
+    src: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=80",
+    alt: "Man wearing sunglasses",
+    className: "md:row-span-2 md:h-[480px] h-[300px]",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80",
+    alt: "Woman in sunglasses by the sea",
+    className: "h-[350px] md:h-[420px]",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=900&q=80",
+    alt: "Person at a sports event",
+    className: "md:row-span-2 md:h-[480px] h-[300px]",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80",
+    alt: "Woman smiling with sunglasses",
+    className: "h-[260px] md:h-[300px]",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=80",
+    alt: "Friends wearing sunglasses",
+    className: "h-[260px] md:h-[300px]",
+  },
+];
+
+const INSTAGRAM_LOGO_DATA = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="igGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f9ce34"/>
+      <stop offset="30%" stop-color="#ee2a7b"/>
+      <stop offset="75%" stop-color="#6228d7"/>
+      <stop offset="100%" stop-color="#2f7df6"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#igGradient)"/>
+  <rect x="14" y="14" width="36" height="36" rx="10" fill="none" stroke="rgba(255,255,255,0.96)" stroke-width="3.2"/>
+  <circle cx="32" cy="32" r="9" fill="none" stroke="rgba(255,255,255,0.96)" stroke-width="3.2"/>
+  <circle cx="42.5" cy="21.5" r="3.2" fill="rgba(255,255,255,0.96)"/>
+</svg>
+`)}`;
+
 const HOME_FAQS = [
   {
     question: "How can I customize my lens package?",
@@ -244,7 +289,7 @@ const Home = () => {
                         saleOffers[activeSaleOfferIndex]?.name ||
                         "Sale Offer"}
                     </p>
-                    <h3 className="text-2xl font-black uppercase tracking-[-0.06em] text-[##4F4F4F] sm:text-4xl lg:text-5xl">
+                    <h3 className="text-2xl font-black uppercase tracking-[-0.06em] text-[#393939] sm:text-4xl lg:text-5xl">
                       {saleOffers[activeSaleOfferIndex]?.productName ||
                         "Featured Product"}
                     </h3>
@@ -690,6 +735,35 @@ const Home = () => {
           </div>
         </section>
       )}
+
+      <section className="bg-[#f7f7f7] px-4 py-14 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1280px]">
+          <h2 className="mb-8 flex items-center justify-center gap-3 text-center text-[1.5rem] font-semibold uppercase tracking-[-0.06em] text-[#393939] sm:text-[2rem] lg:text-[2.2rem]">
+            <span>SHOP OUR</span>
+            <img
+              src="/assets/logos/sr-IG.avif"
+              alt="Instagram logo"
+              className="h-[1.4em] w-auto rounded-[0.2em] object-contain"
+            />
+          </h2>
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
+            {INSTAGRAM_IMAGES.map((image, index) => (
+              <div
+                key={`${image.alt}-${index}`}
+                className={`overflow-hidden rounded-[0.5rem] bg-white shadow-[0_4px_15px_rgba(0,0,0,0.06)] ${image.className}`}
+              >
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="bg-white px-6 pb-16 pt-6">
         <div className="mx-auto max-w-7xl rounded-md bg-[#ffffff] px-4 py-6 sm:px-6">
