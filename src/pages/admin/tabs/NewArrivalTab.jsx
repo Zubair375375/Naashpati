@@ -18,7 +18,8 @@ const NewArrivalTab = ({
         <div>
           <h2 className="text-2xl font-semibold">New Arrival Section</h2>
           <p className="mt-1 text-sm text-gray-500">
-            Add a custom image linked to a product for the homepage new arrival tab.
+            Add a custom image linked to a product for the homepage new arrival
+            tab.
           </p>
         </div>
         <span className="rounded-full bg-sky-50 px-3 py-1 text-sm font-semibold text-sky-700">
@@ -116,7 +117,9 @@ const NewArrivalTab = ({
           )}
 
           {items.map((item) => {
-            const product = products.find((entry) => entry._id === item.productId);
+            const product = products.find(
+              (entry) => entry._id === item.productId,
+            );
 
             return (
               <div

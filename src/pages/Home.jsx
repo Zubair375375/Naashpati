@@ -410,7 +410,9 @@ const Home = () => {
                               New Arrival
                             </p>
                             <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
-                              {item.title || targetProduct.name || "Featured Product"}
+                              {item.title ||
+                                targetProduct.name ||
+                                "Featured Product"}
                             </h3>
                           </div>
 

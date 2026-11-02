@@ -451,7 +451,10 @@ const AdminDashboard = () => {
   }, [dispatch, isAuthenticated, user]);
 
   useEffect(() => {
-    localStorage.setItem("naashpati-new-arrivals", JSON.stringify(newArrivalItems));
+    localStorage.setItem(
+      "naashpati-new-arrivals",
+      JSON.stringify(newArrivalItems),
+    );
   }, [newArrivalItems]);
 
   useEffect(() => {
