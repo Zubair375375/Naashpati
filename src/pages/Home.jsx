@@ -80,6 +80,8 @@ const Home = () => {
   const heroGenderImages = useSelector(selectHeroGenderImages);
   const saleOffers = useSelector(selectSaleOffers);
   const [latestProducts, setLatestProducts] = useState([]);
+  const [newArrivalItems, setNewArrivalItems] = useState([]);
+  const [activeCategoryTab, setActiveCategoryTab] = useState("categories");
   const [visibleLatestProductCount, setVisibleLatestProductCount] = useState(
     LATEST_PRODUCTS_BATCH_SIZE,
   );
@@ -120,6 +122,15 @@ const Home = () => {
 
     return () => window.clearInterval(intervalId);
   }, [saleOffers]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("naashpati-new-arrivals");
+      setNewArrivalItems(saved ? JSON.parse(saved) : []);
+    } catch {
+      setNewArrivalItems([]);
+    }
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -279,57 +290,158 @@ const Home = () => {
         </section>
       )}
 
-      <section className="bg-white px-4 pb-10 pt-5 sm:px-5 lg:px-6">
-        <div className="mx-auto max-w-[1600px] px-1 sm:px-2">
-          <div
-            className={`flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
-              isCategoryRowCentered ? "justify-center" : "justify-start"
-            }`}
-          >
-            {filteredHomeCategories.map((category) => (
-              <Link
-                key={category.value}
-                to={`/products?category=${category.value}`}
-                className="group relative block aspect-[3/5] w-[280px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[300px] md:w-[340px]"
-                aria-label={`Open ${category.name}`}
-              >
-                <div className="absolute inset-0">
-                  {category.image ? (
-                    <img
-                      src={resolveMediaUrl(category.image)}
-                      alt={category.name}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
-                      <FaSeedling className="text-6xl text-white/80" />
-                    </div>
-                  )}
-                </div>
+      <section className="bg-white pb-10 pt-5">
+        <div className="mb-6 w-full">
+          <div className="mb-0 flex items-center justify-center gap-8 sm:gap-12">
+            <button
+              type="button"
+              onClick={() => setActiveCategoryTab("categories")}
+              className={`relative pb-3 text-sm font-black uppercase tracking-[0.08em] transition sm:text-base ${
+                activeCategoryTab === "categories"
+                  ? "text-[#1f1f1f]"
+                  : "text-[#1f1f1f]/70"
+              }`}
+            >
+              Categories
+              {activeCategoryTab === "categories" && (
+                <span className="absolute -bottom-0.5 left-0 h-[3px] w-full bg-[#1f1f1f]" />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveCategoryTab("new-arrival")}
+              className={`relative pb-3 text-sm font-black uppercase tracking-[0.08em] transition sm:text-base ${
+                activeCategoryTab === "new-arrival"
+                  ? "text-[#1f1f1f]"
+                  : "text-[#1f1f1f]/70"
+              }`}
+            >
+              New Arrival
+              {activeCategoryTab === "new-arrival" && (
+                <span className="absolute -bottom-0.5 left-0 h-[3px] w-full bg-[#1f1f1f]" />
+              )}
+            </button>
+          </div>
+          <div className="mt-2 h-px w-full bg-[#d4d4d4]" />
+        </div>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-                <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
-                  <div className="space-y-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                      Collection
-                    </p>
-                    <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
-                      {category.name}
-                    </h3>
+        <div className="mx-auto max-w-[1700px] px-0 pt-2 sm:px-1">
+          {activeCategoryTab === "categories" ? (
+            <div
+              className={`flex snap-x snap-mandatory gap-2.5 overflow-x-auto scroll-px-2 px-2 pb-2 pt-1 sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+                isCategoryRowCentered ? "justify-center" : "justify-start"
+              }`}
+            >
+              {filteredHomeCategories.map((category) => (
+                <Link
+                  key={category.value}
+                  to={`/products?category=${category.value}`}
+                  className="group relative block h-[580px] w-[335px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[355px] md:w-[385px] lg:w-[395px]"
+                  aria-label={`Open ${category.name}`}
+                >
+                  <div className="absolute inset-0">
+                    {category.image ? (
+                      <img
+                        src={resolveMediaUrl(category.image)}
+                        alt={category.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
+                        <FaSeedling className="text-6xl text-white/80" />
+                      </div>
+                    )}
                   </div>
 
-                  <button
-                    type="button"
-                    className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
-                  >
-                    Shop Now
-                  </button>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                  <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
+                    <div className="space-y-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                        Collection
+                      </p>
+                      <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
+                        {category.name}
+                      </h3>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                    >
+                      Shop Now
+                    </button>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="mx-auto max-w-[1700px] px-2 pb-2 sm:px-3">
+              {newArrivalItems.length > 0 ? (
+                <div className="flex snap-x snap-mandatory justify-center gap-2.5 overflow-x-auto scroll-px-2 pb-2 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  {newArrivalItems.slice(0, 4).map((item) => {
+                    const product = latestProducts.find(
+                      (entry) => entry._id === item.productId,
+                    );
+                    const targetProduct = product || { _id: item.productId };
+
+                    return (
+                      <Link
+                        key={item._id}
+                        to={`/products/${targetProduct.slug || targetProduct._id}`}
+                        className="group relative block h-[580px] w-[335px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[355px] md:w-[385px] lg:w-[395px]"
+                        aria-label={item.title || "New arrival product"}
+                      >
+                        <div className="absolute inset-0">
+                          <img
+                            src={resolveMediaUrl(item.image)}
+                            alt={item.title || "New arrival"}
+                            loading="lazy"
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                          />
+                        </div>
+
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                        <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
+                          <div className="space-y-3">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                              New Arrival
+                            </p>
+                            <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
+                              {item.title || targetProduct.name || "Featured Product"}
+                            </h3>
+                          </div>
+
+                          <button
+                            type="button"
+                            className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                          >
+                            Shop Now
+                          </button>
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
-              </Link>
-            ))}
-          </div>
+              ) : latestProducts.length > 0 ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {latestProducts.slice(0, 4).map((product) => (
+                    <ProductCard
+                      key={product._id}
+                      product={product}
+                      viewMode="trending"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-[#d4d4d4] bg-[#fafafa] px-6 py-10 text-center text-sm text-[#555]">
+                  No new arrivals yet.
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
@@ -466,7 +578,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
       <section className="bg-white pt-0 pb-0">
         <div className="w-full">
           <div className="grid grid-cols-1 gap-0 md:grid-cols-2">

@@ -69,6 +69,7 @@ import AdminSidebarNav from "./admin/components/AdminSidebarNav";
 import { useAboutContent } from "./admin/hooks/useAboutContent";
 import AboutContentTab from "./admin/tabs/AboutContentTab";
 import SalesTab from "./admin/tabs/SalesTab";
+import NewArrivalTab from "./admin/tabs/NewArrivalTab";
 import BatchesTab from "./admin/tabs/BatchesTab";
 import HeroTab from "./admin/tabs/HeroTab";
 import AnnouncementsTab from "./admin/tabs/AnnouncementsTab";
@@ -194,6 +195,22 @@ const AdminDashboard = () => {
   const [saleOfferBannerPreview, setSaleOfferBannerPreview] = useState(null);
   const [uploadingSaleOfferBanner, setUploadingSaleOfferBanner] =
     useState(false);
+  const [newArrivalForm, setNewArrivalForm] = useState({
+    productId: "",
+    title: "",
+    preview: "",
+  });
+  const [newArrivalImageFile, setNewArrivalImageFile] = useState(null);
+  const [uploadingNewArrivalImage, setUploadingNewArrivalImage] =
+    useState(false);
+  const [newArrivalItems, setNewArrivalItems] = useState(() => {
+    try {
+      const stored = localStorage.getItem("naashpati-new-arrivals");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
   const [heroBadgeImageFiles, setHeroBadgeImageFiles] = useState([]);
   const [heroBadgeImagePreviews, setHeroBadgeImagePreviews] = useState([]);
   const [updatingHeroBadges, setUpdatingHeroBadges] = useState(false);
@@ -432,6 +449,10 @@ const AdminDashboard = () => {
       fetchAboutContent();
     }
   }, [dispatch, isAuthenticated, user]);
+
+  useEffect(() => {
+    localStorage.setItem("naashpati-new-arrivals", JSON.stringify(newArrivalItems));
+  }, [newArrivalItems]);
 
   useEffect(() => {
     if (!(isAuthenticated && user?.role === "admin")) return;
@@ -711,6 +732,50 @@ const AdminDashboard = () => {
     } finally {
       setUploadingSaleOfferBanner(false);
     }
+  };
+
+  const handleCreateNewArrival = async (e) => {
+    e.preventDefault();
+
+    if (!newArrivalForm.productId) {
+      toast.error("Please select a product");
+      return;
+    }
+
+    if (!newArrivalImageFile) {
+      toast.error("Please upload a new arrival image");
+      return;
+    }
+
+    try {
+      setUploadingNewArrivalImage(true);
+      const uploadedImage = await uploadDashboardImage(newArrivalImageFile);
+      const nextItem = {
+        _id: `${Date.now()}`,
+        productId: newArrivalForm.productId,
+        title: newArrivalForm.title.trim() || "New Arrival",
+        image: uploadedImage,
+      };
+
+      setNewArrivalItems((prev) => [nextItem, ...prev]);
+      setNewArrivalForm({ productId: "", title: "", preview: "" });
+      setNewArrivalImageFile(null);
+      toast.success("New arrival item saved successfully");
+    } catch (error) {
+      toast.error(
+        typeof error === "string"
+          ? error
+          : error?.message || "Failed to save new arrival item",
+      );
+    } finally {
+      setUploadingNewArrivalImage(false);
+    }
+  };
+
+  const handleDeleteNewArrival = (id) => {
+    if (!window.confirm("Delete this new arrival item?")) return;
+    setNewArrivalItems((prev) => prev.filter((item) => item._id !== id));
+    toast.success("New arrival item removed");
   };
 
   const handleDeleteSaleOffer = async (offerId) => {
@@ -1421,6 +1486,21 @@ const AdminDashboard = () => {
               handleSaleOfferProductToggle={handleSaleOfferProductToggle}
               handleCreateSaleOffer={handleCreateSaleOffer}
               handleDeleteSaleOffer={handleDeleteSaleOffer}
+            />
+          )}
+
+          {/* New Arrival Tab */}
+          {activeTab === "new-arrivals" && (
+            <NewArrivalTab
+              form={newArrivalForm}
+              setForm={setNewArrivalForm}
+              preview={newArrivalForm.preview}
+              setImageFile={setNewArrivalImageFile}
+              products={products}
+              items={newArrivalItems}
+              handleCreateNewArrival={handleCreateNewArrival}
+              handleDeleteNewArrival={handleDeleteNewArrival}
+              uploading={uploadingNewArrivalImage}
             />
           )}
 
