@@ -720,16 +720,12 @@ const Home = () => {
               className={`grid gap-0 ${
                 shopOurInstagramImages.length === 1
                   ? "grid-cols-1"
-                  : shopOurInstagramImages.length === 2 ||
-                      shopOurInstagramImages.length === 4
+                  : shopOurInstagramImages.length === 2
                     ? "grid-cols-2"
-                    : "grid-cols-1 md:grid-cols-3"
+                    : "grid-cols-4"
               }`}
             >
               {shopOurInstagramImages.map((image, index) => {
-                const isFeaturedBigTile =
-                  shopOurInstagramImages.length > 2 && index === 0;
-
                 return (
                   <div
                     key={`${image}-${index}`}
@@ -737,12 +733,7 @@ const Home = () => {
                       "overflow-hidden bg-white",
                       shopOurInstagramImages.length === 1
                         ? "aspect-square w-full"
-                        : shopOurInstagramImages.length === 2 ||
-                            shopOurInstagramImages.length === 4
-                          ? "aspect-square w-full"
-                          : isFeaturedBigTile
-                            ? "aspect-square md:col-span-2 md:row-span-2"
-                            : "aspect-square",
+                        : "aspect-square w-full",
                     ].join(" ")}
                   >
                     <img

@@ -808,8 +808,10 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
       let finalInstagramPicture = (instagramPicture || "").trim();
 
       if (instagramPictureFile) {
-        const uploadedInstagramPicture = await uploadImage(instagramPictureFile);
-        finalInstagramPicture = uploadedInstagramPicture?.url || finalInstagramPicture;
+        const uploadedInstagramPicture =
+          await uploadImage(instagramPictureFile);
+        finalInstagramPicture =
+          uploadedInstagramPicture?.url || finalInstagramPicture;
       }
 
       if (imageFiles.length > 0) {
