@@ -43,9 +43,9 @@ const HeroTab = ({
                     <button
                       type="button"
                       onClick={() => handleRemoveSavedHeroBadge(index)}
-                      className="absolute right-0 top-0 bg-black/70 px-1 text-[10px] font-semibold text-white"
+                      className="absolute right-0 top-0 rounded-bl-md bg-red-600 px-2 py-1 text-[10px] font-semibold text-white shadow-sm transition hover:bg-red-700"
                     >
-                      x
+                      Delete
                     </button>
                   </div>
                 ))}
@@ -80,9 +80,9 @@ const HeroTab = ({
                       <button
                         type="button"
                         onClick={() => handleRemovePendingHeroBadge(index)}
-                        className="absolute right-0 top-0 bg-black/70 px-1 text-[10px] font-semibold text-white"
+                        className="absolute right-0 top-0 rounded-bl-md bg-red-600 px-2 py-1 text-[10px] font-semibold text-white shadow-sm transition hover:bg-red-700"
                       >
-                        x
+                        Delete
                       </button>
                     </div>
                   ))}

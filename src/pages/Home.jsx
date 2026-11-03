@@ -532,7 +532,60 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="bg-white px-3 pb-8 pt-2 sm:px-4 lg:px-5">
+      {/* Certificates Strip */}
+      {heroCertificateBadges.length > 0 && (
+        <section className="bg-[#ffffff] py-8">
+          <style>{BADGE_MARQUEE_STYLE}</style>
+          <div className="flex w-full flex-col-reverse items-center gap-6 px-4 lg:flex-row lg:items-center">
+            <div className="w-full rounded-2xl bg-gradient-to-r from-[#2f80ed] to-[#1f63d8] px-6 py-5 text-white lg:max-w-[34rem]">
+              <h3 className="text-center text-3xl font-extrabold leading-tight lg:text-left">
+                Premium Eyewear brands.
+              </h3>
+              <p className="mt-1 text-center text-xl font-medium lg:text-left">
+                Discover the Difference in Every Detail.
+              </p>
+            </div>
+
+            <div className="relative w-full overflow-hidden pb-2 lg:pl-2">
+              <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-14 bg-gradient-to-r from-white via-white/90 to-transparent" />
+              <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-14 bg-gradient-to-l from-white via-white/90 to-transparent" />
+              {(() => {
+                const MIN_PER_HALF = 10;
+                const repeatCount = Math.max(
+                  1,
+                  Math.ceil(MIN_PER_HALF / heroCertificateBadges.length),
+                );
+                const half = Array.from(
+                  { length: heroCertificateBadges.length * repeatCount },
+                  (_, i) =>
+                    heroCertificateBadges[i % heroCertificateBadges.length],
+                );
+                const marqueeItems = [...half, ...half];
+                return (
+                  <div className="hero-badge-marquee-track items-start gap-20 pr-2 items-center">
+                    {marqueeItems.map((badgeImage, index) => (
+                      <div
+                        key={`${badgeImage}-${index}`}
+                        className="flex w-30 flex-col items-center"
+                      >
+                        <div className="flex h-30 w-40 items-center justify-center overflow-hidden rounded-lg bg-white">
+                          <img
+                            src={resolveMediaUrl(badgeImage)}
+                            alt={`Certificate badge ${(index % heroCertificateBadges.length) + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="mt-8 bg-white px-3 pb-8 pt-2 sm:px-4 lg:px-5">
         <div className="mx-auto grid max-w-[1600px] gap-5 md:grid-cols-2">
           <Link
             to="/products?men-best-sellers"
@@ -574,7 +627,7 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="relative flex min-h-[300px] items-center overflow-hidden bg-[#111111] md:min-h-[340px]">
+      <section className="mt-8 relative flex min-h-[300px] items-center overflow-hidden bg-[#111111] md:min-h-[340px]">
         <div className="absolute inset-0 bg-black/30" />
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-10 pt-8 text-white sm:px-8 lg:px-10 lg:pb-12 lg:pt-10">
@@ -627,6 +680,38 @@ const Home = () => {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-12 mb-6 bg-white px-4 pb-6 pt-2 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1600px] rounded-[2.3rem] bg-[#EEFFDE] px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+          <div className="flex items-center justify-center gap-2 sm:gap-3">
+            <span className="text-[1.1rem] font-light uppercase tracking-[0.18em] text-[#171717] sm:text-[1.6rem] lg:text-[2.2rem]">
+              NAASHPATI
+            </span>
+          </div>
+
+          <p className="mt-5 text-center text-[1.15rem] font-medium uppercase tracking-[-0.04em] text-[#171717] sm:text-[1.5rem] lg:text-[2.4rem]">
+            BEAUTY LIES IN THE GOOD WE DO
+          </p>
+          <p className="mt-0 text-center text-[1.15rem] font-medium uppercase tracking-[-0.04em] text-[#171717] sm:text-[1.5rem] lg:text-[2.4rem]">
+            CHARITY STARTS WITH US
+          </p>
+
+          <div className="mt-6 flex flex-col items-center justify-center gap-5 lg:mt-2 lg:flex-row lg:items-end lg:gap-8">
+            <div className="flex w-full max-w-md flex-col items-center text-center text-[#171717]">
+              <p className="text-center text-[1rem] font-medium leading-[1.35] sm:text-[1.35rem]">
+                Supporting meaningful causes and spreading hope to communities
+                that need it most.
+              </p>
+              <button
+                type="button"
+                className="mt-8 inline-flex items-center justify-center text-base font-semibold text-[#171717] transition hover:text-[#000000] sm:text-lg"
+              >
+                Learn more <span className="ml-2 text-xl">›</span>
+              </button>
             </div>
           </div>
         </div>
@@ -688,59 +773,6 @@ const Home = () => {
           )}
         </div>
       </section>
-
-      {/* Certificates Strip */}
-      {heroCertificateBadges.length > 0 && (
-        <section className="bg-[#ffffff] py-8">
-          <style>{BADGE_MARQUEE_STYLE}</style>
-          <div className="flex w-full flex-col-reverse items-center gap-6 px-4 lg:flex-row lg:items-center">
-            <div className="w-full rounded-2xl bg-gradient-to-r from-[#2f80ed] to-[#1f63d8] px-6 py-5 text-white lg:max-w-[34rem]">
-              <h3 className="text-center text-3xl font-extrabold leading-tight lg:text-left">
-                20+ Certificates
-              </h3>
-              <p className="mt-1 text-center text-xl font-medium lg:text-left">
-                From Global Regulatory Authorities
-              </p>
-            </div>
-
-            <div className="relative w-full overflow-hidden pb-2 lg:pl-2">
-              <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-14 bg-gradient-to-r from-white via-white/90 to-transparent" />
-              <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-14 bg-gradient-to-l from-white via-white/90 to-transparent" />
-              {(() => {
-                const MIN_PER_HALF = 10;
-                const repeatCount = Math.max(
-                  1,
-                  Math.ceil(MIN_PER_HALF / heroCertificateBadges.length),
-                );
-                const half = Array.from(
-                  { length: heroCertificateBadges.length * repeatCount },
-                  (_, i) =>
-                    heroCertificateBadges[i % heroCertificateBadges.length],
-                );
-                const marqueeItems = [...half, ...half];
-                return (
-                  <div className="hero-badge-marquee-track items-start gap-5 pr-2">
-                    {marqueeItems.map((badgeImage, index) => (
-                      <div
-                        key={`${badgeImage}-${index}`}
-                        className="flex w-24 flex-col items-center"
-                      >
-                        <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-[#ccb8d9] bg-white shadow-sm">
-                          <img
-                            src={resolveMediaUrl(badgeImage)}
-                            alt={`Certificate badge ${(index % heroCertificateBadges.length) + 1}`}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        </section>
-      )}
 
       <section className="bg-[#ffffff] px-0 py-14 sm:px-0 lg:px-0">
         <div className="mx-auto w-full max-w-[100vw]">
