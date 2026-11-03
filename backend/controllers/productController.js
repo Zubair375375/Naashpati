@@ -285,6 +285,7 @@ export const getProducts = async (req, res) => {
     )
       .trim()
       .toLowerCase();
+    const isCollectionRoute = Boolean(requestedCollection);
 
     if (requestedCollection) {
       const normalizedCollection =
@@ -351,17 +352,39 @@ export const getProducts = async (req, res) => {
         sort = { createdAt: -1 };
     }
 
-    const products = await Product.find(query)
-      .skip(skip)
+    const collectionSort = isCollectionRoute
+      ? { bestseller: -1, createdAt: -1 }
+      : sort;
+
+    const preferredQuery = isCollectionRoute
+      ? {
+          ...query,
+          bestseller: true,
+        }
+      : query;
+
+    const preferredProducts = await Product.find(preferredQuery)
+      .sort(collectionSort)
       .limit(limit)
-      .sort(sort);
+      .skip(skip);
+
+    const preferredTotal = await Product.countDocuments(preferredQuery);
+
+    let products = preferredProducts;
+    let total = preferredTotal;
+
+    if (isCollectionRoute && preferredProducts.length === 0) {
+      products = await Product.find(query)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit);
+      total = await Product.countDocuments(query);
+    }
 
     const stockMap = await getStockTotalsByProductIds(
       products.map((product) => product._id),
     );
     const productsWithStock = attachComputedStock(products, stockMap);
-
-    const total = await Product.countDocuments(query);
 
     res.json({
       success: true,

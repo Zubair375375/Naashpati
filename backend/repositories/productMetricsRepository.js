@@ -29,6 +29,7 @@ export const applyMetricDelta = async ({ productId, delta, session }) => {
     sales24h: toNumber(delta?.sales24h, 0),
     sales7d: toNumber(delta?.sales7d, 0),
     sales30d: toNumber(delta?.sales30d, 0),
+    sales90d: toNumber(delta?.sales90d, 0),
     revenue: toNumber(delta?.revenue, 0),
     refundCount: toNumber(delta?.refundCount, 0),
   };
@@ -61,6 +62,12 @@ export const applyMetricDelta = async ({ productId, delta, session }) => {
             $max: [
               0,
               { $add: [{ $ifNull: ["$sales30d", 0] }, safeDelta.sales30d] },
+            ],
+          },
+          sales90d: {
+            $max: [
+              0,
+              { $add: [{ $ifNull: ["$sales90d", 0] }, safeDelta.sales90d] },
             ],
           },
           revenue: {
@@ -118,13 +125,18 @@ export const listBestsellersPaginated = async ({
       },
     },
     { $unwind: "$product" },
-    { $match: { product: productMatch } },
+    {
+      $match: {
+        product: productMatch,
+        totalSales: { $gte: 2 },
+      },
+    },
     {
       $sort: {
-        rankingScore: -1,
-        sales7d: -1,
         sales30d: -1,
+        sales90d: -1,
         totalSales: -1,
+        rankingScore: -1,
         updatedAt: -1,
       },
     },
@@ -145,6 +157,7 @@ export const listBestsellersPaginated = async ({
         sales24h: "$sales24h",
         sales7d: "$sales7d",
         sales30d: "$sales30d",
+        sales90d: "$sales90d",
         revenue: "$revenue",
         refundCount: "$refundCount",
       },
@@ -225,6 +238,7 @@ export const aggregateRollingSalesFromEvents = async ({
   now = new Date(),
 } = {}) => {
   const nowDate = new Date(now);
+  const since90d = new Date(nowDate.getTime() - 90 * 24 * 60 * 60 * 1000);
   const since30d = new Date(nowDate.getTime() - 30 * 24 * 60 * 60 * 1000);
   const since7d = new Date(nowDate.getTime() - 7 * 24 * 60 * 60 * 1000);
   const since24h = new Date(nowDate.getTime() - 24 * 60 * 60 * 1000);
@@ -232,7 +246,7 @@ export const aggregateRollingSalesFromEvents = async ({
   const rows = await ProductMetricEvent.aggregate([
     {
       $match: {
-        occurredAt: { $gte: since30d },
+        occurredAt: { $gte: since90d },
       },
     },
     {
@@ -261,7 +275,12 @@ export const aggregateRollingSalesFromEvents = async ({
             $cond: [{ $gte: ["$occurredAt", since7d] }, "$quantitySigned", 0],
           },
         },
-        sales30d: { $sum: "$quantitySigned" },
+        sales30d: {
+          $sum: {
+            $cond: [{ $gte: ["$occurredAt", since30d] }, "$quantitySigned", 0],
+          },
+        },
+        sales90d: { $sum: "$quantitySigned" },
       },
     },
   ]);
@@ -283,6 +302,7 @@ export const bulkApplyRollingSales = async (rows = []) => {
             sales24h: Math.max(0, toNumber(row.sales24h, 0)),
             sales7d: Math.max(0, toNumber(row.sales7d, 0)),
             sales30d: Math.max(0, toNumber(row.sales30d, 0)),
+            sales90d: Math.max(0, toNumber(row.sales90d, 0)),
             lastAggregatedAt: new Date(),
           },
         },
@@ -300,6 +320,7 @@ export const getAllMetrics = async () => {
       sales24h: 1,
       sales7d: 1,
       sales30d: 1,
+      sales90d: 1,
       revenue: 1,
       refundCount: 1,
     },

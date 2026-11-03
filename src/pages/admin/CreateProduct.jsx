@@ -90,7 +90,6 @@ const CreateProduct = ({
     videoUrl: "",
     status: "published",
     featured: false,
-    trending: false,
     bestseller: false,
     newArrival: false,
     lenses: false,
@@ -420,7 +419,6 @@ const CreateProduct = ({
       status,
       newArrival,
       lenses,
-      trending,
       attributes,
       shipping,
       seo,
@@ -552,7 +550,6 @@ const CreateProduct = ({
         status,
         newArrival,
         lenses,
-        trending,
         attributes: {
           ...attributes,
           pages:
@@ -1164,17 +1161,6 @@ const CreateProduct = ({
               className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
             />
             <span className="ml-2 text-sm text-gray-700">New Arrival</span>
-          </label>
-
-          <label className="inline-flex items-center">
-            <input
-              type="checkbox"
-              name="trending"
-              checked={formData.trending}
-              onChange={handleChange}
-              className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
-            />
-            <span className="ml-2 text-sm text-gray-700">Trending</span>
           </label>
 
           <label className="inline-flex items-center">

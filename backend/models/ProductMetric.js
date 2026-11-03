@@ -29,6 +29,11 @@ const productMetricSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    sales90d: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     revenue: {
       type: Number,
       default: 0,

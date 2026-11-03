@@ -60,6 +60,7 @@ export const refreshScoresForProductIds = async (productIds = []) => {
     const rankingScore = computeBestsellerRankingScore({
       sales7d: metric.sales7d,
       sales30d: metric.sales30d,
+      sales90d: metric.sales90d,
       totalSales: metric.totalSales,
       averageRating,
       refundCount: metric.refundCount,
@@ -101,6 +102,7 @@ export const recomputeRollingMetricsAndScores = async () => {
       rankingScore: computeBestsellerRankingScore({
         sales7d: metric.sales7d,
         sales30d: metric.sales30d,
+        sales90d: metric.sales90d,
         totalSales: metric.totalSales,
         averageRating,
         refundCount: metric.refundCount,

@@ -1,8 +1,10 @@
 import {
   buildMetricDelta,
   computeBestsellerRankingScore,
+  getBestsellerRankingPriority,
   isCompletionTransition,
   isRefundOrCancelTransition,
+  isValidBestsellerOrderSale,
 } from "../services/bestsellerMetricUtils.js";
 
 describe("bestsellerMetricUtils", () => {
@@ -42,8 +44,42 @@ describe("bestsellerMetricUtils", () => {
       sales24h: -3,
       sales7d: -3,
       sales30d: -3,
+      sales90d: -3,
       revenue: -1200,
       refundCount: 3,
     });
+  });
+
+  test("only counts paid orders with at least two units toward bestseller ranking", () => {
+    expect(
+      isValidBestsellerOrderSale({
+        isPaid: true,
+        quantity: 2,
+      }),
+    ).toBe(true);
+
+    expect(
+      isValidBestsellerOrderSale({
+        isPaid: true,
+        quantity: 1,
+      }),
+    ).toBe(false);
+
+    expect(
+      isValidBestsellerOrderSale({
+        isPaid: false,
+        quantity: 3,
+      }),
+    ).toBe(false);
+  });
+
+  test("orders bestseller comparisons by 30-day, then 90-day, then all-time sales", () => {
+    expect(
+      getBestsellerRankingPriority({
+        sales30d: 20,
+        sales90d: 45,
+        totalSales: 120,
+      }),
+    ).toEqual([20, 45, 120]);
   });
 });
