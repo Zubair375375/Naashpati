@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import path from "path";
 import Category from "../models/Category.js";
 import Product from "../models/Product.js";
+import ProductMetric from "../models/ProductMetric.js";
 import {
   adjustStockToTarget,
   attachComputedStock,
@@ -127,6 +128,27 @@ const normalizeSeo = (seo = {}, seoKeywordsInput) => ({
     seoKeywordsInput !== undefined ? seoKeywordsInput : seo?.seoKeywords,
   ),
 });
+
+export const getCollectionBestsellerProductIds = async (query = {}) => {
+  const candidateQuery = { ...query };
+  delete candidateQuery.$or;
+
+  const candidateProducts = await Product.find(candidateQuery)
+    .select("_id")
+    .lean();
+
+  if (!candidateProducts.length) {
+    return [];
+  }
+
+  const candidateIds = candidateProducts.map((product) => product._id);
+  const bestsellerIds = await ProductMetric.find({
+    productId: { $in: candidateIds },
+    totalSales: { $gte: 2 },
+  }).distinct("productId");
+
+  return bestsellerIds.map((id) => String(id));
+};
 
 const escapeRegex = (value = "") =>
   String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -356,30 +378,26 @@ export const getProducts = async (req, res) => {
       ? { bestseller: -1, createdAt: -1 }
       : sort;
 
-    const preferredQuery = isCollectionRoute
-      ? {
-          ...query,
-          bestseller: true,
-        }
-      : query;
+    let preferredQuery = query;
+
+    if (isCollectionRoute) {
+      const bestsellerProductIds =
+        await getCollectionBestsellerProductIds(query);
+      preferredQuery = {
+        ...query,
+        _id: { $in: bestsellerProductIds },
+      };
+    }
 
     const preferredProducts = await Product.find(preferredQuery)
-      .sort(collectionSort)
+      .sort(sort)
       .limit(limit)
       .skip(skip);
 
     const preferredTotal = await Product.countDocuments(preferredQuery);
 
-    let products = preferredProducts;
-    let total = preferredTotal;
-
-    if (isCollectionRoute && preferredProducts.length === 0) {
-      products = await Product.find(query)
-        .sort(sort)
-        .skip(skip)
-        .limit(limit);
-      total = await Product.countDocuments(query);
-    }
+    const products = preferredProducts;
+    const total = preferredTotal;
 
     const stockMap = await getStockTotalsByProductIds(
       products.map((product) => product._id),

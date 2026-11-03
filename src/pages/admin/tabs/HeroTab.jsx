@@ -104,7 +104,7 @@ const HeroTab = ({
         </div>
 
         <div className="rounded-lg border bg-gray-50 p-5">
-          <h2 className="mb-4 text-2xl font-semibold">Shop By Gender Images</h2>
+          <h2 className="mb-4 text-2xl font-semibold">Bestseller Images</h2>
 
           <form className="space-y-4" onSubmit={handleSaveGenderImages}>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
