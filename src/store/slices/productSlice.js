@@ -54,11 +54,15 @@ export const fetchProducts = createAsyncThunk(
       }
 
       if (params["men-best-sellers"] !== undefined) {
-        queryParams["men-best-sellers"] = String(Boolean(params["men-best-sellers"]));
+        queryParams["men-best-sellers"] = String(
+          Boolean(params["men-best-sellers"]),
+        );
       }
 
       if (params["women-best-sellers"] !== undefined) {
-        queryParams["women-best-sellers"] = String(Boolean(params["women-best-sellers"]));
+        queryParams["women-best-sellers"] = String(
+          Boolean(params["women-best-sellers"]),
+        );
       }
 
       if (params.includeDraft !== undefined) {
