@@ -535,7 +535,7 @@ const Home = () => {
       <section className="bg-white px-3 pb-8 pt-2 sm:px-4 lg:px-5">
         <div className="mx-auto grid max-w-[1600px] gap-5 md:grid-cols-2">
           <Link
-            to="/products?gender-category=male-collection"
+            to="/products?men-best-sellers"
             className="group relative block h-[500px] overflow-hidden rounded-none border border-[#e8e8e8] bg-[#f2f2f2] shadow-[0_18px_42px_rgba(17,17,17,0.06)] sm:h-[560px] lg:h-[680px]"
             aria-label="Explore Men's Bestseller"
           >
@@ -554,7 +554,7 @@ const Home = () => {
           </Link>
 
           <Link
-            to="/products?gender-category=female-collection"
+            to="/products?women-best-sellers"
             className="group relative block h-[500px] overflow-hidden rounded-none border border-[#e8e8e8] bg-[#f2f2f2] shadow-[0_18px_42px_rgba(17,17,17,0.06)] sm:h-[560px] lg:h-[680px]"
             aria-label="Explore Women's Bestseller"
           >
