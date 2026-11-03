@@ -32,6 +32,7 @@ const initialState = {
   ...getCartFromStorage(),
   isLoading: false,
   error: null,
+  isCartOpen: false,
 };
 
 // Cart slice
@@ -54,6 +55,8 @@ const cartSlice = createSlice({
           price: product.price,
         });
       }
+
+      state.isCartOpen = true;
 
       // Recalculate total
       state.total = state.items.reduce(
@@ -96,7 +99,14 @@ const cartSlice = createSlice({
     clearCart: (state) => {
       state.items = [];
       state.total = 0;
+      state.isCartOpen = false;
       saveCartToStorage(state);
+    },
+    openCart: (state) => {
+      state.isCartOpen = true;
+    },
+    closeCart: (state) => {
+      state.isCartOpen = false;
     },
     addItemsToCart: (state, action) => {
       const items = Array.isArray(action.payload) ? action.payload : [];
@@ -120,6 +130,8 @@ const cartSlice = createSlice({
           });
         }
       });
+
+      state.isCartOpen = true;
 
       state.total = state.items.reduce(
         (total, item) => total + item.price * item.quantity,
@@ -151,6 +163,8 @@ export const {
   removeFromCart,
   updateQuantity,
   clearCart,
+  openCart,
+  closeCart,
   resetCart,
   clearError,
 } = cartSlice.actions;
