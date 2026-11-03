@@ -4,6 +4,7 @@ import { applyMetricDelta } from "../repositories/productMetricsRepository.js";
 import {
   buildMetricDelta,
   buildMetricEventId,
+  isValidBestsellerOrderSale,
 } from "../services/bestsellerMetricUtils.js";
 import { invalidateBestsellerCache } from "../services/bestsellerCacheService.js";
 import { refreshScoresForProductIds } from "../services/bestsellerService.js";
@@ -27,28 +28,40 @@ const buildEventsFromOrderItems = ({
   toStatus,
   occurredAt,
 }) => {
-  return (order?.orderItems || []).map((item) => {
-    const productId = toObjectId(item.product?._id || item.product);
-    const quantity = Number(item.quantity) || 0;
-    const amount = (Number(item.price) || 0) * quantity;
+  return (order?.orderItems || [])
+    .map((item) => {
+      const productId = toObjectId(item.product?._id || item.product);
+      const quantity = Number(item.quantity) || 0;
+      const amount = (Number(item.price) || 0) * quantity;
 
-    return {
-      eventId: buildMetricEventId({
+      if (
+        eventType === "sale" &&
+        !isValidBestsellerOrderSale({
+          isPaid: Boolean(order?.isPaid),
+          quantity,
+        })
+      ) {
+        return null;
+      }
+
+      return {
+        eventId: buildMetricEventId({
+          orderId: order._id,
+          productId,
+          eventType,
+          toStatus,
+        }),
         orderId: order._id,
         productId,
-        eventType,
-        toStatus,
-      }),
-      orderId: order._id,
-      productId,
-      type: eventType,
-      quantity,
-      amount,
-      fromStatus: fromStatus || "",
-      toStatus: toStatus || "",
-      occurredAt: occurredAt || new Date(),
-    };
-  });
+        type: eventType,
+        quantity,
+        amount,
+        fromStatus: fromStatus || "",
+        toStatus: toStatus || "",
+        occurredAt: occurredAt || new Date(),
+      };
+    })
+    .filter(Boolean);
 };
 
 export const processOrderMetricEvents = async ({

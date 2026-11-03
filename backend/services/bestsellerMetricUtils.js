@@ -8,9 +8,29 @@ const toNumber = (value, fallback = 0) => {
 
 export const clampNonNegative = (value) => Math.max(0, toNumber(value, 0));
 
+export const isValidBestsellerOrderSale = ({
+  isPaid = false,
+  quantity = 0,
+} = {}) => {
+  return Boolean(isPaid) && clampNonNegative(quantity) >= 2;
+};
+
+export const getBestsellerRankingPriority = ({
+  sales30d = 0,
+  sales90d = 0,
+  totalSales = 0,
+} = {}) => {
+  return [
+    clampNonNegative(sales30d),
+    clampNonNegative(sales90d),
+    clampNonNegative(totalSales),
+  ];
+};
+
 export const computeBestsellerRankingScore = ({
   sales7d = 0,
   sales30d = 0,
+  sales90d = 0,
   totalSales = 0,
   averageRating = 0,
   refundCount = 0,
@@ -18,12 +38,14 @@ export const computeBestsellerRankingScore = ({
   const normalizedTotalSales = clampNonNegative(totalSales);
   const normalizedSales7d = clampNonNegative(sales7d);
   const normalizedSales30d = clampNonNegative(sales30d);
+  const normalizedSales90d = clampNonNegative(sales90d);
   const normalizedRating = clampNonNegative(averageRating);
   const normalizedRefundCount = clampNonNegative(refundCount);
 
   return (
     normalizedSales7d * 5 +
     normalizedSales30d * 2 +
+    normalizedSales90d +
     Math.log(normalizedTotalSales + 1) +
     normalizedRating * 10 -
     normalizedRefundCount * 3
@@ -72,6 +94,7 @@ export const buildMetricDelta = ({ eventType, quantity, amount } = {}) => {
       sales24h: qty,
       sales7d: qty,
       sales30d: qty,
+      sales90d: qty,
       revenue: money,
       refundCount: 0,
     };
@@ -83,6 +106,7 @@ export const buildMetricDelta = ({ eventType, quantity, amount } = {}) => {
       sales24h: -qty,
       sales7d: -qty,
       sales30d: -qty,
+      sales90d: -qty,
       revenue: -money,
       refundCount: qty,
     };

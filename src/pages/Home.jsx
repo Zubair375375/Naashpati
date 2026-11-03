@@ -25,7 +25,6 @@ import {
   selectSaleOffers,
 } from "../store/slices/saleOfferSlice";
 import ProductCard from "../components/ProductCard";
-import TrendingProducts from "../components/TrendingProducts";
 import api from "../api/axios";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 
@@ -533,8 +532,47 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Trending Products */}
-      <TrendingProducts />
+      <section className="bg-white px-3 pb-8 pt-2 sm:px-4 lg:px-5">
+        <div className="mx-auto grid max-w-[1600px] gap-5 md:grid-cols-2">
+          <Link
+            to="/products?gender-category=male-collection"
+            className="group relative block h-[500px] overflow-hidden rounded-none border border-[#e8e8e8] bg-[#f2f2f2] shadow-[0_18px_42px_rgba(17,17,17,0.06)] sm:h-[560px] lg:h-[680px]"
+            aria-label="Explore Men's Bestseller"
+          >
+            <img
+              src={maleCollectionImage}
+              alt="Men's Bestseller"
+              loading="lazy"
+              className="h-full w-[calc(100%+10px)] -translate-x-[5px] object-cover"
+            />
+            {/* <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-black/15 to-transparent" /> */}
+            <div className="absolute inset-x-0 bottom-6 flex justify-center px-4">
+              <span className="inline-flex items-center justify-center rounded-full bg-white/90 px-7 py-3 text-base font-semibold text-[#171717] shadow-[0_6px_18px_rgba(0,0,0,0.12)] backdrop-blur-sm sm:text-lg">
+                Men&apos;s Bestseller
+              </span>
+            </div>
+          </Link>
+
+          <Link
+            to="/products?gender-category=female-collection"
+            className="group relative block h-[500px] overflow-hidden rounded-none border border-[#e8e8e8] bg-[#f2f2f2] shadow-[0_18px_42px_rgba(17,17,17,0.06)] sm:h-[560px] lg:h-[680px]"
+            aria-label="Explore Women's Bestseller"
+          >
+            <img
+              src={femaleCollectionImage}
+              alt="Women's Bestseller"
+              loading="lazy"
+              className="h-full w-[calc(100%+10px)] -translate-x-[5px] object-cover"
+            />
+            {/* <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-black/15 to-transparent" /> */}
+            <div className="absolute inset-x-0 bottom-6 flex justify-center px-4">
+              <span className="inline-flex items-center justify-center rounded-full bg-white/90 px-7 py-3 text-base font-semibold text-[#171717] shadow-[0_6px_18px_rgba(0,0,0,0.12)] backdrop-blur-sm sm:text-lg">
+                Women&apos;s Bestseller
+              </span>
+            </div>
+          </Link>
+        </div>
+      </section>
 
       <section className="relative flex min-h-[300px] items-center overflow-hidden bg-[#111111] md:min-h-[340px]">
         <div className="absolute inset-0 bg-black/30" />
@@ -755,7 +793,13 @@ const Home = () => {
                       >
                         <rect x="3.5" y="3.5" width="17" height="17" rx="4.5" />
                         <circle cx="12" cy="12" r="4.2" />
-                        <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+                        <circle
+                          cx="17.2"
+                          cy="6.8"
+                          r="1.1"
+                          fill="currentColor"
+                          stroke="none"
+                        />
                       </svg>
                     </div>
                   </div>

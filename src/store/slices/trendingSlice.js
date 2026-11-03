@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../api/axios";
 
-// Async thunk to fetch trending products
-export const fetchTrendingProducts = createAsyncThunk(
-  "trending/fetchTrendingProducts",
+// Async thunk to fetch bestseller products
+export const fetchBestsellerProducts = createAsyncThunk(
+  "bestseller/fetchBestsellerProducts",
   async (params = {}, { rejectWithValue }) => {
     try {
       const query = new URLSearchParams();
@@ -34,38 +34,38 @@ const initialState = {
 };
 
 // Slice
-const trendingSlice = createSlice({
-  name: "trending",
+const bestsellerSlice = createSlice({
+  name: "bestseller",
   initialState,
   reducers: {
-    clearTrendingError: (state) => {
+    clearBestsellerError: (state) => {
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchTrendingProducts.pending, (state) => {
+      .addCase(fetchBestsellerProducts.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(fetchTrendingProducts.fulfilled, (state, action) => {
+      .addCase(fetchBestsellerProducts.fulfilled, (state, action) => {
         state.isLoading = false;
         state.products = action.payload.data || [];
         state.lastUpdated = new Date().toISOString();
         state.error = null;
       })
-      .addCase(fetchTrendingProducts.rejected, (state, action) => {
+      .addCase(fetchBestsellerProducts.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload || "Failed to fetch trending products";
+        state.error = action.payload || "Failed to fetch bestseller products";
       });
   },
 });
 
 // Selectors
-export const selectTrendingProducts = (state) => state.trending.products;
-export const selectTrendingIsLoading = (state) => state.trending.isLoading;
-export const selectTrendingError = (state) => state.trending.error;
-export const selectTrendingLastUpdated = (state) => state.trending.lastUpdated;
+export const selectBestsellerProducts = (state) => state.bestseller.products;
+export const selectBestsellerIsLoading = (state) => state.bestseller.isLoading;
+export const selectBestsellerError = (state) => state.bestseller.error;
+export const selectBestsellerLastUpdated = (state) => state.bestseller.lastUpdated;
 
-export const { clearTrendingError } = trendingSlice.actions;
-export default trendingSlice.reducer;
+export const { clearBestsellerError } = bestsellerSlice.actions;
+export default bestsellerSlice.reducer;
