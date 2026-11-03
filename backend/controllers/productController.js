@@ -307,9 +307,18 @@ export const getProducts = async (req, res) => {
     )
       .trim()
       .toLowerCase();
+    const hasMenBestSellers = req.query["men-best-sellers"] !== undefined;
+    const hasWomenBestSellers = req.query["women-best-sellers"] !== undefined;
+    const isBestsellerCollectionRoute =
+      hasMenBestSellers || hasWomenBestSellers;
+    const bestsellerCollection = hasMenBestSellers
+      ? "male"
+      : hasWomenBestSellers
+        ? "female"
+        : "";
     const isCollectionRoute = Boolean(requestedCollection);
 
-    if (requestedCollection) {
+    if (requestedCollection && !isBestsellerCollectionRoute) {
       const normalizedCollection =
         requestedCollection === "male-collection"
           ? "male"
@@ -329,6 +338,22 @@ export const getProducts = async (req, res) => {
         ];
       } else if (normalizedCollection === "both") {
         query.$or = [{ productCollection: "both" }, { collection: "both" }];
+      }
+    }
+
+    if (isBestsellerCollectionRoute && bestsellerCollection) {
+      const normalizedBestSellerCollection =
+        bestsellerCollection === "male" ? "male" : "female";
+      if (normalizedBestSellerCollection === "male") {
+        query.$or = [
+          { productCollection: { $in: ["male", "both"] } },
+          { collection: { $in: ["male", "both"] } },
+        ];
+      } else if (normalizedBestSellerCollection === "female") {
+        query.$or = [
+          { productCollection: { $in: ["female", "both"] } },
+          { collection: { $in: ["female", "both"] } },
+        ];
       }
     }
 
@@ -380,7 +405,7 @@ export const getProducts = async (req, res) => {
 
     let preferredQuery = query;
 
-    if (isCollectionRoute) {
+    if (isBestsellerCollectionRoute) {
       const bestsellerProductIds =
         await getCollectionBestsellerProductIds(query);
       preferredQuery = {

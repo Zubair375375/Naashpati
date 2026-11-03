@@ -25,8 +25,14 @@ const Products = ({ collectionType = "" }) => {
   const error = useSelector(selectProductsError);
   const initialCategory = searchParams.get("category") || "";
   const lensesOnly = searchParams.get("lenses") === "true";
+  const menBestSellers = searchParams.has("men-best-sellers");
+  const womenBestSellers = searchParams.has("women-best-sellers");
   const rawGenderCategory = String(
-    searchParams.get("gender-category") || searchParams.get("collection") || "",
+    searchParams.get("gender-category") ||
+      searchParams.get("collection") ||
+      (menBestSellers ? "male-collection" : "") ||
+      (womenBestSellers ? "female-collection" : "") ||
+      "",
   )
     .trim()
     .toLowerCase();
@@ -86,7 +92,13 @@ const Products = ({ collectionType = "" }) => {
   useEffect(() => {
     const fetchParams = {};
 
-    if (rawGenderCategory) {
+    if (menBestSellers) {
+      fetchParams["men-best-sellers"] = true;
+      fetchParams["gender-category"] = "male-collection";
+    } else if (womenBestSellers) {
+      fetchParams["women-best-sellers"] = true;
+      fetchParams["gender-category"] = "female-collection";
+    } else if (rawGenderCategory) {
       fetchParams["gender-category"] = rawGenderCategory;
     } else if (collectionType) {
       fetchParams["gender-category"] = `${collectionType}-collection`;
@@ -104,6 +116,8 @@ const Products = ({ collectionType = "" }) => {
     dispatch(fetchCategories());
   }, [
     dispatch,
+    menBestSellers,
+    womenBestSellers,
     rawGenderCategory,
     collectionType,
     initialCategory,
