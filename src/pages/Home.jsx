@@ -459,6 +459,129 @@ const Home = () => {
         </div>
       </section>
 
+      <section className="mt-4 mb-10 bg-[#EEFFDE] px-5 pb-12 pt-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1600px]">
+          <div className="mb-7 flex items-center gap-2 text-[0.9rem] font-semibold uppercase tracking-[0.12em] text-[#171717] sm:text-[1rem]">
+            <span className="text-[#d4a63a]">★★★★★</span>
+            <span>4.9 from 20,000+ reviews</span>
+          </div>
+
+          <h2 className="max-w-[900px] text-[2rem] font-black uppercase leading-[0.86] tracking-[-0.08em] text-[#171717] sm:text-[3.2rem] lg:text-[4rem]">
+            Real People <span className="text-[#68a300]">.</span>
+            <br />
+            <span className="text-[#68a300]">Genuine Reviews</span>{" "}
+            <span className="text-black">.</span>
+          </h2>
+
+          <div className="mt-8 grid gap-5 lg:grid-cols-3">
+            <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6">
+              <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                ★★★★★
+              </div>
+              <p className="text-[1.1rem] font-medium leading-[1.4] text-[#171717] sm:text-[1.35rem]">
+                “This is my third pair of these sunglasses. I am rough on
+                sunglasses and carry them everywhere. They hold up very well.”
+              </p>
+              <div className="mt-6 flex items-center justify-between gap-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
+                <span>Kim</span>
+                <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
+                  Verified Buyer
+                </span>
+                <span className="text-[#171717]/60">Chucktown</span>
+              </div>
+            </article>
+
+            <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6">
+              <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                ★★★★★
+              </div>
+              <p className="text-[1.1rem] font-medium leading-[1.4] text-[#171717] sm:text-[1.35rem]">
+                “My sunglasses became my dogs new favorite toy. Easy
+                replacement.”
+              </p>
+              <div className="mt-6 flex items-center justify-between gap-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
+                <span>John</span>
+                <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
+                  Verified Buyer
+                </span>
+                <span className="text-[#171717]/60">Folly</span>
+              </div>
+            </article>
+
+            <article className="rounded-[1.4rem] bg-[#1b1d20] p-5 text-[#f4f0eb] shadow-[0_2px_10px_rgba(23,23,23,0.12)] sm:p-6">
+              <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                ★★★★★
+              </div>
+              <p className="text-[1.1rem] font-medium leading-[1.4] sm:text-[1.35rem]">
+                “I love the throwback style of these glasses. They fit super
+                well, they’re comfortable, and they are just dope. I highly
+                recommend!”
+              </p>
+              <div className="mt-6 flex items-center justify-between gap-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[#f4f0eb]/80">
+                <span>Cory</span>
+                <span className="rounded-full border border-[#f4f0eb]/20 bg-white/5 px-2 py-1">
+                  Verified Buyer
+                </span>
+                <span className="text-[#f4f0eb]/60">Woodstock</span>
+              </div>
+            </article>
+
+            <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6">
+              <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                ★★★★★
+              </div>
+              <p className="text-[1.1rem] font-medium leading-[1.4] text-[#171717] sm:text-[1.35rem]">
+                “Love these! They don’t scratch, it’s amazing! I’ve had two
+                pairs for over 5 years.”
+              </p>
+              <div className="mt-6 flex items-center justify-between gap-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
+                <span>Kendra</span>
+                <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
+                  Verified Buyer
+                </span>
+                <span className="text-[#171717]/60">Kitty Hawk</span>
+              </div>
+            </article>
+
+            <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6">
+              <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                ★★★★★
+              </div>
+              <p className="text-[1.1rem] font-medium leading-[1.4] text-[#171717] sm:text-[1.35rem]">
+                “These are a simple, stylish, and affordable pair of polarized
+                sunglasses that we love whether it is for kayaking, walking on
+                the beach, or just walking around town.”
+              </p>
+              <div className="mt-6 flex items-center justify-between gap-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
+                <span>Christopher</span>
+                <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
+                  Verified Buyer
+                </span>
+                <span className="text-[#171717]/60">Chucktown</span>
+              </div>
+            </article>
+
+            <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6">
+              <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                ★★★★★
+              </div>
+              <p className="text-[1.1rem] font-medium leading-[1.4] text-[#171717] sm:text-[1.35rem]">
+                “I have been wearing the Chucktown sunglasses for at least 7
+                years and love them so much! I even got my husband wearing
+                them!”
+              </p>
+              <div className="mt-6 flex items-center justify-between gap-3 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
+                <span>Annemarie</span>
+                <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
+                  Verified Buyer
+                </span>
+                <span className="text-[#171717]/60">Chucktown</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-white px-5 pb-5 pt-5 sm:px-5 lg:px-6">
         <div className="mx-auto grid max-w-[1600px] items-center gap-0 overflow-hidden bg-white lg:grid-cols-[1.2fr_1fr]">
           <div className="flex h-full flex-col justify-center bg-white px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
@@ -717,62 +840,59 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Contact Lenses */}
-      <section className="bg-white px-6 pb-16">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-10 flex items-center justify-between border-b border-gray-900 pb-4">
-            <h2
-              className="text-xl font-semibold text-gray-900"
-              style={{ fontFamily: "Poppins, sans-serif, Inter, system-ui" }}
-            >
-              Contact Lenses
-            </h2>
-            <Link
-              to="/products?lenses=true"
-              className="text-sm font-semibold text-gray-600 hover:text-gray-900"
-            >
-              View all
-            </Link>
-          </div>
+      {lensesProducts.length > 0 && (
+        <section className="bg-white px-6 pb-16">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-10 flex items-center justify-between border-b border-gray-900 pb-4">
+              <h2
+                className="text-xl font-semibold text-gray-900"
+                style={{ fontFamily: "Poppins, sans-serif, Inter, system-ui" }}
+              >
+                Contact Lenses
+              </h2>
+              <Link
+                to="/products?lenses=true"
+                className="text-sm font-semibold text-gray-600 hover:text-gray-900"
+              >
+                View all
+              </Link>
+            </div>
 
-          {lensesProductsLoading ? (
-            <p className="text-center text-gray-500">
-              Loading contact lenses...
-            </p>
-          ) : lensesProducts.length > 0 ? (
-            <>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                {visibleLensesProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
-              </div>
-
-              {canLoadMoreLensesProducts && (
-                <div className="mt-10 text-center">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setVisibleLensesProductCount((count) =>
-                        Math.min(
-                          count + LENSES_PRODUCTS_BATCH_SIZE,
-                          lensesProducts.length,
-                        ),
-                      )
-                    }
-                    className="inline-flex items-center justify-center border border-[#232323] bg-[#232323] px-4 py-2 text-[14px] font-semibold text-white transition hover:bg-white hover:text-black"
-                  >
-                    Load more
-                  </button>
+            {lensesProductsLoading ? (
+              <p className="text-center text-gray-500">
+                Loading contact lenses...
+              </p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                  {visibleLensesProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))}
                 </div>
-              )}
-            </>
-          ) : (
-            <p className="text-center text-gray-500">
-              No contact lenses products yet.
-            </p>
-          )}
-        </div>
-      </section>
+
+                {canLoadMoreLensesProducts && (
+                  <div className="mt-10 text-center">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setVisibleLensesProductCount((count) =>
+                          Math.min(
+                            count + LENSES_PRODUCTS_BATCH_SIZE,
+                            lensesProducts.length,
+                          ),
+                        )
+                      }
+                      className="inline-flex items-center justify-center border border-[#232323] bg-[#232323] px-4 py-2 text-[14px] font-semibold text-white transition hover:bg-white hover:text-black"
+                    >
+                      Load more
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </section>
+      )}
 
       <section className="bg-[#ffffff] px-0 py-14 sm:px-0 lg:px-0">
         <div className="mx-auto w-full max-w-[100vw]">
