@@ -302,9 +302,9 @@ const Home = () => {
         </section>
       )}
 
-      <section className="bg-white pb-10 pt-5">
+      <section className="bg-white pb-10 pt-10">
         <div className="mb-6 w-full">
-          <div className="mb-0 flex items-center justify-center gap-8 sm:gap-12">
+          <div className="mt-2 flex items-center justify-center gap-8 sm:gap-12">
             <button
               type="button"
               onClick={() => setActiveCategoryTab("categories")}
@@ -337,7 +337,7 @@ const Home = () => {
           <div className="mt-2 h-px w-full bg-[#d4d4d4]" />
         </div>
 
-        <div className="mx-auto max-w-[1700px] px-0 pt-2 sm:px-1">
+        <div className="mx-auto max-w-[1700px] px-0 mb-2 sm:px-1">
           {activeCategoryTab === "categories" ? (
             <div
               className={`flex snap-x snap-mandatory gap-2.5 overflow-x-auto scroll-px-2 px-2 pb-2 pt-1 sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
@@ -391,7 +391,7 @@ const Home = () => {
           ) : (
             <div className="mx-auto max-w-[1700px] px-2 pb-2 sm:px-3">
               {newArrivalItems.length > 0 ? (
-                <div className="flex snap-x snap-mandatory justify-center gap-2.5 overflow-x-auto scroll-px-2 pb-2 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex snap-x snap-mandatory justify-center gap-2.5 overflow-x-auto scroll-px-2 pb-0 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   {newArrivalItems.slice(0, 4).map((item) => {
                     const product = latestProducts.find(
                       (entry) => entry._id === item.productId,
