@@ -221,28 +221,47 @@ const Home = () => {
     });
   };
 
+  const activeSaleOffer = saleOffers[activeSaleOfferIndex] || null;
+  const activeSaleOfferProduct =
+    Array.isArray(activeSaleOffer?.products) && activeSaleOffer.products.length > 0
+      ? activeSaleOffer.products[0]
+      : null;
+  const activeSaleOfferProductId =
+    typeof activeSaleOfferProduct === "string"
+      ? activeSaleOfferProduct
+      : activeSaleOfferProduct?._id ||
+        activeSaleOffer?.productId ||
+        activeSaleOffer?.product?._id ||
+        "";
+  const activeSaleOfferProductSlug =
+    typeof activeSaleOfferProduct === "string"
+      ? ""
+      : activeSaleOfferProduct?.slug || activeSaleOffer?.product?.slug || "";
+  const activeSaleOfferId =
+    String(activeSaleOffer?._id || activeSaleOffer?.slug || "").trim();
+  const activeSaleOfferLink = activeSaleOfferProductId
+    ? `/products/${activeSaleOfferProductSlug || activeSaleOfferProductId}`
+    : activeSaleOfferId
+      ? `/sales/${activeSaleOfferId}`
+      : "/";
+
   return (
     <div className="min-h-screen">
       {saleOffers.length > 0 && (
         <section className="bg-white py-0">
           <div className="overflow-hidden bg-white">
             <Link
-              to={`/sales/${saleOffers[activeSaleOfferIndex]?.slug || saleOffers[activeSaleOfferIndex]?._id || ""}`}
+              to={activeSaleOfferLink}
               className="group block"
-              aria-label={`Open ${saleOffers[activeSaleOfferIndex]?.saleName || saleOffers[activeSaleOfferIndex]?.name || "sale offer"}`}
+              aria-label={`Open ${activeSaleOffer?.saleName || activeSaleOffer?.name || "sale offer"}`}
             >
               <div className="relative h-[220px] w-full overflow-hidden bg-white shadow-[0_2px_14px_rgba(0,0,0,0.04)] sm:h-[300px] lg:h-[86vh]">
                 <img
-                  key={
-                    saleOffers[activeSaleOfferIndex]?._id ||
-                    activeSaleOfferIndex
-                  }
-                  src={resolveMediaUrl(
-                    saleOffers[activeSaleOfferIndex]?.banner,
-                  )}
+                  key={activeSaleOffer?._id || activeSaleOfferIndex}
+                  src={resolveMediaUrl(activeSaleOffer?.banner)}
                   alt={
-                    saleOffers[activeSaleOfferIndex]?.saleName ||
-                    saleOffers[activeSaleOfferIndex]?.name ||
+                    activeSaleOffer?.saleName ||
+                    activeSaleOffer?.name ||
                     "Sale offer"
                   }
                   className="h-full w-full object-cover"
@@ -252,17 +271,16 @@ const Home = () => {
                 <div className="absolute inset-0 z-10 flex items-center p-5 text-left text-[#383838] sm:p-8 lg:p-12">
                   <div className="max-w-3xl">
                     <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-black/75 sm:text-base">
-                      {saleOffers[activeSaleOfferIndex]?.saleName ||
-                        saleOffers[activeSaleOfferIndex]?.name ||
+                      {activeSaleOffer?.saleName ||
+                        activeSaleOffer?.name ||
                         "Sale Offer"}
                     </p>
                     <h3 className="text-2xl font-black uppercase tracking-[-0.06em] text-[#393939] sm:text-4xl lg:text-5xl">
-                      {saleOffers[activeSaleOfferIndex]?.productName ||
-                        "Featured Product"}
+                      {activeSaleOffer?.productName || "Featured Product"}
                     </h3>
-                    {saleOffers[activeSaleOfferIndex]?.productDescription && (
+                    {activeSaleOffer?.productDescription && (
                       <p className="mt-3 max-w-lg text-xl text-[#383838]/80 sm:text-[1.9rem]">
-                        {saleOffers[activeSaleOfferIndex].productDescription}
+                        {activeSaleOffer.productDescription}
                       </p>
                     )}
 
