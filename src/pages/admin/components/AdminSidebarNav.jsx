@@ -77,6 +77,38 @@ const AdminSidebarNav = ({
             >
               Lenses Products
             </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("products");
+                setActiveProductCategory("male-collection");
+                setProductCategoriesOpen(true);
+              }}
+              className={`w-full rounded-md px-3 py-2 text-left text-sm font-medium transition ${
+                activeTab === "products" &&
+                activeProductCategory === "male-collection"
+                  ? "bg-green-50 text-green-700"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+              }`}
+            >
+              Male Collection
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("products");
+                setActiveProductCategory("female-collection");
+                setProductCategoriesOpen(true);
+              }}
+              className={`w-full rounded-md px-3 py-2 text-left text-sm font-medium transition ${
+                activeTab === "products" &&
+                activeProductCategory === "female-collection"
+                  ? "bg-green-50 text-green-700"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+              }`}
+            >
+              Female Collection
+            </button>
             {adminManageableCategories.map((category) => (
               <button
                 key={category._id || category.value}
