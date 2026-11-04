@@ -325,6 +325,24 @@ const AdminDashboard = () => {
       return products.filter((product) => product.lenses);
     }
 
+    if (activeProductCategory === "male-collection") {
+      return products.filter(
+        (product) =>
+          product.productCollection === "male" ||
+          product.productCollection === "both" ||
+          product.category === "male-collection",
+      );
+    }
+
+    if (activeProductCategory === "female-collection") {
+      return products.filter(
+        (product) =>
+          product.productCollection === "female" ||
+          product.productCollection === "both" ||
+          product.category === "female-collection",
+      );
+    }
+
     return products.filter(
       (product) => product.category === activeProductCategory,
     );
@@ -332,7 +350,11 @@ const AdminDashboard = () => {
   const activeProductCategoryName =
     activeProductCategory === LENSES_PRODUCTS_SECTION
       ? "Lenses Products"
-      : selectedProductCategory?.name || "All Products";
+      : activeProductCategory === "male-collection"
+        ? "Male Collection"
+        : activeProductCategory === "female-collection"
+          ? "Female Collection"
+          : selectedProductCategory?.name || "All Products";
 
   const getDashboardProductsFetchParams = useCallback(
     (section = activeProductCategory) => ({
@@ -544,18 +566,16 @@ const AdminDashboard = () => {
   ]);
 
   useEffect(() => {
-    if (
+    const isValidProductSection =
       activeProductCategory === "all" ||
-      activeProductCategory === LENSES_PRODUCTS_SECTION
-    ) {
-      return;
-    }
+      activeProductCategory === LENSES_PRODUCTS_SECTION ||
+      activeProductCategory === "male-collection" ||
+      activeProductCategory === "female-collection" ||
+      adminManageableCategories.some(
+        (category) => category.value === activeProductCategory,
+      );
 
-    const categoryExists = adminManageableCategories.some(
-      (category) => category.value === activeProductCategory,
-    );
-
-    if (!categoryExists) {
+    if (!isValidProductSection) {
       setActiveProductCategory("all");
     }
   }, [activeProductCategory, adminManageableCategories]);

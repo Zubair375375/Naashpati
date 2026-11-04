@@ -27,22 +27,25 @@ const ProductsTab = ({
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => handleOpenAddProduct()}
-            disabled={
-              activeProductCategory === "all" &&
-              adminManageableCategories.length === 0
-            }
-            className="flex items-center space-x-2 rounded bg-[#68a300] px-4 py-2 text-white hover:bg-[#5f9600]"
-          >
-            <FaPlus />
-            <span>
-              Add{" "}
-              {activeProductCategory === "all"
-                ? "Product"
-                : activeProductCategoryName}
-            </span>
-          </button>
+          {activeProductCategory !== "male-collection" &&
+            activeProductCategory !== "female-collection" && (
+              <button
+                onClick={() => handleOpenAddProduct()}
+                disabled={
+                  activeProductCategory === "all" &&
+                  adminManageableCategories.length === 0
+                }
+                className="flex items-center space-x-2 rounded bg-[#68a300] px-4 py-2 text-white hover:bg-[#5f9600]"
+              >
+                <FaPlus />
+                <span>
+                  Add{" "}
+                  {activeProductCategory === "all"
+                    ? "Product"
+                    : activeProductCategoryName}
+                </span>
+              </button>
+            )}
           <button
             onClick={onExportProducts}
             className="flex items-center space-x-2 rounded bg-green-700 px-4 py-2 text-white hover:bg-green-800"
@@ -55,15 +58,17 @@ const ProductsTab = ({
 
       <div>
         {(adminManageableCategories.length > 0 ||
-          activeProductCategory === lensesProductsSection) && (
+          activeProductCategory === lensesProductsSection ||
+          activeProductCategory === "male-collection" ||
+          activeProductCategory === "female-collection") && (
           <div className="mb-6 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setActiveProductCategory("all")}
-              className={`rounded border px-3 py-2 text-sm font-medium ${
+              className={`rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 ${
                 activeProductCategory === "all"
-                  ? "border-green-200 bg-green-50 text-green-700"
-                  : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                  ? "border-gray-400 bg-gray-200 text-gray-900 shadow-sm"
+                  : ""
               }`}
             >
               All Products
@@ -71,13 +76,35 @@ const ProductsTab = ({
             <button
               type="button"
               onClick={() => setActiveProductCategory(lensesProductsSection)}
-              className={`rounded border px-3 py-2 text-sm font-medium ${
+              className={`rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 ${
                 activeProductCategory === lensesProductsSection
-                  ? "border-green-200 bg-green-50 text-green-700"
-                  : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                  ? "border-gray-400 bg-gray-200 text-gray-900 shadow-sm"
+                  : ""
               }`}
             >
               Lenses Products
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveProductCategory("male-collection")}
+              className={`rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 ${
+                activeProductCategory === "male-collection"
+                  ? "border-gray-400 bg-gray-200 text-gray-900 shadow-sm"
+                  : ""
+              }`}
+            >
+              Male Collection
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveProductCategory("female-collection")}
+              className={`rounded border border-gray-300 bg-gray-100 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-200 ${
+                activeProductCategory === "female-collection"
+                  ? "border-gray-400 bg-gray-200 text-gray-900 shadow-sm"
+                  : ""
+              }`}
+            >
+              Female Collection
             </button>
             {adminManageableCategories.map((category) => (
               <button
