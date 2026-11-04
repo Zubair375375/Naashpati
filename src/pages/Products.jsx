@@ -88,6 +88,53 @@ const Products = ({ collectionType = "" }) => {
 
   const isGenderRoute =
     normalizedCollection === "male" || normalizedCollection === "female";
+  const STATIC_COLLECTION_BANNER_KEYS = new Set([
+    "all-products",
+    "male-collection",
+    "female-collection",
+    "lenses",
+    "men-best-sellers",
+    "women-best-sellers",
+  ]);
+  const getCollectionBannerStorageKey = (key) => {
+    const normalized = String(key || "").trim();
+    if (!normalized) {
+      return normalized;
+    }
+    if (normalized.startsWith("category:")) {
+      return normalized;
+    }
+    return STATIC_COLLECTION_BANNER_KEYS.has(normalized)
+      ? normalized
+      : `category:${normalized}`;
+  };
+  const collectionBannerStorageKey = "naashpati-collection-page-banners";
+  const collectionBannerRouteKey = (() => {
+    if (menBestSellers)
+      return getCollectionBannerStorageKey("men-best-sellers");
+    if (womenBestSellers)
+      return getCollectionBannerStorageKey("women-best-sellers");
+    if (lensesOnly) return getCollectionBannerStorageKey("lenses");
+    if (rawGenderCategory === "male-collection")
+      return getCollectionBannerStorageKey("male-collection");
+    if (rawGenderCategory === "female-collection")
+      return getCollectionBannerStorageKey("female-collection");
+    if (initialCategory) return getCollectionBannerStorageKey(initialCategory);
+    return getCollectionBannerStorageKey("all-products");
+  })();
+  const getCollectionPageBanner = () => {
+    try {
+      const saved = JSON.parse(
+        localStorage.getItem(collectionBannerStorageKey) || "{}",
+      );
+      const legacyKey = collectionBannerRouteKey.replace(/^category:/, "");
+      return saved[collectionBannerRouteKey] || saved[legacyKey] || "";
+    } catch {
+      return "";
+    }
+  };
+  const genericCollectionBanner = getCollectionPageBanner();
+  const hasGenderCollectionBanner = Boolean(genericCollectionBanner);
 
   useEffect(() => {
     const fetchParams = {};
@@ -253,41 +300,41 @@ const Products = ({ collectionType = "" }) => {
 
   return (
     <div>
+      {hasGenderCollectionBanner && (
+        <section className="w-full bg-white px-0 pb-4 pt-0">
+          <div className="relative w-full overflow-hidden">
+            <img
+              src={genericCollectionBanner}
+              alt="Collection banner"
+              className="h-[220px] w-full object-cover object-center sm:h-[300px] lg:h-[420px]"
+              loading="lazy"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/15 via-black/5 to-black/15" />
+          </div>
+        </section>
+      )}
+
       {featuredCategories.length > 0 && (
-        <section className="border-b border-gray-100 bg-white px-3 py-6 lg:px-4 xl:px-6 2xl:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-4 flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => handleFilterChange("category", "")}
-                className="text-xs font-medium text-gray-600 hover:text-[#68a300]"
-              >
-                All products
-              </button>
+        <section className="bg-white pb-10 pt-10">
+          <div className="mb-6 w-full">
+            <div className="mt-2 flex items-center justify-center gap-8 sm:gap-12">
+              <span className="relative pb-3 text-sm font-black uppercase tracking-[0.08em] text-[#1f1f1f] sm:text-base">
+                Categories
+                <span className="absolute -bottom-0.5 left-0 h-[3px] w-full bg-[#1f1f1f]" />
+              </span>
             </div>
+            <div className="mt-2 h-px w-full bg-[#d4d4d4]" />
+          </div>
 
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => scrollCategories(-1)}
-                className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-md transition hover:bg-white"
-                aria-label="Scroll categories left"
-              >
-                <FaChevronLeft className="text-sm" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => scrollCategories(1)}
-                className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-gray-200 bg-white/95 text-gray-700 shadow-md transition hover:bg-white"
-                aria-label="Scroll categories right"
-              >
-                <FaChevronRight className="text-sm" />
-              </button>
-
+          <div className="mx-auto mb-2 max-w-[1500px] px-3">
+            <div>
               <div
                 ref={categoryScrollRef}
-                className="flex flex-nowrap gap-2 overflow-x-auto px-14 pb-2 pt-1 sm:gap-3 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className={`flex snap-x snap-mandatory gap-2.5 overflow-x-auto scroll-px-2 px-0 pb-2 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+                  featuredCategories.length <= 4
+                    ? "justify-center"
+                    : "justify-start"
+                }`}
               >
                 {featuredCategories.map((category) => {
                   const isActive = filters.category === category.value;
@@ -299,11 +346,11 @@ const Products = ({ collectionType = "" }) => {
                       onClick={() =>
                         handleFilterChange("category", category.value)
                       }
-                      className={`group flex min-w-[138px] shrink-0 flex-col items-center rounded-xl bg-white px-2 py-3 text-center sm:min-w-[160px] sm:px-3 ${
+                      className={`group relative block h-[540px] w-[290px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[320px] md:w-[345px] lg:w-[365px] ${
                         isActive ? "shadow-md" : ""
                       }`}
                     >
-                      <div className="h-24 w-24 overflow-hidden rounded-full bg-gray-100 sm:h-28 sm:w-28 md:h-32 md:w-32 lg:h-44 lg:w-44">
+                      <div className="absolute inset-0">
                         {category.image ? (
                           <img
                             src={resolveMediaUrl(category.image)}
@@ -312,14 +359,30 @@ const Products = ({ collectionType = "" }) => {
                             loading="lazy"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-gray-50 text-lg font-semibold text-gray-400">
-                            {(category.name || "?").slice(0, 1).toUpperCase()}
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
+                            <span className="text-6xl text-white/80">
+                              {(category.name || "?").slice(0, 1).toUpperCase()}
+                            </span>
                           </div>
                         )}
                       </div>
-                      <p className="mt-2 line-clamp-1 text-xs font-medium text-gray-800 transition-colors duration-150 group-hover:text-blue-600">
-                        {category.name}
-                      </p>
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                      <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
+                        <div className="space-y-3">
+                          <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                            Collection
+                          </p>
+                          <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
+                            {category.name}
+                          </h3>
+                        </div>
+
+                        <span className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]">
+                          Shop Now
+                        </span>
+                      </div>
                     </button>
                   );
                 })}
@@ -329,10 +392,10 @@ const Products = ({ collectionType = "" }) => {
         </section>
       )}
 
-      <div className="px-3 py-8 lg:px-4 xl:px-6 2xl:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-8 min-w-0">
-            <div className="mb-6 rounded-lg bg-white p-6 shadow-md">
+      <div className="px-0 py-5">
+        <div className="mx-auto max-w-[1500px] px-3">
+          <div className="mb-6 min-w-0">
+            <div className="mb-4 rounded-lg bg-white p-5 shadow-md">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                 <div>
                   {normalizedCollection === "female" ? (

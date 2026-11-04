@@ -12,6 +12,10 @@ const ProductsTab = ({
   resolveMediaUrl,
   handleEditProduct,
   handleDeleteProduct,
+  collectionBannerPreviews,
+  handleCollectionBannerImageChange,
+  handleSaveCollectionBanner,
+  handleRemoveCollectionBanner,
 }) => {
   return (
     <div className="p-6">
@@ -91,6 +95,69 @@ const ProductsTab = ({
             ))}
           </div>
         )}
+
+        {activeProductCategory !== "all" &&
+          activeProductCategory !== lensesProductsSection && (
+            <form
+              onSubmit={(event) =>
+                handleSaveCollectionBanner(activeProductCategory, event)
+              }
+              className="mb-6 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4"
+            >
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {activeProductCategoryName} Banner
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Upload the banner image for this category page.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleRemoveCollectionBanner(activeProductCategory)
+                  }
+                  className="rounded border border-red-200 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50"
+                >
+                  Clear
+                </button>
+              </div>
+
+              {collectionBannerPreviews[activeProductCategory] ? (
+                <img
+                  src={collectionBannerPreviews[activeProductCategory]}
+                  alt={`${activeProductCategoryName} banner preview`}
+                  className="mb-3 h-32 w-full rounded object-cover"
+                />
+              ) : (
+                <div className="mb-3 flex h-32 items-center justify-center rounded border-2 border-dashed border-gray-300 text-xs text-gray-400">
+                  No banner selected
+                </div>
+              )}
+
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="file"
+                  accept="image/*"
+                  data-collection-banner-key={activeProductCategory}
+                  onChange={(event) =>
+                    handleCollectionBannerImageChange(
+                      activeProductCategory,
+                      event.target.files?.[0],
+                    )
+                  }
+                  className="w-full rounded border border-gray-300 px-2 py-2 text-xs"
+                />
+                <button
+                  type="submit"
+                  className="rounded bg-[#111111] px-4 py-2 text-sm font-medium text-white hover:bg-[#2a2a2a]"
+                >
+                  Save
+                </button>
+              </div>
+            </form>
+          )}
 
         <div className="mb-4 flex items-center justify-between">
           <div>

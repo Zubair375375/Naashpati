@@ -227,6 +227,54 @@ const AdminDashboard = () => {
     male: false,
   });
   const [savingGenderImages, setSavingGenderImages] = useState(false);
+  const COLLECTION_BANNER_STORAGE_KEY = "naashpati-collection-page-banners";
+  const STATIC_COLLECTION_BANNER_KEYS = new Set([
+    "all-products",
+    "male-collection",
+    "female-collection",
+    "lenses",
+    "men-best-sellers",
+    "women-best-sellers",
+  ]);
+  const getCollectionBannerStorageKey = (key) => {
+    const normalized = String(key || "").trim();
+    if (!normalized) {
+      return normalized;
+    }
+    if (normalized.startsWith("category:")) {
+      return normalized;
+    }
+    return STATIC_COLLECTION_BANNER_KEYS.has(normalized)
+      ? normalized
+      : `category:${normalized}`;
+  };
+  const collectionBannerConfigs = [
+    { key: "all-products", label: "All Products" },
+    { key: "male-collection", label: "Male Collection" },
+    { key: "female-collection", label: "Female Collection" },
+    { key: "lenses", label: "Lenses" },
+    { key: "men-best-sellers", label: "Men Bestsellers" },
+    { key: "women-best-sellers", label: "Women Bestsellers" },
+  ];
+  const [collectionBannerPreviews, setCollectionBannerPreviews] = useState(
+    () => {
+      try {
+        const saved = JSON.parse(
+          localStorage.getItem(COLLECTION_BANNER_STORAGE_KEY) || "{}",
+        );
+        return Object.fromEntries(
+          collectionBannerConfigs.map(({ key }) => {
+            const routeKey = getCollectionBannerStorageKey(key);
+            return [key, saved[routeKey] || saved[key] || ""];
+          }),
+        );
+      } catch {
+        return Object.fromEntries(
+          collectionBannerConfigs.map(({ key }) => [key, ""]),
+        );
+      }
+    },
+  );
   const aboutContent = useAboutContent();
   const { fetchAboutContent } = aboutContent;
   const [announcementForm, setAnnouncementForm] = useState({
@@ -966,6 +1014,80 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleCollectionBannerImageChange = (key, file) => {
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setCollectionBannerPreviews((prev) => ({
+        ...prev,
+        [key]: event.target?.result || "",
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveCollectionBanner = async (key, e) => {
+    e.preventDefault();
+
+    const storageKey = getCollectionBannerStorageKey(key);
+    const saved = JSON.parse(
+      localStorage.getItem(COLLECTION_BANNER_STORAGE_KEY) || "{}",
+    );
+    const matchingInput = document.querySelector(
+      `input[data-collection-banner-key="${key}"]`,
+    );
+
+    if (!matchingInput || !matchingInput.files || !matchingInput.files[0]) {
+      toast.error("Please choose an image before saving.");
+      return;
+    }
+
+    try {
+      const uploadedUrl = await uploadDashboardImage(matchingInput.files[0]);
+      const updated = { ...saved, [storageKey]: uploadedUrl };
+      localStorage.setItem(
+        COLLECTION_BANNER_STORAGE_KEY,
+        JSON.stringify(updated),
+      );
+      setCollectionBannerPreviews((prev) => ({
+        ...prev,
+        [key]: uploadedUrl,
+      }));
+      toast.success("Collection banner saved");
+    } catch (error) {
+      toast.error(
+        typeof error === "string"
+          ? error
+          : error?.message || "Failed to save collection banner",
+      );
+    }
+  };
+
+  const handleRemoveCollectionBanner = (key) => {
+    try {
+      const storageKey = getCollectionBannerStorageKey(key);
+      const saved = JSON.parse(
+        localStorage.getItem(COLLECTION_BANNER_STORAGE_KEY) || "{}",
+      );
+      delete saved[storageKey];
+      delete saved[key];
+      localStorage.setItem(
+        COLLECTION_BANNER_STORAGE_KEY,
+        JSON.stringify(saved),
+      );
+      setCollectionBannerPreviews((prev) => ({
+        ...prev,
+        [key]: "",
+      }));
+      toast.success("Collection banner cleared");
+    } catch {
+      toast.error("Failed to clear collection banner");
+    }
+  };
+
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
     try {
       await dispatch(
@@ -1241,6 +1363,12 @@ const AdminDashboard = () => {
               resolveMediaUrl={resolveMediaUrl}
               handleEditProduct={handleEditProduct}
               handleDeleteProduct={handleDeleteProduct}
+              collectionBannerPreviews={collectionBannerPreviews}
+              handleCollectionBannerImageChange={
+                handleCollectionBannerImageChange
+              }
+              handleSaveCollectionBanner={handleSaveCollectionBanner}
+              handleRemoveCollectionBanner={handleRemoveCollectionBanner}
             />
           )}
 
