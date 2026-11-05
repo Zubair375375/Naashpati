@@ -77,6 +77,7 @@ import ProductsTab from "./admin/tabs/ProductsTab";
 import CategoriesTab from "./admin/tabs/CategoriesTab";
 import ROIAnalyticsTab from "./admin/tabs/ROIAnalyticsTab";
 import CashFlowTab from "./admin/tabs/CashFlowTab";
+import CustomerAnalyticsTab from "./admin/tabs/CustomerAnalyticsTab";
 
 const LENSES_PRODUCTS_SECTION = "lenses-products";
 
@@ -1800,6 +1801,7 @@ const AdminDashboard = () => {
           )}
 
           {activeTab === "cash-flow" && <CashFlowTab view="cash-flow" />}
+          {activeTab === "customer-analytics" && <CustomerAnalyticsTab />}
 
           {/* About Video Tab */}
           {activeTab === "about-video" && <AboutContentTab {...aboutContent} />}
