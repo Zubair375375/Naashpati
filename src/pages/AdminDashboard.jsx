@@ -78,6 +78,7 @@ import CategoriesTab from "./admin/tabs/CategoriesTab";
 import ROIAnalyticsTab from "./admin/tabs/ROIAnalyticsTab";
 import CashFlowTab from "./admin/tabs/CashFlowTab";
 import CustomerAnalyticsTab from "./admin/tabs/CustomerAnalyticsTab";
+import BreakEvenAnalyticsTab from "./admin/tabs/BreakEvenAnalyticsTab";
 
 const LENSES_PRODUCTS_SECTION = "lenses-products";
 
@@ -1801,6 +1802,13 @@ const AdminDashboard = () => {
           )}
 
           {activeTab === "cash-flow" && <CashFlowTab view="cash-flow" />}
+          {activeTab === "break-even-analytics" && (
+            <BreakEvenAnalyticsTab
+              orders={orders}
+              products={products}
+              expenses={expenses}
+            />
+          )}
           {activeTab === "customer-analytics" && <CustomerAnalyticsTab />}
 
           {/* About Video Tab */}
