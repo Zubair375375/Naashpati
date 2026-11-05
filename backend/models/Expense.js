@@ -43,6 +43,27 @@ const expenseSchema = new mongoose.Schema(
       enum: ["pending", "paid", "partial", "reversed"],
       default: "paid",
     },
+    costType: {
+      type: String,
+      enum: ["fixed", "variable"],
+      default: "variable",
+    },
+    isRecurring: {
+      type: Boolean,
+      default: true,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    effectiveFrom: {
+      type: Date,
+      default: null,
+    },
+    effectiveTo: {
+      type: Date,
+      default: null,
+    },
     isPaid: {
       type: Boolean,
       default: true,

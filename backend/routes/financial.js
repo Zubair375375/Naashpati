@@ -1,14 +1,23 @@
 import express from "express";
 import { body } from "express-validator";
 import {
+  createBreakEvenCost,
   createFinancialAccount,
   createFinancialTransaction,
+  deleteBreakEvenCost,
   deleteFinancialAccount,
   deleteFinancialTransaction,
+  getBreakEvenCosts,
+  getBreakEvenProducts,
+  getBreakEvenSummary,
+  getBreakEvenTrends,
   getCashFlowDashboard,
   getFinancialAccounts,
   getFinancialReport,
   getFinancialTransactions,
+  getBreakEvenCostById,
+  simulateBreakEven,
+  updateBreakEvenCost,
   updateFinancialAccount,
   updateFinancialTransaction,
 } from "../controllers/financialController.js";
@@ -42,6 +51,55 @@ const transactionValidation = [
 
 router.get("/summary", protect, authorize("admin"), getCashFlowDashboard);
 router.get("/reports", protect, authorize("admin"), getFinancialReport);
+router.get(
+  "/break-even/summary",
+  protect,
+  authorize("admin"),
+  getBreakEvenSummary,
+);
+router.get(
+  "/break-even/trends",
+  protect,
+  authorize("admin"),
+  getBreakEvenTrends,
+);
+router.get(
+  "/break-even/products",
+  protect,
+  authorize("admin"),
+  getBreakEvenProducts,
+);
+router.get("/break-even/costs", protect, authorize("admin"), getBreakEvenCosts);
+router.get(
+  "/break-even/costs/:id",
+  protect,
+  authorize("admin"),
+  getBreakEvenCostById,
+);
+router.post(
+  "/break-even/costs",
+  protect,
+  authorize("admin"),
+  createBreakEvenCost,
+);
+router.put(
+  "/break-even/costs/:id",
+  protect,
+  authorize("admin"),
+  updateBreakEvenCost,
+);
+router.delete(
+  "/break-even/costs/:id",
+  protect,
+  authorize("admin"),
+  deleteBreakEvenCost,
+);
+router.post(
+  "/break-even/simulate",
+  protect,
+  authorize("admin"),
+  simulateBreakEven,
+);
 router.get("/accounts", protect, authorize("admin"), getFinancialAccounts);
 router.post(
   "/accounts",

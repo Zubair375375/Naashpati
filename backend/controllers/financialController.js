@@ -1,12 +1,77 @@
 import mongoose from "mongoose";
+import Expense from "../models/Expense.js";
 import FinancialAccount from "../models/FinancialAccount.js";
 import FinancialTransaction from "../models/FinancialTransaction.js";
 import {
   getCashFlowSummary,
   buildChartSeries,
+  getBreakEvenSummary as computeBreakEvenSummary,
+  getBreakEvenTrends as computeBreakEvenTrends,
+  getBreakEvenProducts as computeBreakEvenProducts,
+  getBreakEvenCosts as computeBreakEvenCosts,
+  simulateBreakEven as simulateBreakEvenScenario,
 } from "../services/financialService.js";
 
 const serializeAmount = (value) => Number(value || 0);
+
+const resolvePeriodDateRange = (period) => {
+  const now = new Date();
+  const start = new Date(now);
+  const end = new Date(now);
+
+  if (!period) {
+    start.setDate(now.getDate() - 29);
+    start.setHours(0, 0, 0, 0);
+    end.setHours(23, 59, 59, 999);
+    return { start, end };
+  }
+
+  switch (period) {
+    case "7d":
+      start.setDate(now.getDate() - 6);
+      break;
+    case "30d":
+      start.setDate(now.getDate() - 29);
+      break;
+    case "90d":
+      start.setDate(now.getDate() - 89);
+      break;
+    case "thisMonth":
+      start.setDate(1);
+      break;
+    case "lastMonth": {
+      start.setMonth(now.getMonth() - 1, 1);
+      end.setMonth(now.getMonth(), 0);
+      break;
+    }
+    case "thisYear":
+      start.setMonth(0, 1);
+      break;
+    default:
+      start.setDate(now.getDate() - 29);
+      break;
+  }
+
+  start.setHours(0, 0, 0, 0);
+  end.setHours(23, 59, 59, 999);
+  return { start, end };
+};
+
+const resolveQueryDateRange = (query) => {
+  const { startDate, endDate, period } = query || {};
+  if (startDate || endDate) {
+    return {
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+    };
+  }
+
+  const resolved = resolvePeriodDateRange(period);
+  return {
+    startDate: resolved.start.toISOString(),
+    endDate: resolved.end.toISOString(),
+  };
+};
 
 export const getFinancialAccounts = async (req, res) => {
   try {
@@ -126,12 +191,10 @@ export const deleteFinancialAccount = async (req, res) => {
     await account.deleteOne();
     res.json({ success: true, message: "Account deleted successfully" });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        success: false,
-        error: error.message || "Failed to delete account",
-      });
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to delete account",
+    });
   }
 };
 
@@ -389,6 +452,213 @@ export const getFinancialReport = async (req, res) => {
     res.status(500).json({
       success: false,
       error: error.message || "Failed to load report",
+    });
+  }
+};
+
+export const getBreakEvenSummary = async (req, res) => {
+  try {
+    const { startDate, endDate } = resolveQueryDateRange(req.query);
+    const data = await computeBreakEvenSummary({ startDate, endDate });
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to load break-even summary",
+    });
+  }
+};
+
+export const getBreakEvenTrends = async (req, res) => {
+  try {
+    const { startDate, endDate } = resolveQueryDateRange(req.query);
+    const data = await computeBreakEvenTrends({ startDate, endDate });
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to load break-even trends",
+    });
+  }
+};
+
+export const getBreakEvenProducts = async (req, res) => {
+  try {
+    const { startDate, endDate } = resolveQueryDateRange(req.query);
+    const data = await computeBreakEvenProducts({ startDate, endDate });
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to load break-even product analysis",
+    });
+  }
+};
+
+export const getBreakEvenCosts = async (req, res) => {
+  try {
+    const { startDate, endDate } = resolveQueryDateRange(req.query);
+    const data = await computeBreakEvenCosts({ startDate, endDate });
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to load break-even costs",
+    });
+  }
+};
+
+export const getBreakEvenCostById = async (req, res) => {
+  try {
+    const expense = await Expense.findById(req.params.id).lean();
+    if (!expense) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Cost entry not found" });
+    }
+    res.json({ success: true, data: expense });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to fetch cost entry",
+    });
+  }
+};
+
+export const createBreakEvenCost = async (req, res) => {
+  try {
+    const payload = {
+      description: String(req.body.description || "").trim(),
+      amount: Number(req.body.amount || 0),
+      category: String(req.body.category || "other").trim(),
+      costType: ["fixed", "variable"].includes(
+        String(req.body.costType || "")
+          .trim()
+          .toLowerCase(),
+      )
+        ? String(req.body.costType).trim().toLowerCase()
+        : "variable",
+      isRecurring:
+        req.body.isRecurring !== undefined
+          ? Boolean(req.body.isRecurring)
+          : true,
+      isActive:
+        req.body.isActive !== undefined ? Boolean(req.body.isActive) : true,
+      effectiveFrom: req.body.effectiveFrom
+        ? new Date(req.body.effectiveFrom)
+        : null,
+      effectiveTo: req.body.effectiveTo ? new Date(req.body.effectiveTo) : null,
+      date: req.body.date || new Date(),
+      paymentMethod: String(req.body.paymentMethod || "other").trim(),
+      notes: String(req.body.notes || "").trim(),
+      createdBy: req.user?._id || null,
+    };
+
+    if (!payload.description) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Description is required" });
+    }
+    if (!Number.isFinite(payload.amount) || payload.amount < 0) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "Amount must be a valid non-negative number",
+        });
+    }
+
+    const expense = await Expense.create(payload);
+    res.status(201).json({ success: true, data: expense });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message || "Failed to create cost entry",
+    });
+  }
+};
+
+export const updateBreakEvenCost = async (req, res) => {
+  try {
+    const expense = await Expense.findById(req.params.id);
+    if (!expense) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Cost entry not found" });
+    }
+
+    const next = {
+      description: String(req.body.description || expense.description).trim(),
+      amount: Number(req.body.amount ?? expense.amount),
+      category: String(req.body.category || expense.category || "other").trim(),
+      costType: ["fixed", "variable"].includes(
+        String(req.body.costType ?? (expense.costType || ""))
+          .trim()
+          .toLowerCase(),
+      )
+        ? String(req.body.costType ?? expense.costType ?? "")
+            .trim()
+            .toLowerCase()
+        : expense.costType || "variable",
+      isRecurring:
+        req.body.isRecurring !== undefined
+          ? Boolean(req.body.isRecurring)
+          : expense.isRecurring,
+      isActive:
+        req.body.isActive !== undefined
+          ? Boolean(req.body.isActive)
+          : expense.isActive,
+      effectiveFrom: req.body.effectiveFrom
+        ? new Date(req.body.effectiveFrom)
+        : expense.effectiveFrom || null,
+      effectiveTo: req.body.effectiveTo
+        ? new Date(req.body.effectiveTo)
+        : expense.effectiveTo || null,
+      date: req.body.date || expense.date,
+      paymentMethod: String(
+        req.body.paymentMethod || expense.paymentMethod || "other",
+      ).trim(),
+      notes: String(req.body.notes ?? expense.notes ?? "").trim(),
+    };
+
+    Object.assign(expense, next);
+    await expense.save();
+    res.json({ success: true, data: expense });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message || "Failed to update cost entry",
+    });
+  }
+};
+
+export const deleteBreakEvenCost = async (req, res) => {
+  try {
+    const expense = await Expense.findById(req.params.id);
+    if (!expense) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Cost entry not found" });
+    }
+    await expense.deleteOne();
+    res.json({ success: true, message: "Cost entry deleted" });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message || "Failed to delete cost entry",
+    });
+  }
+};
+
+export const simulateBreakEven = async (req, res) => {
+  try {
+    const payload = req.body || {};
+    const result = simulateBreakEvenScenario(payload);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message || "Failed to simulate break-even scenario",
     });
   }
 };

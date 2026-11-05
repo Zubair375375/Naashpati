@@ -53,22 +53,49 @@ export const createExpense = async (req, res) => {
       category: String(req.body.category || "").trim(),
       date: req.body.date || new Date(),
       paymentMethod: String(req.body.paymentMethod || "other").trim(),
-      product: req.body.product && mongoose.Types.ObjectId.isValid(req.body.product)
-        ? req.body.product
-        : null,
+      product:
+        req.body.product && mongoose.Types.ObjectId.isValid(req.body.product)
+          ? req.body.product
+          : null,
       campaign: String(req.body.campaign || "").trim(),
       notes: String(req.body.notes || "").trim(),
+      costType: ["fixed", "variable"].includes(
+        String(req.body.costType || "")
+          .trim()
+          .toLowerCase(),
+      )
+        ? String(req.body.costType).trim().toLowerCase()
+        : undefined,
+      isRecurring:
+        req.body.isRecurring !== undefined
+          ? Boolean(req.body.isRecurring)
+          : true,
+      isActive:
+        req.body.isActive !== undefined ? Boolean(req.body.isActive) : true,
+      effectiveFrom: req.body.effectiveFrom
+        ? new Date(req.body.effectiveFrom)
+        : null,
+      effectiveTo: req.body.effectiveTo ? new Date(req.body.effectiveTo) : null,
       createdBy: req.user?._id || null,
     };
 
     if (!payload.description) {
-      return res.status(400).json({ success: false, error: "Description is required" });
+      return res
+        .status(400)
+        .json({ success: false, error: "Description is required" });
     }
     if (!payload.category) {
-      return res.status(400).json({ success: false, error: "Category is required" });
+      return res
+        .status(400)
+        .json({ success: false, error: "Category is required" });
     }
     if (!Number.isFinite(payload.amount) || payload.amount < 0) {
-      return res.status(400).json({ success: false, error: "Amount must be a valid non-negative number" });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "Amount must be a valid non-negative number",
+        });
     }
 
     const expense = await Expense.create(payload);
@@ -86,7 +113,9 @@ export const updateExpense = async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
     if (!expense) {
-      return res.status(404).json({ success: false, error: "Expense not found" });
+      return res
+        .status(404)
+        .json({ success: false, error: "Expense not found" });
     }
 
     const next = {
@@ -94,22 +123,57 @@ export const updateExpense = async (req, res) => {
       amount: Number(req.body.amount ?? expense.amount),
       category: String(req.body.category || expense.category).trim(),
       date: req.body.date || expense.date,
-      paymentMethod: String(req.body.paymentMethod || expense.paymentMethod || "other").trim(),
-      product: req.body.product && mongoose.Types.ObjectId.isValid(req.body.product)
-        ? req.body.product
-        : expense.product,
+      paymentMethod: String(
+        req.body.paymentMethod || expense.paymentMethod || "other",
+      ).trim(),
+      product:
+        req.body.product && mongoose.Types.ObjectId.isValid(req.body.product)
+          ? req.body.product
+          : expense.product,
       campaign: String(req.body.campaign ?? expense.campaign ?? "").trim(),
       notes: String(req.body.notes ?? expense.notes ?? "").trim(),
+      costType: ["fixed", "variable"].includes(
+        String(req.body.costType ?? (expense.costType || ""))
+          .trim()
+          .toLowerCase(),
+      )
+        ? String(req.body.costType ?? expense.costType ?? "")
+            .trim()
+            .toLowerCase()
+        : expense.costType || "variable",
+      isRecurring:
+        req.body.isRecurring !== undefined
+          ? Boolean(req.body.isRecurring)
+          : expense.isRecurring,
+      isActive:
+        req.body.isActive !== undefined
+          ? Boolean(req.body.isActive)
+          : expense.isActive,
+      effectiveFrom: req.body.effectiveFrom
+        ? new Date(req.body.effectiveFrom)
+        : expense.effectiveFrom || null,
+      effectiveTo: req.body.effectiveTo
+        ? new Date(req.body.effectiveTo)
+        : expense.effectiveTo || null,
     };
 
     if (!next.description) {
-      return res.status(400).json({ success: false, error: "Description is required" });
+      return res
+        .status(400)
+        .json({ success: false, error: "Description is required" });
     }
     if (!next.category) {
-      return res.status(400).json({ success: false, error: "Category is required" });
+      return res
+        .status(400)
+        .json({ success: false, error: "Category is required" });
     }
     if (!Number.isFinite(next.amount) || next.amount < 0) {
-      return res.status(400).json({ success: false, error: "Amount must be a valid non-negative number" });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "Amount must be a valid non-negative number",
+        });
     }
 
     Object.assign(expense, next);
@@ -128,7 +192,9 @@ export const deleteExpense = async (req, res) => {
   try {
     const expense = await Expense.findById(req.params.id);
     if (!expense) {
-      return res.status(404).json({ success: false, error: "Expense not found" });
+      return res
+        .status(404)
+        .json({ success: false, error: "Expense not found" });
     }
 
     await expense.deleteOne();
