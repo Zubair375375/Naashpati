@@ -185,6 +185,12 @@ const AdminSidebarNav = ({
           Cash Flow
         </button>
         <button
+          onClick={() => setActiveTab("customer-analytics")}
+          className={getTabButtonClass("customer-analytics")}
+        >
+          Customer Analytics
+        </button>
+        <button
           onClick={() => setActiveTab("announcements")}
           className={getTabButtonClass("announcements")}
         >

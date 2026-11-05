@@ -33,6 +33,7 @@ import contactRoutes from "./routes/contact.js";
 import batchRoutes from "./routes/batches.js";
 import expenseRoutes from "./routes/expenses.js";
 import financialRoutes from "./routes/financial.js";
+import customerAnalyticsRoutes from "./routes/customerAnalytics.js";
 import {
   startMetricsRecomputeJob,
   stopMetricsRecomputeJob,
@@ -181,6 +182,7 @@ app.use("/api/contact", contactRoutes);
 app.use("/api/batches", batchRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/financial", financialRoutes);
+app.use("/api/customer-analytics", customerAnalyticsRoutes);
 
 // ---------------------- HEALTH ----------------------
 app.get("/api/health", (req, res) => {
