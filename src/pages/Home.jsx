@@ -223,7 +223,8 @@ const Home = () => {
 
   const activeSaleOffer = saleOffers[activeSaleOfferIndex] || null;
   const activeSaleOfferProduct =
-    Array.isArray(activeSaleOffer?.products) && activeSaleOffer.products.length > 0
+    Array.isArray(activeSaleOffer?.products) &&
+    activeSaleOffer.products.length > 0
       ? activeSaleOffer.products[0]
       : null;
   const activeSaleOfferProductId =
@@ -237,8 +238,9 @@ const Home = () => {
     typeof activeSaleOfferProduct === "string"
       ? ""
       : activeSaleOfferProduct?.slug || activeSaleOffer?.product?.slug || "";
-  const activeSaleOfferId =
-    String(activeSaleOffer?._id || activeSaleOffer?.slug || "").trim();
+  const activeSaleOfferId = String(
+    activeSaleOffer?._id || activeSaleOffer?.slug || "",
+  ).trim();
   const activeSaleOfferLink = activeSaleOfferProductId
     ? `/products/${activeSaleOfferProductSlug || activeSaleOfferProductId}`
     : activeSaleOfferId

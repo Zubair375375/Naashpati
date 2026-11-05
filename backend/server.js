@@ -31,6 +31,7 @@ import saleOfferRoutes from "./routes/saleOffers.js";
 import aboutContentRoutes from "./routes/aboutContent.js";
 import contactRoutes from "./routes/contact.js";
 import batchRoutes from "./routes/batches.js";
+import expenseRoutes from "./routes/expenses.js";
 import {
   startMetricsRecomputeJob,
   stopMetricsRecomputeJob,
@@ -177,6 +178,7 @@ app.use("/api/sale-offers", saleOfferRoutes);
 app.use("/api/about-content", aboutContentRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/batches", batchRoutes);
+app.use("/api/expenses", expenseRoutes);
 
 // ---------------------- HEALTH ----------------------
 app.get("/api/health", (req, res) => {

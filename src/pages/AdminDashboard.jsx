@@ -75,6 +75,7 @@ import HeroTab from "./admin/tabs/HeroTab";
 import AnnouncementsTab from "./admin/tabs/AnnouncementsTab";
 import ProductsTab from "./admin/tabs/ProductsTab";
 import CategoriesTab from "./admin/tabs/CategoriesTab";
+import ROIAnalyticsTab from "./admin/tabs/ROIAnalyticsTab";
 
 const LENSES_PRODUCTS_SECTION = "lenses-products";
 
@@ -297,6 +298,7 @@ const AdminDashboard = () => {
     purchaseDate: "",
     expiryDate: "",
   });
+  const [expenses, setExpenses] = useState([]);
   const announcements = useSelector(selectAllAnnouncements);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
   const adminManageableCategories = useMemo(
@@ -476,6 +478,110 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchExpenses = useCallback(async () => {
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`${API_URL}/expenses`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result?.error || "Failed to fetch expenses");
+      }
+
+      const items = Array.isArray(result?.data)
+        ? result.data
+        : Array.isArray(result?.expenses)
+          ? result.expenses
+          : [];
+      setExpenses(items);
+    } catch (error) {
+      toast.error(error.message || "Failed to fetch expenses");
+      setExpenses([]);
+    }
+  }, [API_URL]);
+
+  const handleCreateExpense = async (payload) => {
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`${API_URL}/expenses`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+        credentials: "include",
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result?.error || "Failed to create expense");
+      }
+
+      toast.success("Expense added successfully");
+      await fetchExpenses();
+    } catch (error) {
+      toast.error(error.message || "Failed to create expense");
+    }
+  };
+
+  const handleUpdateExpense = async (expenseId, payload) => {
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`${API_URL}/expenses/${expenseId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+        credentials: "include",
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result?.error || "Failed to update expense");
+      }
+
+      toast.success("Expense updated successfully");
+      await fetchExpenses();
+    } catch (error) {
+      toast.error(error.message || "Failed to update expense");
+    }
+  };
+
+  const handleDeleteExpense = async (expenseId) => {
+    if (!window.confirm("Delete this expense record?")) {
+      return;
+    }
+
+    try {
+      const token = getAuthToken();
+      const response = await fetch(`${API_URL}/expenses/${expenseId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result?.error || "Failed to delete expense");
+      }
+
+      toast.success("Expense deleted successfully");
+      await fetchExpenses();
+    } catch (error) {
+      toast.error(error.message || "Failed to delete expense");
+    }
+  };
+
   const handleDeleteProduct = async (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
@@ -554,12 +660,17 @@ const AdminDashboard = () => {
       dispatch(fetchAllSaleOffers());
     } else if (activeTab === "batches") {
       dispatch(fetchProducts({ page: 1, limit: 200, includeDraft: true }));
+    } else if (activeTab === "roi-analytics") {
+      fetchExpenses();
+      dispatch(fetchProducts({ page: 1, limit: 200, includeDraft: true }));
+      dispatch(getOrders({ page: 1, limit: 200 }));
     } else if (activeTab === "about-video") {
       fetchAboutContent();
     }
   }, [
     activeTab,
     dispatch,
+    fetchExpenses,
     getDashboardProductsFetchParams,
     isAuthenticated,
     user,
@@ -1669,6 +1780,18 @@ const AdminDashboard = () => {
               selectedBatchProduct={selectedBatchProduct}
               loadingBatches={loadingBatches}
               productBatches={productBatches}
+            />
+          )}
+
+          {/* ROI Analytics Tab */}
+          {activeTab === "roi-analytics" && (
+            <ROIAnalyticsTab
+              orders={orders}
+              products={products}
+              expenses={expenses}
+              onCreateExpense={handleCreateExpense}
+              onDeleteExpense={handleDeleteExpense}
+              onUpdateExpense={handleUpdateExpense}
             />
           )}
 
