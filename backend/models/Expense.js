@@ -38,6 +38,25 @@ const expenseSchema = new mongoose.Schema(
       enum: ["cash", "bank", "card", "paypal", "stripe", "other", ""],
       default: "other",
     },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "paid", "partial", "reversed"],
+      default: "paid",
+    },
+    isPaid: {
+      type: Boolean,
+      default: true,
+    },
+    paidAt: {
+      type: Date,
+      default: null,
+    },
+    supplierName: {
+      type: String,
+      trim: true,
+      default: "",
+      maxlength: [120, "Supplier name cannot exceed 120 characters"],
+    },
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",

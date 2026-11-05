@@ -76,6 +76,7 @@ import AnnouncementsTab from "./admin/tabs/AnnouncementsTab";
 import ProductsTab from "./admin/tabs/ProductsTab";
 import CategoriesTab from "./admin/tabs/CategoriesTab";
 import ROIAnalyticsTab from "./admin/tabs/ROIAnalyticsTab";
+import CashFlowTab from "./admin/tabs/CashFlowTab";
 
 const LENSES_PRODUCTS_SECTION = "lenses-products";
 
@@ -662,6 +663,9 @@ const AdminDashboard = () => {
       dispatch(fetchProducts({ page: 1, limit: 200, includeDraft: true }));
     } else if (activeTab === "roi-analytics") {
       fetchExpenses();
+      dispatch(fetchProducts({ page: 1, limit: 200, includeDraft: true }));
+      dispatch(getOrders({ page: 1, limit: 200 }));
+    } else if (activeTab === "cash-flow") {
       dispatch(fetchProducts({ page: 1, limit: 200, includeDraft: true }));
       dispatch(getOrders({ page: 1, limit: 200 }));
     } else if (activeTab === "about-video") {
@@ -1794,6 +1798,8 @@ const AdminDashboard = () => {
               onUpdateExpense={handleUpdateExpense}
             />
           )}
+
+          {activeTab === "cash-flow" && <CashFlowTab view="cash-flow" />}
 
           {/* About Video Tab */}
           {activeTab === "about-video" && <AboutContentTab {...aboutContent} />}
