@@ -179,6 +179,12 @@ const AdminSidebarNav = ({
           ROI Analytics
         </button>
         <button
+          onClick={() => setActiveTab("cash-flow")}
+          className={getTabButtonClass("cash-flow")}
+        >
+          Cash Flow
+        </button>
+        <button
           onClick={() => setActiveTab("announcements")}
           className={getTabButtonClass("announcements")}
         >
