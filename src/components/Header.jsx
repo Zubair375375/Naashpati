@@ -31,6 +31,7 @@ const slugifyCategory = (value = "") =>
 
 const Header = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isCollectionsMenuOpen, setIsCollectionsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
   const [shouldFocusMobileSearch, setShouldFocusMobileSearch] = useState(false);
@@ -224,15 +225,23 @@ const Header = () => {
       to: "/products?gender-category=female-collection",
       label: "Female Collection",
     },
+    {
+      to: "/products",
+      label: "Collections",
+    },
   ];
 
   const navLinks = [
     { to: "/", label: "Home" },
     ...genderLinks,
-    ...categoryLinks,
     { to: "/about", label: "About Us" },
     { to: "/contact", label: "Contact" },
     ...(user?.role === "admin" ? [{ to: "/admin", label: "Admin" }] : []),
+  ];
+
+  const collectionsDropdownItems = [
+    { to: "/products", label: "All Collections" },
+    ...categoryLinks,
   ];
 
   const isNavActive = (to) => {
@@ -500,7 +509,53 @@ const Header = () => {
         {/* ── Nav links row ── */}
         <div className="hidden md:block border-t border-gray-100">
           <nav className="flex h-11 items-center justify-center space-x-8">
-            {navLinks.map((link) => renderNavItem(link))}
+            {navLinks.map((link) => {
+              if (link.label === "Collections") {
+                const isActive =
+                  location.pathname === "/products" ||
+                  (location.pathname === "/products" &&
+                    location.search.includes("category="));
+
+                return (
+                  <div
+                    key={link.to}
+                    className="relative"
+                    onMouseEnter={() => setIsCollectionsMenuOpen(true)}
+                    onMouseLeave={() => setIsCollectionsMenuOpen(false)}
+                  >
+                    <button
+                      type="button"
+                      onFocus={() => setIsCollectionsMenuOpen(true)}
+                      onBlur={() => setIsCollectionsMenuOpen(false)}
+                      className={`whitespace-nowrap pb-0.5 transition-colors font-medium text-[14px] ${
+                        isActive
+                          ? "text-[#68a300] border-b-2 border-[#68a300]"
+                          : "text-gray-700 hover:text-[#68a300]"
+                      }`}
+                    >
+                      {link.label}
+                    </button>
+
+                    {isCollectionsMenuOpen && (
+                      <div className="absolute left-1/2 top-full z-[60] mt-2 w-56 -translate-x-1/2 border border-gray-200 bg-white shadow-[0_10px_25px_rgba(0,0,0,0.08)]">
+                        {collectionsDropdownItems.map((item) => (
+                          <Link
+                            key={`${item.to}-${item.label}`}
+                            to={item.to}
+                            onClick={() => setIsCollectionsMenuOpen(false)}
+                            className="block border-b border-gray-100 px-4 py-2.5 text-left text-sm text-gray-700 transition hover:bg-gray-50 hover:text-[#68a300] last:border-b-0"
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return renderNavItem(link);
+            })}
           </nav>
         </div>
       </div>
