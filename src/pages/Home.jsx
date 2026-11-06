@@ -783,25 +783,10 @@ const Home = () => {
                 Your Satisfaction Comes First
               </h3>
               <p className="mt-4 max-w-xl text-sm text-white/80 sm:text-base">
-                Discover statement pieces, everyday staples, and
-                precision-crafted eyewear designed for every look, every moment,
-                and every view.
+                We bring you stylish, high-quality products for everyday life,
+                making it easy to find what you love and feel good about every
+                purchase.
               </p>
-
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <Link
-                  to="/products"
-                  className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#111111] transition hover:bg-[#f3f3f3]"
-                >
-                  Shop Collection
-                </Link>
-                <Link
-                  to="/products?category=eyewear"
-                  className="inline-flex items-center justify-center rounded-full border border-white/60 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/10"
-                >
-                  Explore Frames
-                </Link>
-              </div>
             </div>
 
             <div className="lg:pt-8">
@@ -825,6 +810,17 @@ const Home = () => {
               </div>
             </div>
           </div>
+        </div>
+        <div className="absolute inset-x-0 bottom-6 flex justify-center px-4">
+          <Link
+            to="/products"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-white/90 transition hover:text-white"
+          >
+            Learn about Protection Programs
+            <span aria-hidden="true" className="text-lg leading-none">
+              &gt;
+            </span>
+          </Link>
         </div>
       </section>
 
