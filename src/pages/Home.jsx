@@ -816,7 +816,7 @@ const Home = () => {
             to="/products"
             className="inline-flex items-center gap-2 text-sm font-semibold text-white/90 transition hover:text-white"
           >
-            Learn about Protection Programs
+            Learn about Our Customer Protection
             <span aria-hidden="true" className="text-lg leading-none">
               &gt;
             </span>
