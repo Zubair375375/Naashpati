@@ -10,24 +10,7 @@ import {
   FaTrash,
   FaWallet,
 } from "react-icons/fa";
-
-const money = (value) =>
-  new Intl.NumberFormat("en-PK", {
-    style: "currency",
-    currency: "PKR",
-    maximumFractionDigits: 0,
-  }).format(Number(value || 0));
-
-const formatPercent = (value) => `${Number(value || 0).toFixed(1)}%`;
-
-const periodOptions = [
-  { value: "7d", label: "Last 7 days" },
-  { value: "30d", label: "Last 30 days" },
-  { value: "90d", label: "Last 90 days" },
-  { value: "thisMonth", label: "This month" },
-  { value: "lastMonth", label: "Last month" },
-  { value: "thisYear", label: "This year" },
-];
+import { formatPercent, money, periodOptions } from "./analyticsUtils";
 
 const getAuthToken = () => {
   const raw = localStorage.getItem("accessToken");
