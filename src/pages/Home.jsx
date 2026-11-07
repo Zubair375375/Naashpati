@@ -993,11 +993,12 @@ const Home = () => {
         <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-10 pt-8 text-white sm:px-8 lg:px-10 lg:pb-12 lg:pt-10">
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
             <div className="max-w-xl">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.28em] text-white/80">
+              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80 sm:text-sm">
                 Style That Moves With You.
               </p>
-              <h3 className="text-2xl font-black uppercase tracking-[-0.06em] text-white sm:text-4xl lg:text-5xl">
-                Your Satisfaction Comes First
+              <h3 className="text-3xl font-black uppercase tracking-[-0.06em] text-white sm:text-4xl lg:text-5xl">
+                Your Satisfaction Comes First{" "}
+                <span className="text-[#68a300] text-4xl">.</span>
               </h3>
               <p className="mt-4 max-w-xl text-sm text-white/80 sm:text-base">
                 We bring you stylish, high-quality products for everyday life,
@@ -1006,7 +1007,7 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="lg:pt-8">
+            <div className="mb-8 sm:mb-4 lg:pt-8">
               <div className="space-y-3 rounded-2xl p-4 backdrop-blur-[2px] sm:p-5 sm:space-y-4">
                 {[
                   "Free Shipping",
@@ -1044,9 +1045,11 @@ const Home = () => {
       <section className="mt-12 mb-6 bg-white px-4 pb-6 pt-2 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1600px] rounded-[2.3rem] bg-[#EEFFDE] px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
           <div className="flex items-center justify-center gap-2 sm:gap-3">
-            <span className="text-[1.1rem] font-light uppercase tracking-[0.18em] text-[#171717] sm:text-[1.6rem] lg:text-[2.2rem]">
-              NAASHPATI
-            </span>
+            <img
+              src="/assets/logos/Logo.png"
+              alt="Naashpati"
+              className="h-9 w-auto sm:h-12 lg:h-16"
+            />
           </div>
 
           <p className="mt-5 text-center text-[1.15rem] font-medium uppercase tracking-[-0.04em] text-[#171717] sm:text-[1.5rem] lg:text-[2.4rem]">
@@ -1064,7 +1067,7 @@ const Home = () => {
               </p>
               <button
                 type="button"
-                className="mt-8 inline-flex items-center justify-center text-base font-semibold text-[#171717] transition hover:text-[#000000] sm:text-lg"
+                className="mt-8 inline-flex items-center justify-center text-base font-semibold text-[#68a300] transition hover:text-[#000000] sm:text-lg"
               >
                 Learn more <span className="ml-2 text-xl">›</span>
               </button>
@@ -1144,8 +1147,8 @@ const Home = () => {
                 shopOurInstagramImages.length === 1
                   ? "grid-cols-1"
                   : shopOurInstagramImages.length === 2
-                    ? "grid-cols-2"
-                    : "grid-cols-4"
+                    ? "grid-cols-2 sm:grid-cols-4"
+                    : "grid-cols-3 sm:grid-cols-4"
               }`}
             >
               {shopOurInstagramImages.map((image, index) => {
