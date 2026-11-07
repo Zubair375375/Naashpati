@@ -27,7 +27,6 @@ const ResetPassword = lazyWithRetry(
 );
 const Profile = lazyWithRetry(() => import("./pages/Profile"), "Profile");
 const Contact = lazyWithRetry(() => import("./pages/Contact"), "Contact");
-const About = lazyWithRetry(() => import("./pages/About"), "About");
 const CustomerProtection = lazyWithRetry(
   () => import("./pages/CustomerProtection"),
   "CustomerProtection",
@@ -100,7 +99,6 @@ function App() {
           <Route path="profile" element={<Profile />} />
           <Route path="orders/:id" element={<OrderDetail />} />
           <Route path="contact" element={<Contact />} />
-          <Route path="about" element={<About />} />
           <Route path="customer-protection" element={<CustomerProtection />} />
           <Route path="admin" element={<AdminDashboard />} />
           <Route path="admin/orders/:id" element={<OrderDetail />} />

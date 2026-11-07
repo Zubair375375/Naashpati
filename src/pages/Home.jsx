@@ -45,6 +45,9 @@ const BADGE_MARQUEE_STYLE = `
 const LATEST_PRODUCTS_BATCH_SIZE = 4;
 const LENSES_PRODUCTS_BATCH_SIZE = 4;
 
+const MOBILE_CARD_CLASS =
+  "group relative block h-[250px] min-h-[250px] w-full max-w-full overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2]";
+
 const HOME_FAQS = [
   {
     question: "How can I customize my lens package?",
@@ -257,7 +260,7 @@ const Home = () => {
               className="group block"
               aria-label={`Open ${activeSaleOffer?.saleName || activeSaleOffer?.name || "sale offer"}`}
             >
-              <div className="relative h-[220px] w-full overflow-hidden bg-white shadow-[0_2px_14px_rgba(0,0,0,0.04)] sm:h-[300px] lg:h-[86vh]">
+              <div className="relative h-[300px] w-full overflow-hidden bg-white shadow-[0_2px_14px_rgba(0,0,0,0.04)] sm:h-[300px] lg:h-[86vh]">
                 <img
                   key={activeSaleOffer?._id || activeSaleOfferIndex}
                   src={resolveMediaUrl(activeSaleOffer?.banner)}
@@ -270,32 +273,32 @@ const Home = () => {
                   loading="lazy"
                 />
 
-                <div className="absolute inset-0 z-10 flex items-center p-5 text-left text-[#383838] sm:p-8 lg:p-12">
-                  <div className="max-w-3xl">
-                    <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-black/75 sm:text-base">
+                <div className="absolute inset-0 z-10 flex items-center justify-center p-5 text-[#383838] sm:items-center sm:justify-start sm:p-8 lg:p-12">
+                  <div className="w-full max-w-[360px] text-center sm:max-w-3xl sm:text-left">
+                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-black/75 sm:mb-2 sm:text-base">
                       {activeSaleOffer?.saleName ||
                         activeSaleOffer?.name ||
                         "Sale Offer"}
                     </p>
-                    <h3 className="text-2xl font-black uppercase tracking-[-0.06em] text-[#393939] sm:text-4xl lg:text-5xl">
+                    <h3 className="text-[1.35rem] font-black uppercase leading-[0.95] tracking-[-0.06em] text-[#393939] sm:text-4xl sm:leading-normal lg:text-5xl">
                       {activeSaleOffer?.productName || "Featured Product"}
                     </h3>
                     {activeSaleOffer?.productDescription && (
-                      <p className="mt-3 max-w-lg text-xl text-[#383838]/80 sm:text-[1.9rem]">
+                      <p className="mx-auto mt-1 max-w-lg text-[0.8rem] leading-[1.3] text-[#383838]/80 sm:mx-0 sm:mt-3 sm:text-xl sm:leading-normal lg:text-[1.9rem]">
                         {activeSaleOffer.productDescription}
                       </p>
                     )}
 
-                    <div className="mt-5 flex flex-wrap items-center gap-3">
+                    <div className="mx-auto mt-5 grid w-full max-w-[260px] gap-3 sm:mx-0 sm:max-w-none sm:flex sm:flex-wrap sm:items-center">
                       <Link
                         to="/products?gender-category=male-collection"
-                        className="inline-flex items-center justify-center rounded-full bg-[#111111] px-9 py-5 text-lg font-semibold text-white transition hover:bg-[#2a2a2a]"
+                        className="inline-flex w-full items-center justify-center rounded-full bg-[#111111] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#2a2a2a] sm:w-auto sm:px-9 sm:py-5 sm:text-lg"
                       >
                         Explore Men&apos;s
                       </Link>
                       <Link
                         to="/products?gender-category=female-collection"
-                        className="inline-flex items-center justify-center rounded-full border border-[#111111]/20 bg-white/80 px-9 py-5 text-lg font-semibold text-[#111111] backdrop-blur-sm transition hover:bg-white"
+                        className="inline-flex w-full items-center justify-center rounded-full border border-[#111111]/20 bg-white/80 px-5 py-3 text-sm font-semibold text-[#111111] backdrop-blur-sm transition hover:bg-white sm:w-auto sm:px-9 sm:py-5 sm:text-lg"
                       >
                         Explore Women&apos;s
                       </Link>
@@ -359,106 +362,205 @@ const Home = () => {
 
         <div className="mx-auto max-w-[1700px] px-0 mb-2 sm:px-1">
           {activeCategoryTab === "categories" ? (
-            <div
-              className={`flex snap-x snap-mandatory gap-2.5 overflow-x-auto scroll-px-2 px-2 pb-2 pt-1 sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
-                isCategoryRowCentered ? "justify-center" : "justify-start"
-              }`}
-            >
-              {filteredHomeCategories.map((category) => (
-                <Link
-                  key={category.value}
-                  to={`/products?category=${category.value}`}
-                  className="group relative block h-[580px] w-[335px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[355px] md:w-[385px] lg:w-[395px]"
-                  aria-label={`Open ${category.name}`}
-                >
-                  <div className="absolute inset-0">
-                    {category.image ? (
-                      <img
-                        src={resolveMediaUrl(category.image)}
-                        alt={category.name}
-                        loading="lazy"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
-                        <FaSeedling className="text-6xl text-white/80" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-
-                  <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
-                    <div className="space-y-3">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                        Collection
-                      </p>
-                      <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
-                        {category.name}
-                      </h3>
+            <>
+              <div className="grid grid-cols-2 gap-2 px-2 pb-2 pt-1 sm:hidden">
+                {filteredHomeCategories.map((category) => (
+                  <Link
+                    key={category.value}
+                    to={`/products?category=${category.value}`}
+                    className={MOBILE_CARD_CLASS}
+                    aria-label={`Open ${category.name}`}
+                  >
+                    <div className="absolute inset-0">
+                      {category.image ? (
+                        <img
+                          src={resolveMediaUrl(category.image)}
+                          alt={category.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
+                          <FaSeedling className="text-6xl text-white/80" />
+                        </div>
+                      )}
                     </div>
 
-                    <button
-                      type="button"
-                      className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
-                    >
-                      Shop Now
-                    </button>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="mx-auto max-w-[1700px] px-2 pb-2 sm:px-3">
-              {newArrivalItems.length > 0 ? (
-                <div className="flex snap-x snap-mandatory justify-center gap-2.5 overflow-x-auto scroll-px-2 pb-0 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                  {newArrivalItems.slice(0, 4).map((item) => {
-                    const product = latestProducts.find(
-                      (entry) => entry._id === item.productId,
-                    );
-                    const targetProduct = product || { _id: item.productId };
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-                    return (
-                      <Link
-                        key={item._id}
-                        to={`/products/${targetProduct.slug || targetProduct._id}`}
-                        className="group relative block h-[580px] w-[335px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:w-[355px] md:w-[385px] lg:w-[395px]"
-                        aria-label={item.title || "New arrival product"}
+                    <div className="relative flex h-full flex-col justify-end p-5">
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                          Collection
+                        </p>
+                        <h3 className="text-3xl font-black tracking-[-0.06em] text-white">
+                          {category.name}
+                        </h3>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
                       >
-                        <div className="absolute inset-0">
-                          <img
-                            src={resolveMediaUrl(item.image)}
-                            alt={item.title || "New arrival"}
-                            loading="lazy"
-                            className="h-full w-full object-cover"
-                          />
+                        Shop Now
+                      </button>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              <div
+                className={`hidden snap-x snap-mandatory gap-2.5 overflow-x-auto scroll-px-2 px-2 pb-2 pt-1 sm:flex sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+                  isCategoryRowCentered ? "justify-center" : "justify-start"
+                }`}
+              >
+                {filteredHomeCategories.map((category) => (
+                  <Link
+                    key={category.value}
+                    to={`/products?category=${category.value}`}
+                    className="group relative block h-[430px] w-[280px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:h-[500px] sm:w-[355px] md:w-[385px] lg:h-[580px] lg:w-[395px]"
+                    aria-label={`Open ${category.name}`}
+                  >
+                    <div className="absolute inset-0">
+                      {category.image ? (
+                        <img
+                          src={resolveMediaUrl(category.image)}
+                          alt={category.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
+                          <FaSeedling className="text-6xl text-white/80" />
                         </div>
+                      )}
+                    </div>
 
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-                        <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
-                          <div className="space-y-3">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                              New Arrival
-                            </p>
-                            <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
-                              {item.title ||
-                                targetProduct.name ||
-                                "Featured Product"}
-                            </h3>
+                    <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
+                      <div className="space-y-3">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                          Collection
+                        </p>
+                        <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
+                          {category.name}
+                        </h3>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                      >
+                        Shop Now
+                      </button>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="mx-auto max-w-[1700px] px-0 mb-2 sm:px-1">
+              {newArrivalItems.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-2 gap-2 px-2 pb-2 pt-1 sm:hidden">
+                    {newArrivalItems.slice(0, 4).map((item) => {
+                      const product = latestProducts.find(
+                        (entry) => entry._id === item.productId,
+                      );
+                      const targetProduct = product || { _id: item.productId };
+
+                      return (
+                        <Link
+                          key={item._id}
+                          to={`/products/${targetProduct.slug || targetProduct._id}`}
+                          className={MOBILE_CARD_CLASS}
+                          aria-label={item.title || "New arrival product"}
+                        >
+                          <div className="absolute inset-0">
+                            <img
+                              src={resolveMediaUrl(item.image)}
+                              alt={item.title || "New arrival"}
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
                           </div>
 
-                          <button
-                            type="button"
-                            className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
-                          >
-                            Shop Now
-                          </button>
-                        </div>
-                      </Link>
-                    );
-                  })}
-                </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                          <div className="relative flex h-full flex-col justify-end p-5">
+                            <div className="space-y-3">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                                New Arrival
+                              </p>
+                              <h3 className="text-2xl font-black tracking-[-0.06em] text-white">
+                                {item.title ||
+                                  targetProduct.name ||
+                                  "Featured Product"}
+                              </h3>
+                            </div>
+
+                            <button
+                              type="button"
+                              className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                            >
+                              Shop Now
+                            </button>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  <div className="hidden snap-x snap-mandatory justify-center gap-2.5 overflow-x-auto scroll-px-2 pb-0 pt-1 sm:flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    {newArrivalItems.slice(0, 4).map((item) => {
+                      const product = latestProducts.find(
+                        (entry) => entry._id === item.productId,
+                      );
+                      const targetProduct = product || { _id: item.productId };
+
+                      return (
+                        <Link
+                          key={item._id}
+                          to={`/products/${targetProduct.slug || targetProduct._id}`}
+                          className="group relative block h-[430px] w-[280px] shrink-0 snap-start overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] sm:h-[500px] sm:w-[355px] md:w-[385px] lg:h-[580px] lg:w-[395px]"
+                          aria-label={item.title || "New arrival product"}
+                        >
+                          <div className="absolute inset-0">
+                            <img
+                              src={resolveMediaUrl(item.image)}
+                              alt={item.title || "New arrival"}
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                          <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
+                            <div className="space-y-3">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                                New Arrival
+                              </p>
+                              <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
+                                {item.title ||
+                                  targetProduct.name ||
+                                  "Featured Product"}
+                              </h3>
+                            </div>
+
+                            <button
+                              type="button"
+                              className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                            >
+                              Shop Now
+                            </button>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </>
               ) : latestProducts.length > 0 ? (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {latestProducts.slice(0, 4).map((product) => (
@@ -621,11 +723,11 @@ const Home = () => {
               </span>
             </div>
 
-            <h2 className="mb-4 text-[2.3rem] leading-[1.2] tracking-[0.04em] text-[#171717] sm:text-[1rem] lg:text-[2rem]">
+            <h2 className="mb-4 text-[1.5rem] leading-[0.75] tracking-[0.04em] text-[#171717] sm:text-[2rem] lg:text-[2rem] sm:leading-[1.15]">
               <span className="inline-block mr-3">Experience</span>
               <span className="inline-block mr-3">every</span>
               <span className="inline-block mr-3">view</span>
-              <br className="mt-2" />
+              <br className="mt-1" />
               <span className="inline-block mr-3">like</span>
               <span className="inline-block mr-3">never</span>
               <span className="inline-block">before</span>
@@ -732,7 +834,7 @@ const Home = () => {
         <div className="mx-auto grid max-w-[1600px] gap-5 md:grid-cols-2">
           <Link
             to="/products?men-best-sellers"
-            className="group relative block h-[500px] overflow-hidden rounded-none border border-[#e8e8e8] bg-[#f2f2f2] shadow-[0_18px_42px_rgba(17,17,17,0.06)] sm:h-[560px] lg:h-[680px]"
+            className="group relative block h-[420px] overflow-hidden rounded-none border border-[#e8e8e8] bg-[#f2f2f2] shadow-[0_18px_42px_rgba(17,17,17,0.06)] sm:h-[500px] lg:h-[680px]"
             aria-label="Explore Men's Bestseller"
           >
             <img
@@ -751,7 +853,7 @@ const Home = () => {
 
           <Link
             to="/products?women-best-sellers"
-            className="group relative block h-[500px] overflow-hidden rounded-none border border-[#e8e8e8] bg-[#f2f2f2] shadow-[0_18px_42px_rgba(17,17,17,0.06)] sm:h-[560px] lg:h-[680px]"
+            className="group relative block h-[420px] overflow-hidden rounded-none border border-[#e8e8e8] bg-[#f2f2f2] shadow-[0_18px_42px_rgba(17,17,17,0.06)] sm:h-[500px] lg:h-[680px]"
             aria-label="Explore Women's Bestseller"
           >
             <img

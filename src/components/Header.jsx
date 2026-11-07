@@ -234,7 +234,6 @@ const Header = () => {
   const navLinks = [
     { to: "/", label: "Home" },
     ...genderLinks,
-    { to: "/about", label: "About Us" },
     { to: "/customer-protection", label: "Customer Protection" },
     { to: "/contact", label: "Contact" },
     ...(user?.role === "admin" ? [{ to: "/admin", label: "Admin" }] : []),
