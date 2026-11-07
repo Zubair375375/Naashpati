@@ -97,6 +97,7 @@ const Home = () => {
   const [lensesProductsLoading, setLensesProductsLoading] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [activeSaleOfferIndex, setActiveSaleOfferIndex] = useState(0);
+  const [mobileReviewsExpanded, setMobileReviewsExpanded] = useState(false);
   const categoryScrollRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -586,7 +587,7 @@ const Home = () => {
             <span className="text-black">.</span>
           </h2>
 
-          <div className="mt-8 grid gap-5 lg:grid-cols-3">
+          <div className="mt-8 hidden gap-5 sm:grid lg:grid-cols-3">
             <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6">
               <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
                 ★★★★★
@@ -692,14 +693,137 @@ const Home = () => {
               </div>
             </article>
           </div>
+
+          <div className="mt-8 space-y-4 sm:hidden">
+            <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)]">
+              <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                ★★★★★
+              </div>
+              <p className="text-[1.05rem] font-medium leading-[1.45] text-[#171717]">
+                “This is my third pair of these sunglasses. I am rough on
+                sunglasses and carry them everywhere. They hold up very well.”
+              </p>
+              <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
+                <span>Kim</span>
+                <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
+                  Verified Buyer
+                </span>
+                <span className="text-[#171717]/60">Chucktown</span>
+              </div>
+            </article>
+
+            {mobileReviewsExpanded && (
+              <>
+                <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)]">
+                  <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                    ★★★★★
+                  </div>
+                  <p className="text-[1.05rem] font-medium leading-[1.45] text-[#171717]">
+                    “My sunglasses became my dogs new favorite toy. Easy
+                    replacement.”
+                  </p>
+                  <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
+                    <span>John</span>
+                    <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
+                      Verified Buyer
+                    </span>
+                    <span className="text-[#171717]/60">Folly</span>
+                  </div>
+                </article>
+
+                <article className="rounded-[1.4rem] bg-[#1b1d20] p-5 text-[#f4f0eb] shadow-[0_2px_10px_rgba(23,23,23,0.12)]">
+                  <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                    ★★★★★
+                  </div>
+                  <p className="text-[1.05rem] font-medium leading-[1.45]">
+                    “I love the throwback style of these glasses. They fit super
+                    well, they’re comfortable, and they are just dope. I highly
+                    recommend!”
+                  </p>
+                  <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#f4f0eb]/80">
+                    <span>Cory</span>
+                    <span className="rounded-full border border-[#f4f0eb]/20 bg-white/5 px-2 py-1">
+                      Verified Buyer
+                    </span>
+                    <span className="text-[#f4f0eb]/60">Woodstock</span>
+                  </div>
+                </article>
+
+                <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)]">
+                  <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                    ★★★★★
+                  </div>
+                  <p className="text-[1.05rem] font-medium leading-[1.45] text-[#171717]">
+                    “Love these! They don’t scratch, it’s amazing! I’ve had two
+                    pairs for over 5 years.”
+                  </p>
+                  <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
+                    <span>Kendra</span>
+                    <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
+                      Verified Buyer
+                    </span>
+                    <span className="text-[#171717]/60">Kitty Hawk</span>
+                  </div>
+                </article>
+
+                <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)]">
+                  <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                    ★★★★★
+                  </div>
+                  <p className="text-[1.05rem] font-medium leading-[1.45] text-[#171717]">
+                    “These are a simple, stylish, and affordable pair of
+                    polarized sunglasses that we love whether it is for
+                    kayaking, walking on the beach, or just walking around
+                    town.”
+                  </p>
+                  <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
+                    <span>Christopher</span>
+                    <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
+                      Verified Buyer
+                    </span>
+                    <span className="text-[#171717]/60">Chucktown</span>
+                  </div>
+                </article>
+
+                <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)]">
+                  <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
+                    ★★★★★
+                  </div>
+                  <p className="text-[1.05rem] font-medium leading-[1.45] text-[#171717]">
+                    “I have been wearing the Chucktown sunglasses for at least 7
+                    years and love them so much! I even got my husband wearing
+                    them!”
+                  </p>
+                  <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
+                    <span>Annemarie</span>
+                    <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
+                      Verified Buyer
+                    </span>
+                    <span className="text-[#171717]/60">Chucktown</span>
+                  </div>
+                </article>
+              </>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setMobileReviewsExpanded((value) => !value)}
+              className="mt-2 flex w-full items-center justify-center text-center text-[0.9rem] font-semibold text-[#171717]/70"
+            >
+              <span>{mobileReviewsExpanded ? "see less" : "see more"}</span>
+              <span className="ml-1 text-base">
+                {mobileReviewsExpanded ? "▴" : "▾"}
+              </span>
+            </button>
+          </div>
         </div>
       </section>
 
-      <section className="bg-white px-5 pb-5 pt-5 sm:px-5 lg:px-6">
+      <section className="bg-white px-5 pb-0 pt-3 sm:px-5 sm:pb-5 lg:px-6">
         <div className="mx-auto grid max-w-[1600px] items-center gap-0 overflow-hidden bg-white lg:grid-cols-[1.2fr_1fr]">
-          <div className="flex h-full flex-col justify-center bg-white px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-            <div className="mb-6 flex items-start justify-start">
-              <span className="text-[3.2rem] font-black leading-[0.8] tracking-[-0.08em] sm:text-[4rem] lg:text-[6.4rem]">
+          <div className="flex h-full flex-col justify-center bg-white px-1 py-2 sm:px-6 sm:py-8 lg:px-0 lg:py-10">
+            <div className="mb-4 sm:mb-6 flex items-start justify-start">
+              <span className="text-[2.3rem] font-black leading-[0.8] tracking-[-0.08em] sm:text-[3.4rem] lg:text-[5.2rem]">
                 <span className="inline-block text-[#e10098]">C</span>
                 <span className="inline-block text-[#00b5ff]">H</span>
                 <span className="inline-block text-[#ffb400]">R</span>
@@ -707,24 +831,24 @@ const Home = () => {
                 <span className="inline-block text-[#ff6f41]">M</span>
                 <span className="inline-block text-[#6a34ff]">A</span>
                 <span className="inline-block text-[#ff7f00]"> </span>
-                <span className="inline-block text-black ml-5">R</span>
+                <span className="inline-block text-black">R</span>
                 <span className="inline-block text-gray-500">U</span>
                 <span className="inline-block text-[#ff7f00]">S</span>
                 <span className="inline-block text-[#00b3b3]">H</span>
               </span>
             </div>
 
-            <h2 className="mb-4 text-[1.5rem] leading-[0.75] tracking-[0.04em] text-[#171717] sm:text-[2rem] lg:text-[2rem] sm:leading-[1.15]">
+            <h2 className="mb-4 text-[1.3rem] leading-[0.75] tracking-[0.04em] text-[#171717] sm:text-[2rem] lg:text-[2rem] sm:leading-[1.15]">
               <span className="inline-block mr-3">Experience</span>
               <span className="inline-block mr-3">every</span>
               <span className="inline-block mr-3">view</span>
               <br className="mt-1" />
-              <span className="inline-block mr-3">like</span>
-              <span className="inline-block mr-3">never</span>
-              <span className="inline-block">before</span>
+              <span className="inline-block mr-3 mt-2 sm:mt-0">like</span>
+              <span className="inline-block mr-3 mt-2 sm:mt-0">never</span>
+              <span className="inline-block mt-2 sm:mt-0">before</span>
             </h2>
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            <div className="mt-1 sm:mt-5 grid gap-4 sm:grid-cols-2">
               <div className="flex items-center gap-3">
                 <span className="relative h-7 w-7 overflow-hidden rounded-full shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
                   <span className="absolute left-[3px] top-[3px] h-3.5 w-3.5 rounded-full bg-[#00d7ff]" />
@@ -732,14 +856,14 @@ const Home = () => {
                   <span className="absolute bottom-[3px] left-[3px] h-3.5 w-3.5 rounded-full bg-[#ff4d7a]" />
                   <span className="absolute bottom-[3px] right-[3px] h-3.5 w-3.5 rounded-full bg-[#33d17a]" />
                 </span>
-                <span className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#1a1a1a]">
+                <span className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#1a1a1a] md:text-[0.82rem] lg:text-[0.9rem]">
                   Advanced Color
                   <br />
                   Vision Technology
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 lg:-ml-24">
                 <span className="relative h-7 w-7 overflow-hidden rounded-full border border-[#1b1b1b] bg-[#111111] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]">
                   <span className="absolute inset-[3px] rounded-full border border-white/10 bg-[#0b0b0b]" />
                   <span className="absolute left-[7px] top-[7px] h-3.5 w-3 rounded-[0.45rem] border border-[#2a2a2a] bg-[#dfeaf0]/90" />
@@ -749,7 +873,7 @@ const Home = () => {
                   <span className="absolute left-1/2 top-[10px] h-2 w-1 -translate-x-1/2 rounded-full bg-[#1a1a1a]" />
                   <span className="absolute inset-1/2 h-[6px] w-[6px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#1a1a1a]" />
                 </span>
-                <span className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#1a1a1a]">
+                <span className="text-[0.7rem] font-semibold uppercase tracking-[0.08em] text-[#1a1a1a] md:text-[0.82rem] lg:text-[0.9rem]">
                   Precision Optical
                   <br />
                   Performance
@@ -758,7 +882,7 @@ const Home = () => {
             </div>
           </div>
 
-          <div className="relative min-h-[360px] max-h-[360px] bg-[#dfeee9]">
+          <div className="relative mt-3 min-h-[220px] max-h-[360px] bg-[#dfeee9] sm:mt-0">
             <img
               src="/assets/logos/pexels-cottonbro-8718335.jpg"
               alt="Chroma Rush experience"
