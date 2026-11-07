@@ -388,19 +388,16 @@ const Home = () => {
 
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-                    <div className="relative flex h-full flex-col justify-end p-5">
-                      <div className="space-y-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                          Collection
-                        </p>
-                        <h3 className="text-3xl font-black tracking-[-0.06em] text-white">
+                    <div className="relative flex h-full flex-col justify-end p-5 pl-3 sm:p-6 sm:pl-6">
+                      <div className="space-y-1.5 sm:space-y-3">
+                        <h3 className="text-[1.05rem] font-black leading-[0.95] tracking-[-0.06em] text-white sm:text-[1.8rem]">
                           {category.name}
                         </h3>
                       </div>
 
                       <button
                         type="button"
-                        className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                        className="mt-3 inline-flex w-fit items-center justify-center rounded-full bg-white px-3 py-2 text-[0.72rem] font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1] sm:mt-5 sm:px-5 sm:py-3 sm:text-sm"
                       >
                         Shop Now
                       </button>
@@ -440,17 +437,14 @@ const Home = () => {
 
                     <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
                       <div className="space-y-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                          Collection
-                        </p>
-                        <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
+                        <h3 className="text-[1.05rem] font-black leading-[0.95] tracking-[-0.06em] text-white sm:text-[1.8rem] md:text-[2rem]">
                           {category.name}
                         </h3>
                       </div>
 
                       <button
                         type="button"
-                        className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                        className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-3 py-2 text-[0.72rem] font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1] sm:px-5 sm:py-3 sm:text-sm"
                       >
                         Shop Now
                       </button>
@@ -488,12 +482,9 @@ const Home = () => {
 
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-                          <div className="relative flex h-full flex-col justify-end p-5">
-                            <div className="space-y-3">
-                              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                                New Arrival
-                              </p>
-                              <h3 className="text-2xl font-black tracking-[-0.06em] text-white">
+                          <div className="relative flex h-full flex-col justify-end p-5 pl-3 sm:p-6 sm:pl-6">
+                            <div className="space-y-1.5 sm:space-y-3">
+                              <h3 className="text-[1rem] font-black leading-[0.95] tracking-[-0.06em] text-white sm:text-[1.7rem]">
                                 {item.title ||
                                   targetProduct.name ||
                                   "Featured Product"}
@@ -502,7 +493,7 @@ const Home = () => {
 
                             <button
                               type="button"
-                              className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                              className="mt-3 inline-flex w-fit items-center justify-center rounded-full bg-white px-3 py-2 text-[0.72rem] font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1] sm:mt-5 sm:px-5 sm:py-3 sm:text-sm"
                             >
                               Shop Now
                             </button>
@@ -542,7 +533,7 @@ const Home = () => {
                               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
                                 New Arrival
                               </p>
-                              <h3 className="text-3xl font-black tracking-[-0.06em] text-white md:text-[2.6rem]">
+                              <h3 className="text-[1rem] font-black leading-[0.95] tracking-[-0.06em] text-white sm:text-[1.7rem] md:text-[1.95rem]">
                                 {item.title ||
                                   targetProduct.name ||
                                   "Featured Product"}
@@ -551,7 +542,7 @@ const Home = () => {
 
                             <button
                               type="button"
-                              className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1]"
+                              className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-3 py-2 text-[0.72rem] font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1] sm:px-5 sm:py-3 sm:text-sm"
                             >
                               Shop Now
                             </button>
@@ -588,7 +579,7 @@ const Home = () => {
             <span>4.9 from 20,000+ reviews</span>
           </div>
 
-          <h2 className="max-w-[900px] text-[2rem] font-black uppercase leading-[0.86] tracking-[-0.08em] text-[#171717] sm:text-[3.2rem] lg:text-[4rem]">
+          <h2 className="max-w-[900px] text-[2rem] font-black uppercase leading-[0.96] tracking-[-0.08em] text-[#171717] sm:text-[3.2rem] lg:text-[4rem]">
             Real People <span className="text-[#68a300]">.</span>
             <br />
             <span className="text-[#68a300]">Genuine Reviews</span>{" "}
