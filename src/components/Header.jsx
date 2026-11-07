@@ -359,7 +359,7 @@ const Header = () => {
     <div className="flex items-center space-x-3">
       <button
         type="button"
-        className="flex h-8 w-8 items-center justify-center text-gray-700 md:hidden"
+        className="flex h-8 w-8 items-center justify-center text-gray-999 md:hidden"
         onClick={() => {
           setIsMobileMenuOpen(true);
           setIsProfileMenuOpen(false);
@@ -367,16 +367,16 @@ const Header = () => {
         }}
         aria-label="Open search"
       >
-        <MdSearch className="text-xl" />
+        <MdSearch className="text-[1.60rem]" />
       </button>
 
       <Link to="/cart" className="relative">
         <FiShoppingCart
-          className="text-[1.55rem] text-black"
-          strokeWidth={1.8}
+          className="text-[1.35rem] text-black mr-2"
+          strokeWidth={1.7}
         />
         {cartItemCount > 0 && (
-          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+          <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full mr-2">
             {cartItemCount}
           </span>
         )}
@@ -477,20 +477,20 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
-      <div className="mx-auto max-w-[1600px] px-4 xl:px-8">
+      <div className="mx-4 max-w-[1600px] px-0 xl:px-8">
         {/* ── Top row: logo + search + icons ── */}
         <div
-          className={`relative flex h-16 items-center justify-between ${
+          className={`relative grid h-16 grid-cols-[auto_1fr_auto] items-center ${
             isProfileMenuOpen || isLoginPopupOpen
               ? "overflow-visible"
               : "overflow-hidden"
           }`}
         >
-          {mobileMenuButton}
+          <div className="justify-self-start">{mobileMenuButton}</div>
 
           <Link
             to="/"
-            className="absolute left-1/2 flex -translate-x-1/2 items-center shrink-0 border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none md:static md:translate-x-0"
+            className="flex items-center justify-self-center border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none"
           >
             <img
               src="/assets/logos/Logo.png"
@@ -503,7 +503,7 @@ const Header = () => {
             "absolute left-1/2 hidden w-[min(42vw,520px)] -translate-x-1/2 items-center md:flex",
           )}
 
-          <div className="ml-auto">{rightIcons}</div>
+          <div className="justify-self-end">{rightIcons}</div>
         </div>
 
         {/* ── Nav links row ── */}
