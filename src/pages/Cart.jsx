@@ -229,21 +229,14 @@ const Cart = () => {
                   />
 
                   <div className="min-w-0 flex-1">
-                    <h3 className="mb-2 break-words text-lg font-semibold text-gray-800">
+                    <h3 className="mb-1 break-words text-lg font-semibold text-gray-800">
                       {item.product.name}
                     </h3>
-                    <p className="mb-4 text-sm text-gray-600 line-clamp-2">
-                      {item.product.shortDescription ||
-                        item.product.briefDescriptionPoints?.[0] ||
-                        ""}
+                    <p className="mb-3 text-sm font-semibold text-green-600">
+                      Rs. {item.product.price?.toFixed(2)}
                     </p>
-
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                       <div className="flex flex-wrap items-center gap-3">
-                        <span className="font-semibold text-green-600">
-                          Rs. {item.product.price?.toFixed(2)}
-                        </span>
-
                         <div className="flex shrink-0 items-center rounded border border-gray-300">
                           <button
                             onClick={() =>
