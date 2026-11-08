@@ -356,7 +356,7 @@ const Header = () => {
   );
 
   const rightIcons = (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center space-x-3">
       <button
         type="button"
         className="flex h-8 w-8 items-center justify-center text-gray-700 md:hidden"
@@ -367,19 +367,16 @@ const Header = () => {
         }}
         aria-label="Open search"
       >
-        <MdSearch className="text-[1.60rem]" />
+        <MdSearch className="text-xl" />
       </button>
 
-      <Link
-        to="/cart"
-        className="relative flex h-8 w-8 items-center justify-center text-gray-700 transition hover:text-[#68a300]"
-      >
+      <Link to="/cart" className="relative z-10">
         <FiShoppingCart
-          className="text-[1.35rem] text-black"
-          strokeWidth={1.7}
+          className="text-[1.55rem] text-black"
+          strokeWidth={1.8}
         />
         {cartItemCount > 0 && (
-          <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+          <span className="absolute -top-2 -right-2 z-20 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
             {cartItemCount}
           </span>
         )}
@@ -480,22 +477,20 @@ const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
-      <div className="mx-4 max-w-[1600px] px-0 xl:px-8">
+      <div className="mx-auto max-w-[1600px] px-4 xl:px-8">
         {/* ── Top row: logo + search + icons ── */}
         <div
           className={`relative flex h-16 items-center justify-between ${
             isProfileMenuOpen || isLoginPopupOpen
               ? "overflow-visible"
-              : "overflow-hidden"
+              : "overflow-visible md:overflow-hidden"
           }`}
         >
-          <div className="flex items-center md:w-[120px]">
-            {mobileMenuButton}
-          </div>
+          {mobileMenuButton}
 
           <Link
             to="/"
-            className="absolute left-1/2 z-20 flex -translate-x-1/2 items-center border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none md:left-[1%] md:translate-x-0"
+            className="absolute left-1/2 flex -translate-x-1/2 items-center shrink-0 border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none md:static md:translate-x-0"
           >
             <img
               src="/assets/logos/Logo.png"
@@ -508,9 +503,7 @@ const Header = () => {
             "absolute left-1/2 hidden w-[min(42vw,520px)] -translate-x-1/2 items-center md:flex",
           )}
 
-          <div className="absolute right-0 top-1/2 z-20 flex -translate-y-1/2 items-center gap-3">
-            {rightIcons}
-          </div>
+          <div className="ml-auto">{rightIcons}</div>
         </div>
 
         {/* ── Nav links row ── */}
