@@ -46,9 +46,9 @@ const CartDrawer = () => {
         onClick={() => dispatch(closeCart())}
       />
 
-      <aside className="absolute right-0 top-0 flex h-full w-full flex-col bg-[#f5f5f4] shadow-[0_0_0_1px_rgba(17,17,17,0.04),-24px_20px_60px_rgba(0,0,0,0.08)] transition-transform duration-300 sm:w-[40%] xl:w-[30%]">
-        <div className="px-5 py-5 sm:px-7">
-          <h3 className="text-3xl font-black tracking-[-0.06em] text-[#111111]">
+      <aside className="absolute right-0 top-0 flex h-full w-[80%] max-w-[480px] flex-col bg-[#f5f5f4] shadow-[0_0_0_1px_rgba(17,17,17,0.04),-24px_20px_60px_rgba(0,0,0,0.08)] transition-transform duration-300 sm:w-[40%] xl:w-[30%] md:w-[40%]">
+        <div className="px-5 pb-3 pt-5 sm:px-7 sm:pb-4 sm:pt-5">
+          <h3 className="text-[1.6rem] font-black leading-[0.95] tracking-[-0.06em] text-[#111111] sm:text-2xl mt-2 mb-6">
             Shopping Cart
           </h3>
         </div>
@@ -66,42 +66,18 @@ const CartDrawer = () => {
               {cartItems.map((item) => (
                 <div
                   key={item.product._id}
-                  className="flex items-center gap-4 border-b border-[#d9d4cd] pb-5"
+                  className="relative border-b border-[#d9d4cd] pb-5 sm:pb-5"
                 >
-                  <div className="h-[110px] w-[110px] shrink-0 overflow-hidden rounded-md border border-[#e4dfd8] bg-white p-2">
-                    <img
-                      src={item.product.image || "/placeholder-product.jpg"}
-                      alt={item.product.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <h4 className="text-[1.05rem] font-semibold leading-snug text-[#171717]">
-                          {item.product.name}
-                        </h4>
-                        <p className="mt-2 text-sm leading-relaxed text-[#4d4d4d]">
-                          {item.product.shortDescription ||
-                            item.product.briefDescriptionPoints?.[0] ||
-                            ""}
-                        </p>
+                  <div className="flex items-start gap-0 sm:gap-0">
+                    <div className="flex flex-col items-start gap-2">
+                      <div className="h-[94px] w-[94px] shrink-0 overflow-hidden rounded-md border border-[#e4dfd8] bg-white p-1.5 sm:h-[110px] sm:w-[110px] sm:p-2">
+                        <img
+                          src={item.product.image || "/placeholder-product.jpg"}
+                          alt={item.product.name}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          dispatch(removeFromCart(item.product._id))
-                        }
-                        className="mt-1 flex h-9 w-9 items-center justify-center rounded-full bg-[#d81b1b] text-white shadow-sm transition hover:bg-[#b81616]"
-                        aria-label={`Remove ${item.product.name}`}
-                      >
-                        <FaTrash className="text-xs" />
-                      </button>
-                    </div>
-
-                    <div className="mt-4 flex items-center justify-between gap-3">
                       <div className="inline-flex items-center border border-[#cfc8c0] bg-white">
                         <button
                           type="button"
@@ -133,11 +109,31 @@ const CartDrawer = () => {
                           <FaPlus className="text-[10px]" />
                         </button>
                       </div>
+                    </div>
 
-                      <div className="text-right">
-                        <p className="text-[1.1rem] font-bold text-[#171717]">
-                          Rs. {Number(item.price * item.quantity).toFixed(2)}
-                        </p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <h4 className="text-[1.05rem] font-semibold leading-snug text-[#171717] sm:text-[1.1rem]">
+                            {item.product.name}
+                          </h4>
+                          <p className="mt-1 text-[0.9rem] font-semibold text-[#171717] sm:text-[0.95rem]">
+                            Rs. {Number(item.price || 0).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            dispatch(removeFromCart(item.product._id))
+                          }
+                          className="shrink-0 border-0 bg-transparent p-0 text-[0.8rem] font-medium text-red-600 underline decoration-red-600 underline-offset-2 transition hover:text-red-700"
+                          aria-label={`Remove ${item.product.name}`}
+                        >
+                          Remove
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -148,11 +144,9 @@ const CartDrawer = () => {
         </div>
 
         <div className="border-t border-[#d9d4cd] bg-[#f5f5f4] px-5 py-4 sm:px-7">
-          <div className="flex items-center justify-between">
-            <span className="text-[1.05rem] font-semibold text-[#171717]">
-              Subtotal
-            </span>
-            <span className="text-[1.05rem] font-bold text-[#171717]">
+          <div className="flex items-center justify-between text-[1.05rem] sm:text-[1.05rem]">
+            <span className="font-semibold text-[#171717]">Subtotal</span>
+            <span className="font-bold text-[#171717]">
               Rs. {Number(cartTotal || 0).toFixed(2)}
             </span>
           </div>
@@ -161,14 +155,14 @@ const CartDrawer = () => {
             <Link
               to="/cart"
               onClick={() => dispatch(closeCart())}
-              className="flex-1 rounded-full border border-[#171717] bg-white px-4 py-3 text-center text-sm font-semibold text-[#171717] transition hover:bg-[#efeae3]"
+              className="flex-1 border border-[#171717] bg-white px-4 py-3 text-center text-sm font-semibold text-[#171717] transition hover:bg-[#efeae3]"
             >
               View cart
             </Link>
             <Link
               to="/checkout"
               onClick={() => dispatch(closeCart())}
-              className="flex-1 rounded-full bg-[#171717] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#2d2d2d]"
+              className="flex-1 bg-[#171717] px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-[#2d2d2d]"
             >
               Checkout
             </Link>

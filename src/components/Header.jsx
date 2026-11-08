@@ -357,7 +357,7 @@ const Header = () => {
 
   const rightIcons = (
     <div className="flex items-center space-x-3">
-      <button
+      {/* <button
         type="button"
         className="flex h-8 w-8 items-center justify-center text-gray-700 md:hidden"
         onClick={() => {
@@ -367,8 +367,8 @@ const Header = () => {
         }}
         aria-label="Open search"
       >
-        <MdSearch className="text-xl" />
-      </button>
+        <MdSearch className="text-[1.8rem]" />
+      </button> */}
 
       <Link to="/cart" className="relative z-10">
         <FiShoppingCart
