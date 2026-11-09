@@ -120,14 +120,14 @@ const Register = () => {
     <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-[42px] font-bold text-gray-900">
+          <h2 className="mt-0 text-center text-[30px] font-bold text-gray-600">
             Sign Up
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-medium text-[#68a300] hover:text-[#5f9600]"
+              className="font-medium text-[#2162a1] hover:text-gray-600"
             >
               Sign in
             </Link>
@@ -338,13 +338,13 @@ const Register = () => {
               className="ml-2 block text-sm text-gray-900"
             >
               I agree to the{" "}
-              <Link to="/terms" className="text-[#68a300] hover:text-[#5f9600]">
+              <Link to="/terms" className="text-[#2162a1] hover:text-gray-600">
                 Terms and Conditions
               </Link>{" "}
               and{" "}
               <Link
                 to="/privacy"
-                className="text-[#68a300] hover:text-[#5f9600]"
+                className="text-[#2162a1] hover:text-gray-600"
               >
                 Privacy Policy
               </Link>
@@ -361,7 +361,7 @@ const Register = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border-0 text-sm font-medium rounded-md text-white bg-[#68a300] hover:bg-[#5f9600] focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-transparent active:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-4 border-0 text-sm font-medium text-white bg-[#000000] hover:bg-gray-600 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-transparent active:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Creating account..." : "Create account"}
             </button>
