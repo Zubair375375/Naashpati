@@ -56,6 +56,15 @@ const Header = () => {
     !!accessToken && (!authChecked || (authLoading && !user));
   const defaultCategoriesEnsured = useRef(false);
 
+  const profileInitial = useMemo(() => {
+    const nameSource =
+      [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+      user?.name ||
+      user?.email ||
+      "";
+    return String(nameSource).trim().charAt(0).toUpperCase() || "U";
+  }, [user?.email, user?.firstName, user?.lastName, user?.name]);
+
   useEffect(() => {
     if (!isMobileMenuOpen) return undefined;
 
@@ -154,6 +163,20 @@ const Header = () => {
 
     return [user.avatar];
   }, [API_URL, user?.avatar]);
+
+  const hasPlaceholderAvatar = useMemo(() => {
+    const avatarValue = String(user?.avatar || "").toLowerCase();
+    if (!avatarValue) return true;
+
+    return (
+      avatarValue.includes("/assets/logos/") ||
+      avatarValue.includes("logo.png") ||
+      avatarValue.includes("naashpati-logo")
+    );
+  }, [user?.avatar]);
+
+  const shouldShowAvatarImage =
+    avatarCandidates.length > 0 && !hasPlaceholderAvatar;
 
   const [avatarSrcIndex, setAvatarSrcIndex] = useState(0);
 
@@ -437,7 +460,7 @@ const Header = () => {
             }}
             className="rounded-full border-0 bg-transparent p-1.5 hover:bg-transparent focus:outline-none focus:ring-0 focus-visible:outline-none"
           >
-            {user?.avatar ? (
+            {shouldShowAvatarImage ? (
               <img
                 src={avatarCandidates[avatarSrcIndex] || ""}
                 alt={user?.name || "Profile"}
@@ -449,7 +472,9 @@ const Header = () => {
                 }}
               />
             ) : (
-              <FiUser className="text-[1.8rem]" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-black text-sm font-bold text-white">
+                {profileInitial}
+              </span>
             )}
           </button>
 
@@ -722,7 +747,7 @@ const Header = () => {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex items-center gap-3 rounded px-2 py-2.5 font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#68a300]"
               >
-                {user?.avatar ? (
+                {shouldShowAvatarImage ? (
                   <img
                     src={avatarCandidates[avatarSrcIndex] || ""}
                     alt={user?.name || "Profile"}
@@ -734,7 +759,9 @@ const Header = () => {
                     }}
                   />
                 ) : (
-                  <FiUser className="text-xl" />
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black text-xs font-bold text-white">
+                    {profileInitial}
+                  </span>
                 )}
                 <span>Profile</span>
               </Link>
