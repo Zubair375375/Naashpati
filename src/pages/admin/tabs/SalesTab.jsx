@@ -50,6 +50,26 @@ const SalesTab = ({
                 placeholder="Summer Sale"
                 required
               />
+              <div className="mt-2 flex items-center gap-2">
+                <label className="text-xs font-medium text-gray-600">
+                  Sale Name Color
+                </label>
+                <input
+                  type="color"
+                  value={saleOfferForm.saleNameColor}
+                  onChange={(e) =>
+                    setSaleOfferForm((prev) => ({
+                      ...prev,
+                      saleNameColor: e.target.value,
+                    }))
+                  }
+                  className="h-8 w-12 cursor-pointer rounded border border-gray-300 bg-white p-1"
+                  aria-label="Pick sale name color"
+                />
+                <span className="text-xs text-gray-500">
+                  {saleOfferForm.saleNameColor}
+                </span>
+              </div>
             </div>
 
             <div>
@@ -68,6 +88,26 @@ const SalesTab = ({
                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
                 placeholder="Premium Glasses"
               />
+              <div className="mt-2 flex items-center gap-2">
+                <label className="text-xs font-medium text-gray-600">
+                  Product Name Color
+                </label>
+                <input
+                  type="color"
+                  value={saleOfferForm.productNameColor}
+                  onChange={(e) =>
+                    setSaleOfferForm((prev) => ({
+                      ...prev,
+                      productNameColor: e.target.value,
+                    }))
+                  }
+                  className="h-8 w-12 cursor-pointer rounded border border-gray-300 bg-white p-1"
+                  aria-label="Pick product name color"
+                />
+                <span className="text-xs text-gray-500">
+                  {saleOfferForm.productNameColor}
+                </span>
+              </div>
             </div>
 
             <div>
@@ -86,6 +126,26 @@ const SalesTab = ({
                 className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
                 placeholder="Describe this product"
               />
+              <div className="mt-2 flex items-center gap-2">
+                <label className="text-xs font-medium text-gray-600">
+                  Description Color
+                </label>
+                <input
+                  type="color"
+                  value={saleOfferForm.productDescriptionColor}
+                  onChange={(e) =>
+                    setSaleOfferForm((prev) => ({
+                      ...prev,
+                      productDescriptionColor: e.target.value,
+                    }))
+                  }
+                  className="h-8 w-12 cursor-pointer rounded border border-gray-300 bg-white p-1"
+                  aria-label="Pick product description color"
+                />
+                <span className="text-xs text-gray-500">
+                  {saleOfferForm.productDescriptionColor}
+                </span>
+              </div>
             </div>
 
             <div>

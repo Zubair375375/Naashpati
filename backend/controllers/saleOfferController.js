@@ -32,6 +32,13 @@ const normalizeProductIds = (value) => {
   return [...new Set(ids.map((id) => String(id || "").trim()).filter(Boolean))];
 };
 
+const normalizeHexColor = (value, fallback) => {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase();
+  return /^#[0-9a-f]{6}$/.test(normalized) ? normalized : fallback;
+};
+
 const validateExistingProducts = async (productIds) => {
   if (productIds.length === 0) {
     throw new Error("Please select at least one product for this sale");
@@ -55,7 +62,7 @@ export const getSaleOffers = async (req, res) => {
     const offers = await SaleOffer.find({ isActive: true })
       .sort({ displayOrder: 1, createdAt: -1 })
       .select(
-        "saleName productName productDescription name slug banner displayOrder products createdAt",
+        "saleName saleNameColor productName productNameColor productDescription productDescriptionColor name slug banner displayOrder products createdAt",
       );
 
     res.json({ success: true, data: offers });
@@ -111,6 +118,15 @@ export const createSaleOffer = async (req, res) => {
     const saleName = String(req.body.saleName || "").trim();
     const productName = String(req.body.productName || "").trim();
     const productDescription = String(req.body.productDescription || "").trim();
+    const saleNameColor = normalizeHexColor(req.body.saleNameColor, "#000000");
+    const productNameColor = normalizeHexColor(
+      req.body.productNameColor,
+      "#393939",
+    );
+    const productDescriptionColor = normalizeHexColor(
+      req.body.productDescriptionColor,
+      "#383838",
+    );
     const banner = String(req.body.banner || "").trim();
     const displayOrder = Number(req.body.displayOrder || 0);
     const products = normalizeProductIds(req.body.products);
@@ -146,8 +162,11 @@ export const createSaleOffer = async (req, res) => {
 
     const offer = await SaleOffer.create({
       saleName,
+      saleNameColor,
       productName,
+      productNameColor,
       productDescription,
+      productDescriptionColor,
       slug: await buildUniqueSlug(saleName),
       banner,
       products,

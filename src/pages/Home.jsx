@@ -245,6 +245,21 @@ const Home = () => {
   const activeSaleOfferId = String(
     activeSaleOffer?._id || activeSaleOffer?.slug || "",
   ).trim();
+  const saleNameColor =
+    activeSaleOffer?.saleNameColor &&
+    /^#[0-9a-fA-F]{6}$/.test(activeSaleOffer.saleNameColor)
+      ? activeSaleOffer.saleNameColor
+      : "#000000";
+  const productNameColor =
+    activeSaleOffer?.productNameColor &&
+    /^#[0-9a-fA-F]{6}$/.test(activeSaleOffer.productNameColor)
+      ? activeSaleOffer.productNameColor
+      : "#393939";
+  const productDescriptionColor =
+    activeSaleOffer?.productDescriptionColor &&
+    /^#[0-9a-fA-F]{6}$/.test(activeSaleOffer.productDescriptionColor)
+      ? activeSaleOffer.productDescriptionColor
+      : "#383838";
   const activeSaleOfferLink = activeSaleOfferProductId
     ? `/products/${activeSaleOfferProductSlug || activeSaleOfferProductId}`
     : activeSaleOfferId
@@ -276,16 +291,25 @@ const Home = () => {
 
                 <div className="absolute inset-0 z-10 flex items-center justify-center p-5 text-[#383838] sm:items-center sm:justify-start sm:p-8 lg:p-12">
                   <div className="w-full max-w-[360px] text-center sm:max-w-3xl sm:text-left">
-                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-black/75 sm:mb-2 sm:text-base">
+                    <p
+                      className="mb-1 text-[10px] font-semibold uppercase tracking-[0.2em] sm:mb-2 sm:text-base"
+                      style={{ color: saleNameColor }}
+                    >
                       {activeSaleOffer?.saleName ||
                         activeSaleOffer?.name ||
                         "Sale Offer"}
                     </p>
-                    <h3 className="text-[1.35rem] font-black uppercase leading-[0.95] tracking-[-0.06em] text-[#393939] sm:text-4xl sm:leading-normal lg:text-5xl">
+                    <h3
+                      className="text-[1.35rem] font-black uppercase leading-[0.95] tracking-[-0.06em] sm:text-4xl sm:leading-normal lg:text-5xl"
+                      style={{ color: productNameColor }}
+                    >
                       {activeSaleOffer?.productName || "Featured Product"}
                     </h3>
                     {activeSaleOffer?.productDescription && (
-                      <p className="mx-auto mt-1 max-w-lg text-[0.8rem] leading-[1.3] text-[#383838]/80 sm:mx-0 sm:mt-3 sm:text-xl sm:leading-normal lg:text-[1.9rem]">
+                      <p
+                        className="mx-auto mt-1 max-w-lg text-[0.8rem] leading-[1.3] sm:mx-0 sm:mt-3 sm:text-xl sm:leading-normal lg:text-[1.9rem]"
+                        style={{ color: productDescriptionColor }}
+                      >
                         {activeSaleOffer.productDescription}
                       </p>
                     )}
