@@ -52,6 +52,45 @@ const generateClientSku = () => {
   return `SKU-${timePart}-${randomPart}`;
 };
 
+const calculateSalePriceFromPercent = (priceValue, salePercentValue) => {
+  const parsedPrice = parseFloat(priceValue);
+  const parsedPercent = parseFloat(salePercentValue);
+
+  if (
+    !Number.isFinite(parsedPrice) ||
+    parsedPrice < 0 ||
+    !Number.isFinite(parsedPercent) ||
+    parsedPercent < 0
+  ) {
+    return "";
+  }
+
+  const safePercent = Math.min(parsedPercent, 100);
+  const discountedPrice = parsedPrice * (1 - safePercent / 100);
+  return Math.max(0, discountedPrice).toFixed(2);
+};
+
+const calculateSalePercentFromPrices = (priceValue, salePriceValue) => {
+  const parsedPrice = parseFloat(priceValue);
+  const parsedSalePrice = parseFloat(salePriceValue);
+
+  if (
+    !Number.isFinite(parsedPrice) ||
+    parsedPrice <= 0 ||
+    !Number.isFinite(parsedSalePrice) ||
+    parsedSalePrice < 0
+  ) {
+    return "";
+  }
+
+  const percent = ((parsedPrice - parsedSalePrice) / parsedPrice) * 100;
+  const normalizedPercent = Math.min(100, Math.max(0, percent));
+  const fixedPercent = normalizedPercent.toFixed(2);
+  return fixedPercent.endsWith(".00")
+    ? fixedPercent.replace(/\.00$/, "")
+    : fixedPercent;
+};
+
 const CreateProduct = ({
   onClose,
   onSuccess,
@@ -77,6 +116,7 @@ const CreateProduct = ({
     faqContent: "",
     qualityPromiseContent: "",
     price: "",
+    salePercentage: "",
     salePrice: "",
     originalPrice: "",
     costPrice: "",
@@ -236,6 +276,29 @@ const CreateProduct = ({
     const { name, value, type, checked } = e.target;
     setFormData((prev) => {
       const next = { ...prev, [name]: type === "checkbox" ? checked : value };
+
+      if (name === "salePercentage") {
+        next.salePrice = calculateSalePriceFromPercent(prev.price, value);
+      }
+
+      if (name === "price") {
+        if (prev.salePrice !== "") {
+          next.salePercentage = calculateSalePercentFromPrices(
+            value,
+            prev.salePrice,
+          );
+        } else if (prev.salePercentage !== "") {
+          next.salePrice = calculateSalePriceFromPercent(
+            value,
+            prev.salePercentage,
+          );
+        }
+      }
+
+      if (name === "salePrice") {
+        next.salePercentage = calculateSalePercentFromPrices(prev.price, value);
+      }
+
       if (name === "lenses") {
         if (checked) {
           next.category = "";
@@ -485,6 +548,10 @@ const CreateProduct = ({
       return;
     }
 
+    const salePercentageNum = Number(
+      calculateSalePercentFromPrices(priceNum, salePriceNum) || 0,
+    );
+
     const costPriceNum = parseFloat(costPrice);
     if (!costPrice || isNaN(costPriceNum) || costPriceNum < 0) {
       toast.error("Cost price must be a positive number.");
@@ -533,9 +600,10 @@ const CreateProduct = ({
         briefDescriptionPoints: normalizedBriefPoints,
         faqContent: (faqContent || "").trim(),
         qualityPromiseContent: (qualityPromiseContent || "").trim(),
-        price: Number(salePriceNum),
+        price: Number(priceNum),
         salePrice: Number(salePriceNum),
         originalPrice: Number(originalPriceNum),
+        salePercentage: salePercentageNum,
         costPrice: Number(costPrice),
         category: lenses ? "" : category,
         productCollection: lenses ? "" : formData.collection,
@@ -843,6 +911,27 @@ const CreateProduct = ({
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
               placeholder="0.00"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="salePercentage"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Sale (%)
+            </label>
+            <input
+              id="salePercentage"
+              name="salePercentage"
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={formData.salePercentage}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
+              placeholder="0"
             />
           </div>
 

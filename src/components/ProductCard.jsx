@@ -20,17 +20,40 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   const ratingValue = product.averageRating ?? product.rating ?? 0;
   const reviewCount = product.numReviews ?? product.reviewCount ?? 0;
   const productUrl = `/products/${product.slug || product._id}`;
-  const salePrice = Number(product.salePrice ?? product.price ?? 0);
-  const originalPrice = Number(product.originalPrice ?? product.price ?? 0);
+  const basePrice = Number(product.price ?? product.originalPrice ?? 0);
+  const salePrice = Number(product.salePrice ?? basePrice ?? 0);
+  const originalPrice = Number(product.originalPrice ?? basePrice ?? 0);
   const stockCount = Number(product.stock ?? 0);
   const isOutOfStock = stockCount <= 0;
   const hasDiscount =
-    Number.isFinite(originalPrice) &&
+    Number.isFinite(basePrice) &&
     Number.isFinite(salePrice) &&
-    originalPrice > salePrice;
-  const discountPercent = hasDiscount
-    ? Math.round(((originalPrice - salePrice) / originalPrice) * 100)
+    basePrice > salePrice;
+  const computedDiscountPercent = hasDiscount
+    ? ((basePrice - salePrice) / basePrice) * 100
     : 0;
+  const persistedSalePercentage = Number(product.salePercentage);
+  const hasPersistedSalePercentage =
+    Number.isFinite(persistedSalePercentage) && persistedSalePercentage > 0;
+  const salePercentage = hasPersistedSalePercentage
+    ? persistedSalePercentage
+    : computedDiscountPercent;
+  const formatSalePercentage = (value) => {
+    const fixedValue = Number(value).toFixed(2);
+    return fixedValue.endsWith(".00")
+      ? fixedValue.replace(/\.00$/, "")
+      : fixedValue;
+  };
+  const salePercentageLabel = hasPersistedSalePercentage
+    ? formatSalePercentage(persistedSalePercentage)
+    : Number.isFinite(salePercentage)
+      ? formatSalePercentage(salePercentage)
+      : "0";
+  const saleBadge = hasDiscount ? (
+    <span className="rounded-sm bg-[#ff3b3b] px-2 py-0.5 text-[11px] font-semibold tracking-wide text-white">
+      {salePercentageLabel}% Discount
+    </span>
+  ) : null;
   const productImage = product.image
     ? resolveMediaUrl(product.image)
     : resolveMediaUrl(product.images?.[0]?.url || product.images?.[0]);
@@ -95,13 +118,16 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         to={productUrl}
         className="group flex flex-col overflow-hidden rounded-lg bg-white shadow-soft sm:flex-row"
       >
-        <div className="h-52 w-full overflow-hidden sm:h-auto sm:w-56">
+        <div className="relative h-52 w-full overflow-hidden sm:h-auto sm:w-56">
           <img
             src={productImage}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover"
           />
+          {hasDiscount ? (
+            <div className="absolute left-2 top-2">{saleBadge}</div>
+          ) : null}
         </div>
 
         <div className="flex flex-1 flex-col justify-between p-4">
@@ -139,7 +165,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               </span>
               {hasDiscount ? (
                 <span className="rounded-full bg-orange-50 px-2 py-1 font-semibold text-orange-700">
-                  -{discountPercent}%
+                  -{salePercentageLabel}%
                 </span>
               ) : null}
             </div>
@@ -154,7 +180,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             </span>
             {hasDiscount ? (
               <span className="text-sm text-gray-400 line-through">
-                PKR {originalPrice.toFixed(2)}
+                PKR {basePrice.toFixed(2)}
               </span>
             ) : null}
 
@@ -190,11 +216,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             className="h-full w-full object-cover"
           />
           <div className="absolute left-3 top-3 flex flex-col gap-2">
-            {hasDiscount ? (
-              <span className="rounded-full bg-orange-500/90 px-2 py-1 text-xs font-semibold text-white">
-                -{discountPercent}%
-              </span>
-            ) : null}
+            {saleBadge}
             <span
               className={`rounded-full px-2 py-1 text-xs font-semibold ${
                 !isOutOfStock
@@ -234,7 +256,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             </span>
             {hasDiscount ? (
               <span className="text-sm text-gray-400 line-through">
-                PKR {originalPrice.toFixed(2)}
+                PKR {basePrice.toFixed(2)}
               </span>
             ) : null}
           </div>
@@ -267,13 +289,16 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         to={productUrl}
         className="group overflow-hidden rounded-lg bg-white shadow-soft"
       >
-        <div className="aspect-[4/3] overflow-hidden">
+        <div className="relative aspect-[4/3] overflow-hidden">
           <img
             src={productImage}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover"
           />
+          {hasDiscount ? (
+            <div className="absolute left-2 top-2">{saleBadge}</div>
+          ) : null}
         </div>
 
         <div className="p-3">
@@ -301,7 +326,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             </span>
             {hasDiscount ? (
               <span className="text-[11px] text-gray-400 line-through">
-                {originalPrice.toFixed(2)}
+                {basePrice.toFixed(2)}
               </span>
             ) : null}
 
@@ -329,13 +354,20 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         to={productUrl}
         className="group overflow-hidden rounded-md bg-white shadow-soft"
       >
-        <div className="aspect-square overflow-hidden">
+        <div className="relative aspect-square overflow-hidden">
           <img
             src={productImage}
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover"
           />
+          {hasDiscount ? (
+            <div className="absolute left-1.5 top-1.5">
+              <span className="rounded-sm bg-[#ff3b3b] px-1.5 py-0.5 text-[9px] font-semibold tracking-wide text-white">
+                Discount {salePercentageLabel}%
+              </span>
+            </div>
+          ) : null}
         </div>
 
         <div className="p-2">
@@ -374,13 +406,16 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
       to={productUrl}
       className="group bg-white rounded-lg shadow-soft overflow-hidden"
     >
-      <div className="aspect-square overflow-hidden">
+      <div className="relative aspect-square overflow-hidden">
         <img
           src={productImage}
           alt={product.name}
           loading="lazy"
           className="w-full h-full object-cover"
         />
+        {hasDiscount ? (
+          <div className="absolute left-2 top-2">{saleBadge}</div>
+        ) : null}
       </div>
 
       <div className="p-4">
@@ -406,7 +441,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           </span>
           {hasDiscount ? (
             <span className="text-sm text-gray-400 line-through">
-              PKR {originalPrice.toFixed(2)}
+              PKR {basePrice.toFixed(2)}
             </span>
           ) : null}
 
