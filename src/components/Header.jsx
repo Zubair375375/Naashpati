@@ -14,7 +14,7 @@ import {
   selectCategories,
   selectCategoriesStatus,
 } from "../store/slices/productSlice";
-import { MdMenu, MdClose, MdSearch } from "react-icons/md";
+import { MdMenu, MdClose, MdSearch, MdKeyboardArrowDown } from "react-icons/md";
 import { FiShoppingCart, FiUser } from "react-icons/fi";
 
 const DEFAULT_CATEGORIES = [
@@ -32,6 +32,7 @@ const slugifyCategory = (value = "") =>
 const Header = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isCollectionsMenuOpen, setIsCollectionsMenuOpen] = useState(false);
+  const [isMobileCollectionsOpen, setIsMobileCollectionsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
   const [shouldFocusMobileSearch, setShouldFocusMobileSearch] = useState(false);
@@ -63,6 +64,12 @@ const Header = () => {
     return () => {
       document.body.style.overflow = originalOverflow;
     };
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      setIsMobileCollectionsOpen(false);
+    }
   }, [isMobileMenuOpen]);
 
   useEffect(() => {
@@ -245,6 +252,20 @@ const Header = () => {
   ];
 
   const isNavActive = (to) => {
+    if (to === "/products") {
+      if (location.pathname !== "/products") {
+        return false;
+      }
+
+      const locationParams = new URLSearchParams(location.search);
+      const hasCollectionFilter =
+        locationParams.has("category") ||
+        locationParams.has("gender-category") ||
+        locationParams.has("collection");
+
+      return !hasCollectionFilter;
+    }
+
     if (to.startsWith("/products?")) {
       if (location.pathname !== "/products") {
         return false;
@@ -295,7 +316,7 @@ const Header = () => {
               }`
             : `whitespace-nowrap pb-0.5 transition-colors font-medium text-[14px] ${
                 isActive
-                  ? "text-[#68a300] border-b-2 border-[#68a300]"
+                  ? "text-gray-900 border-b-4 border-[#68a300]"
                   : "text-gray-700 hover:text-[#68a300]"
               }`
         }
@@ -511,10 +532,7 @@ const Header = () => {
           <nav className="flex h-11 items-center justify-center space-x-8">
             {navLinks.map((link) => {
               if (link.label === "Collections") {
-                const isActive =
-                  location.pathname === "/products" ||
-                  (location.pathname === "/products" &&
-                    location.search.includes("category="));
+                const isActive = isNavActive(link.to);
 
                 return (
                   <div
@@ -529,11 +547,19 @@ const Header = () => {
                       onBlur={() => setIsCollectionsMenuOpen(false)}
                       className={`whitespace-nowrap pb-0.5 transition-colors font-medium text-[14px] ${
                         isActive
-                          ? "text-[#68a300] border-b-2 border-[#68a300]"
+                          ? "text-gray-900 border-b-4 border-[#68a300]"
                           : "text-gray-700 hover:text-[#68a300]"
                       }`}
                     >
-                      {link.label}
+                      <span className="inline-flex items-center gap-0.5">
+                        {link.label}
+                        <MdKeyboardArrowDown
+                          className={`text-base transition-transform ${
+                            isCollectionsMenuOpen ? "rotate-180" : ""
+                          }`}
+                          aria-hidden="true"
+                        />
+                      </span>
                     </button>
 
                     {isCollectionsMenuOpen && (
@@ -580,8 +606,7 @@ const Header = () => {
             isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-4">
-            <span className="text-base font-semibold text-gray-900">Menu</span>
+          <div className="flex items-center justify-start border-b border-gray-100 px-4 py-4">
             <button
               type="button"
               className="rounded p-1 text-gray-700"
@@ -597,22 +622,73 @@ const Header = () => {
           </div>
 
           <nav className="space-y-1 px-4 py-4">
-            {navLinks.map(({ to, label }) => (
-              <NavLink
-                key={to}
-                to={to}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `block rounded px-2 py-2.5 font-medium transition-colors ${
-                    isActive
-                      ? "bg-[#f3f9e8] text-[#68a300]"
-                      : "text-gray-700 hover:bg-gray-50 hover:text-[#68a300]"
-                  }`
-                }
-              >
-                {label}
-              </NavLink>
-            ))}
+            {navLinks.map(({ to, label }) => {
+              if (label === "Collections") {
+                return (
+                  <div key={to}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setIsMobileCollectionsOpen((prevOpen) => !prevOpen)
+                      }
+                      className={`w-full rounded px-2 py-2.5 font-medium transition-colors ${
+                        isNavActive(to)
+                          ? "bg-[#f2f5f3] text-gray-900"
+                          : "text-gray-700 hover:bg-gray-50 hover:text-[#68a300]"
+                      }`}
+                      aria-expanded={isMobileCollectionsOpen}
+                      aria-label="Toggle collections menu"
+                    >
+                      <span className="flex items-center justify-between gap-2">
+                        <span>{label}</span>
+                        <MdKeyboardArrowDown
+                          className={`text-lg transition-transform ${
+                            isMobileCollectionsOpen ? "rotate-180" : ""
+                          }`}
+                          aria-hidden="true"
+                        />
+                      </span>
+                    </button>
+
+                    {isMobileCollectionsOpen && (
+                      <div className="mt-1 space-y-1 pl-3">
+                        {collectionsDropdownItems.map((item) => (
+                          <Link
+                            key={`${item.to}-${item.label}-mobile`}
+                            to={item.to}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={`block rounded px-2 py-2 text-sm transition-colors ${
+                              isNavActive(item.to)
+                                ? "bg-[#f2f5f3] text-gray-900"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-[#68a300]"
+                            }`}
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <NavLink
+                  key={to}
+                  to={to}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={() =>
+                    `block rounded px-2 py-2.5 font-medium transition-colors md:text-gray-700 ${
+                      isNavActive(to)
+                        ? "bg-[#f2f5f3] text-gray-900 md:bg-[#f3f9e8] md:text-[#68a300]"
+                        : "text-gray-700 hover:bg-gray-50 hover:text-[#68a300]"
+                    }`
+                  }
+                >
+                  {label}
+                </NavLink>
+              );
+            })}
           </nav>
 
           {user ? (
@@ -620,10 +696,23 @@ const Header = () => {
               <Link
                 to="/profile"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-2 rounded px-2 py-2.5 font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#68a300]"
+                className="flex items-center gap-3 rounded px-2 py-2.5 font-semibold text-gray-700 hover:bg-gray-50 hover:text-[#68a300]"
               >
-                <FiUser className="text-xl" />
-                Profile
+                {user?.avatar ? (
+                  <img
+                    src={avatarCandidates[avatarSrcIndex] || ""}
+                    alt={user?.name || "Profile"}
+                    className="h-7 w-7 rounded-full object-cover"
+                    onError={() => {
+                      if (avatarSrcIndex < avatarCandidates.length - 1) {
+                        setAvatarSrcIndex((prev) => prev + 1);
+                      }
+                    }}
+                  />
+                ) : (
+                  <FiUser className="text-xl" />
+                )}
+                <span>Profile</span>
               </Link>
             </div>
           ) : !showAuthPendingState ? (
