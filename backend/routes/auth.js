@@ -9,6 +9,7 @@ import {
   forgotPassword,
   resetPassword,
   getMe,
+  verifyEmail,
 } from "../controllers/authController.js";
 import { protect } from "../middleware/auth.js";
 
@@ -74,6 +75,7 @@ const resetPasswordValidation = [passwordRules];
 // Routes
 router.post("/register", authLimiter, registerValidation, register);
 router.post("/login", authLimiter, loginValidation, login);
+router.get("/verify-email/:token", verifyEmail);
 
 router.post("/refresh", refreshToken);
 router.post("/logout", protect, logout);

@@ -17,6 +17,10 @@ const Cart = lazyWithRetry(() => import("./pages/Cart"), "Cart");
 const Checkout = lazyWithRetry(() => import("./pages/Checkout"), "Checkout");
 const Login = lazyWithRetry(() => import("./pages/Login"), "Login");
 const Register = lazyWithRetry(() => import("./pages/Register"), "Register");
+const VerifyEmail = lazyWithRetry(
+  () => import("./pages/VerifyEmail"),
+  "VerifyEmail",
+);
 const ForgotPassword = lazyWithRetry(
   () => import("./pages/ForgotPassword"),
   "ForgotPassword",
@@ -94,6 +98,7 @@ function App() {
           <Route path="checkout" element={<Checkout />} />
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
+          <Route path="verify-email/:token" element={<VerifyEmail />} />
           <Route path="forgot-password" element={<ForgotPassword />} />
           <Route path="reset-password/:token" element={<ResetPassword />} />
           <Route path="profile" element={<Profile />} />
