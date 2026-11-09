@@ -190,8 +190,11 @@ const AdminDashboard = () => {
   const [savingCategoryEdit, setSavingCategoryEdit] = useState(false);
   const [saleOfferForm, setSaleOfferForm] = useState({
     saleName: "",
+    saleNameColor: "#000000",
     productName: "",
+    productNameColor: "#393939",
     productDescription: "",
+    productDescriptionColor: "#383838",
     displayOrder: 0,
     productIds: [],
   });
@@ -893,8 +896,12 @@ const AdminDashboard = () => {
       await dispatch(
         createSaleOffer({
           saleName: saleOfferForm.saleName.trim(),
+          saleNameColor: saleOfferForm.saleNameColor || "#000000",
           productName: saleOfferForm.productName.trim(),
+          productNameColor: saleOfferForm.productNameColor || "#393939",
           productDescription: saleOfferForm.productDescription.trim(),
+          productDescriptionColor:
+            saleOfferForm.productDescriptionColor || "#383838",
           banner: bannerUrl,
           products: saleOfferForm.productIds,
           displayOrder: Number(saleOfferForm.displayOrder || 0),
@@ -903,8 +910,11 @@ const AdminDashboard = () => {
 
       setSaleOfferForm({
         saleName: "",
+        saleNameColor: "#000000",
         productName: "",
+        productNameColor: "#393939",
         productDescription: "",
+        productDescriptionColor: "#383838",
         displayOrder: 0,
         productIds: [],
       });

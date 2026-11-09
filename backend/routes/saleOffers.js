@@ -8,15 +8,14 @@ import {
 } from "../controllers/saleOfferController.js";
 import { protect, authorize } from "../middleware/auth.js";
 import {
-  cacheResponse,
   invalidateCacheOnSuccess,
 } from "../middleware/cache.js";
 
 const router = express.Router();
 
-router.get("/", cacheResponse("home", 300), getSaleOffers);
+router.get("/", getSaleOffers);
 router.get("/all", protect, authorize("admin"), getAllSaleOffers);
-router.get("/:id", cacheResponse("home", 300), getSaleOffer);
+router.get("/:id", getSaleOffer);
 router.post(
   "/",
   protect,

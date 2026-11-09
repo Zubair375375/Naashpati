@@ -9,11 +9,21 @@ const saleOfferSchema = new mongoose.Schema(
       minlength: [2, "Sale name must be at least 2 characters"],
       maxlength: [100, "Sale name cannot be more than 100 characters"],
     },
+    saleNameColor: {
+      type: String,
+      trim: true,
+      default: "#000000",
+    },
     productName: {
       type: String,
       trim: true,
       maxlength: [100, "Product name cannot be more than 100 characters"],
       default: "",
+    },
+    productNameColor: {
+      type: String,
+      trim: true,
+      default: "#393939",
     },
     productDescription: {
       type: String,
@@ -23,6 +33,11 @@ const saleOfferSchema = new mongoose.Schema(
         "Product description cannot be more than 500 characters",
       ],
       default: "",
+    },
+    productDescriptionColor: {
+      type: String,
+      trim: true,
+      default: "#383838",
     },
     slug: {
       type: String,
