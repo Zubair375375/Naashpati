@@ -715,15 +715,14 @@ const Home = () => {
                 ★★★★★
               </div>
               <p className="text-[1.05rem] font-medium leading-[1.45] text-[#171717]">
-                “This is my third pair of these sunglasses. I am rough on
-                sunglasses and carry them everywhere. They hold up very well.”
+                “Bro amazing stuff yarrr.. You people make your own or what?”
               </p>
               <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
-                <span>Kim</span>
+                <span>Imran</span>
                 <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
                   Verified Buyer
                 </span>
-                <span className="text-[#171717]/60">Chucktown</span>
+                <span className="text-[#171717]/60">Islamabad</span>
               </div>
             </article>
 
@@ -734,15 +733,14 @@ const Home = () => {
                     ★★★★★
                   </div>
                   <p className="text-[1.05rem] font-medium leading-[1.45] text-[#171717]">
-                    “My sunglasses became my dogs new favorite toy. Easy
-                    replacement.”
+                    “Bro cracked the rich stuff 🤣🤣”
                   </p>
                   <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
-                    <span>John</span>
+                    <span>Osama</span>
                     <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
                       Verified Buyer
                     </span>
-                    <span className="text-[#171717]/60">Folly</span>
+                    <span className="text-[#171717]/60">Karachi</span>
                   </div>
                 </article>
 
@@ -751,16 +749,14 @@ const Home = () => {
                     ★★★★★
                   </div>
                   <p className="text-[1.05rem] font-medium leading-[1.45]">
-                    “I love the throwback style of these glasses. They fit super
-                    well, they’re comfortable, and they are just dope. I highly
-                    recommend!”
+                    “Smooth kafi zada h, nice”
                   </p>
                   <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#f4f0eb]/80">
-                    <span>Cory</span>
+                    <span>Maha</span>
                     <span className="rounded-full border border-[#f4f0eb]/20 bg-white/5 px-2 py-1">
                       Verified Buyer
                     </span>
-                    <span className="text-[#f4f0eb]/60">Woodstock</span>
+                    <span className="text-[#f4f0eb]/60">Islamabad</span>
                   </div>
                 </article>
 
@@ -769,15 +765,14 @@ const Home = () => {
                     ★★★★★
                   </div>
                   <p className="text-[1.05rem] font-medium leading-[1.45] text-[#171717]">
-                    “Love these! They don’t scratch, it’s amazing! I’ve had two
-                    pairs for over 5 years.”
+                    “Thank You! 😋”
                   </p>
                   <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
-                    <span>Kendra</span>
+                    <span>Obaid</span>
                     <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
                       Verified Buyer
                     </span>
-                    <span className="text-[#171717]/60">Kitty Hawk</span>
+                    <span className="text-[#171717]/60">Peshawar</span>
                   </div>
                 </article>
 
@@ -786,17 +781,14 @@ const Home = () => {
                     ★★★★★
                   </div>
                   <p className="text-[1.05rem] font-medium leading-[1.45] text-[#171717]">
-                    “These are a simple, stylish, and affordable pair of
-                    polarized sunglasses that we love whether it is for
-                    kayaking, walking on the beach, or just walking around
-                    town.”
+                    “I love it man.. its truely how i wanted my glasses”
                   </p>
                   <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
-                    <span>Christopher</span>
+                    <span>Zaid</span>
                     <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
                       Verified Buyer
                     </span>
-                    <span className="text-[#171717]/60">Chucktown</span>
+                    <span className="text-[#171717]/60">Peshawar</span>
                   </div>
                 </article>
 
@@ -805,16 +797,14 @@ const Home = () => {
                     ★★★★★
                   </div>
                   <p className="text-[1.05rem] font-medium leading-[1.45] text-[#171717]">
-                    “I have been wearing the Chucktown sunglasses for at least 7
-                    years and love them so much! I even got my husband wearing
-                    them!”
+                    “Love your stuff, i mean it ❤️”
                   </p>
                   <div className="mt-5 flex items-center justify-between gap-3 text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-[#171717]/75">
-                    <span>Annemarie</span>
+                    <span>Momina</span>
                     <span className="rounded-full border border-[#171717]/20 bg-white/30 px-2 py-1">
                       Verified Buyer
                     </span>
-                    <span className="text-[#171717]/60">Chucktown</span>
+                    <span className="text-[#171717]/60">Lahore</span>
                   </div>
                 </article>
               </>
