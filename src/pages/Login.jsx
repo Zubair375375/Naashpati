@@ -79,14 +79,14 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-[42px] font-bold text-gray-900">
+          <h2 className="mt-6 text-center text-[30px] font-bold text-gray-600">
             Sign In
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-medium text-[#68a300] hover:text-[#5f9600]"
+              className="font-medium text-[#2162a1] hover:text-gray-600"
             >
               Create Now
             </Link>
@@ -161,7 +161,7 @@ const Login = () => {
             <div className="text-sm">
               <Link
                 to="/forgot-password"
-                className="font-medium text-[#68a300] hover:text-[#5f9600]"
+                className="font-medium text-[#2162a1] hover:text-gray-600"
               >
                 Forgot your password?
               </Link>
@@ -178,7 +178,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border-0 text-sm font-medium rounded-md text-white bg-[#68a300] hover:bg-[#5f9600] focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-transparent active:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-4 border-0 text-sm font-medium text-white bg-[#000000] hover:bg-gray-600 focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-transparent active:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? "Signing in..." : "Sign in"}
             </button>

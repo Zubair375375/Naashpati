@@ -469,12 +469,12 @@ const Header = () => {
           {isLoginPopupOpen && (
             <div
               ref={loginPopupRef}
-              className="absolute right-0 top-full z-[80] mt-2 w-48 rounded-md border border-gray-200 bg-white p-3 shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
+              className="absolute right-0 top-full z-[80] mt-2 w-48 border border-gray-200 bg-white p-3 shadow-[0_10px_24px_rgba(0,0,0,0.14)]"
             >
               <Link
                 to="/login"
                 onClick={() => setIsLoginPopupOpen(false)}
-                className="block rounded-md bg-[#f5c400] px-3 py-2 text-center text-sm text-black transition hover:bg-[#f0ba00]"
+                className="block bg-[#68a300] px-3 py-2 text-center text-sm text-white transition hover:bg-white hover:border hover:border-[#68a300] hover:text-[#68a300]"
               >
                 Sign in
               </Link>
@@ -484,7 +484,7 @@ const Header = () => {
                 <Link
                   to="/register"
                   onClick={() => setIsLoginPopupOpen(false)}
-                  className="text-[#0055AA] underline hover:underline hover:text-[#068a00]"
+                  className="text-[#0055AA] underline hover:underline hover:text-gray-600"
                 >
                   start here
                 </Link>

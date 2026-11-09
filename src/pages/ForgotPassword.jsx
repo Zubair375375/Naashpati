@@ -31,7 +31,7 @@ const ForgotPassword = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-[22px] sm:text-3xl font-extrabold text-gray-900">
             Forgot your password?
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
@@ -60,13 +60,13 @@ const ForgotPassword = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#68a300] hover:bg-[#5f9600] disabled:opacity-50"
+            className="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium text-white bg-[#000000] hover:bg-gray-600 disabled:opacity-50"
           >
             {isLoading ? "Sending..." : "Send reset link"}
           </button>
 
           <div className="text-center text-sm">
-            <Link to="/login" className="text-[#68a300] hover:text-[#5f9600] font-medium">
+            <Link to="/login" className="text-[#2162a1] hover:text-gray-600 font-medium">
               Back to sign in
             </Link>
           </div>
