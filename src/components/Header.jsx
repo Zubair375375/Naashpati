@@ -42,6 +42,7 @@ const Header = () => {
   const mobileSearchInputRef = useRef(null);
   const loginButtonRef = useRef(null);
   const loginPopupRef = useRef(null);
+  const collectionsMenuRef = useRef(null);
   const dispatch = useDispatch();
   const user = useSelector(selectAuthUser);
   const categories = useSelector(selectCategories);
@@ -100,6 +101,27 @@ const Header = () => {
     document.addEventListener("mousedown", handlePointerDown);
     return () => document.removeEventListener("mousedown", handlePointerDown);
   }, [isLoginPopupOpen]);
+
+  useEffect(() => {
+    if (!isCollectionsMenuOpen) return undefined;
+
+    const handlePointerDown = (event) => {
+      const clickedInsideCollectionsMenu = collectionsMenuRef.current?.contains(
+        event.target,
+      );
+
+      if (!clickedInsideCollectionsMenu) {
+        setIsCollectionsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [isCollectionsMenuOpen]);
+
+  useEffect(() => {
+    setIsCollectionsMenuOpen(false);
+  }, [location.pathname, location.search]);
 
   useEffect(() => {
     if (
@@ -538,13 +560,15 @@ const Header = () => {
                   <div
                     key={link.to}
                     className="relative"
-                    onMouseEnter={() => setIsCollectionsMenuOpen(true)}
-                    onMouseLeave={() => setIsCollectionsMenuOpen(false)}
+                    ref={collectionsMenuRef}
                   >
                     <button
                       type="button"
-                      onFocus={() => setIsCollectionsMenuOpen(true)}
-                      onBlur={() => setIsCollectionsMenuOpen(false)}
+                      onClick={() =>
+                        setIsCollectionsMenuOpen((prevOpen) => !prevOpen)
+                      }
+                      aria-expanded={isCollectionsMenuOpen}
+                      aria-label="Toggle collections menu"
                       className={`whitespace-nowrap pb-0.5 transition-colors font-medium text-[14px] ${
                         isActive
                           ? "text-gray-900 border-b-4 border-[#68a300]"

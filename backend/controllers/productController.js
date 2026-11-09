@@ -129,6 +129,21 @@ const normalizeSeo = (seo = {}, seoKeywordsInput) => ({
   ),
 });
 
+const computeSalePercentage = (priceValue, salePriceValue) => {
+  const price = normalizeNumber(priceValue, 0);
+  const salePrice = normalizeNumber(salePriceValue, 0);
+
+  if (!Number.isFinite(price) || price <= 0) {
+    return 0;
+  }
+
+  if (!Number.isFinite(salePrice) || salePrice >= price || salePrice < 0) {
+    return 0;
+  }
+
+  return Number((((price - salePrice) / price) * 100).toFixed(2));
+};
+
 export const getCollectionBestsellerProductIds = async (query = {}) => {
   const candidateQuery = { ...query };
   delete candidateQuery.$or;
@@ -550,6 +565,11 @@ export const createProduct = async (req, res) => {
       seo: normalizeSeo(incomingBody.seo, incomingBody.seoKeywords),
     };
 
+    payload.salePercentage = computeSalePercentage(
+      payload.price,
+      payload.salePrice,
+    );
+
     const normalizedProductCollection = hasOwn(
       incomingBody,
       "productCollection",
@@ -760,6 +780,23 @@ export const updateProduct = async (req, res) => {
       payload.salePrice = normalizeNumber(
         salePriceValue,
         Number(product.salePrice || product.price || 0),
+      );
+    }
+
+    if (
+      hasOwn(incomingBody, "price") ||
+      hasOwn(incomingBody, "salePrice") ||
+      hasOwn(incomingBody, "salePercentage")
+    ) {
+      const priceForSale = hasOwn(payload, "price")
+        ? payload.price
+        : Number(product.price || 0);
+      const salePriceForSale = hasOwn(payload, "salePrice")
+        ? payload.salePrice
+        : Number(product.salePrice || product.price || 0);
+      payload.salePercentage = computeSalePercentage(
+        priceForSale,
+        salePriceForSale,
       );
     }
 

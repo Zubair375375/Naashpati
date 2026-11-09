@@ -196,6 +196,12 @@ const productSchema = new mongoose.Schema(
       default: 0,
       min: [0, "Sale price cannot be negative"],
     },
+    salePercentage: {
+      type: Number,
+      default: 0,
+      min: [0, "Sale percentage cannot be negative"],
+      max: [100, "Sale percentage cannot exceed 100"],
+    },
     sku: {
       type: String,
       required: [true, "SKU is required"],
