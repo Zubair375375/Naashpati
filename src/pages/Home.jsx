@@ -261,7 +261,7 @@ const Home = () => {
               className="group block"
               aria-label={`Open ${activeSaleOffer?.saleName || activeSaleOffer?.name || "sale offer"}`}
             >
-              <div className="relative h-[300px] w-full overflow-hidden bg-white shadow-[0_2px_14px_rgba(0,0,0,0.04)] sm:h-[300px] lg:h-[86vh]">
+              <div className="relative h-[610px] w-full overflow-hidden bg-white shadow-[0_2px_14px_rgba(0,0,0,0.04)] sm:h-[300px] lg:h-[86vh]">
                 <img
                   key={activeSaleOffer?._id || activeSaleOfferIndex}
                   src={resolveMediaUrl(activeSaleOffer?.banner)}
@@ -306,27 +306,27 @@ const Home = () => {
                     </div>
                   </div>
                 </div>
+
+                <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center justify-center gap-2 px-3 py-1.5">
+                  {saleOffers.map((offer, index) => (
+                    <span
+                      key={`${offer._id}-dot`}
+                      className={`h-2.5 w-2.5 rounded-full border transition-all duration-300 ${
+                        index === activeSaleOfferIndex
+                          ? "border-[#1d1d1d] bg-[#1d1d1d]"
+                          : "border-[#1d1d1d] bg-transparent"
+                      }`}
+                      aria-label={`Slide ${index + 1}`}
+                    />
+                  ))}
+                </div>
               </div>
             </Link>
-          </div>
-
-          <div className="flex items-center justify-center gap-2 bg-white px-4 py-3">
-            {saleOffers.map((offer, index) => (
-              <span
-                key={`${offer._id}-dot`}
-                className={`h-2.5 w-2.5 rounded-full border transition-all duration-300 ${
-                  index === activeSaleOfferIndex
-                    ? "border-[#1d1d1d] bg-[#1d1d1d]"
-                    : "border-[#1d1d1d] bg-white"
-                }`}
-                aria-label={`Slide ${index + 1}`}
-              />
-            ))}
           </div>
         </section>
       )}
 
-      <section className="bg-white pb-10 pt-10">
+      <section className="bg-white pb-10 pt-2">
         <div className="mb-6 w-full">
           <div className="mt-2 flex items-center justify-center gap-8 sm:gap-12">
             <button
