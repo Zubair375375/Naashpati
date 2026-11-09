@@ -127,6 +127,52 @@ const sendAccountCreatedEmail = async (user) => {
   });
 };
 
+const sendEmailVerificationEmail = async (user, rawToken) => {
+  const clientBaseUrl = getClientBaseUrl().replace(/\/$/, "");
+  const verifyUrl = `${clientBaseUrl}/verify-email/${rawToken}`;
+  const logoUrl = `${clientBaseUrl}/assets/logos/Logo.png`;
+  const message = `Welcome to Naashpati, ${user.firstName}! Please verify your email by clicking this link: ${verifyUrl}`;
+  const html = `
+    <div style="margin:0;padding:24px;background:#f6f8f2;font-family:Arial,sans-serif;color:#1f2937;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:620px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
+        <tr>
+          <td style="padding:18px 24px;background:#ffffff;border-bottom:1px solid #e5e7eb;text-align:center;">
+            <img src="${logoUrl}" alt="Naashpati" width="170" style="display:inline-block;max-width:170px;height:auto;border:0;outline:none;text-decoration:none;" />
+            <div style="margin-top:8px;font-size:12px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;">Naashpati</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:28px 24px 14px 24px;">
+            <h1 style="margin:0 0 10px 0;font-size:22px;line-height:1.3;color:#111827;">Verify your email</h1>
+            <p style="margin:0 0 14px 0;font-size:15px;line-height:1.7;color:#374151;">
+              Thanks for registering, ${user.firstName}. Please verify your email to activate your account.
+            </p>
+            <a href="${verifyUrl}" style="display:inline-block;padding:12px 18px;background:#68a300;color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;font-weight:700;">
+              Verify Email
+            </a>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:16px 24px 24px 24px;">
+            <p style="margin:16px 0 0 0;font-size:12px;line-height:1.6;color:#6b7280;">
+              This link expires in 24 hours.<br />
+              If the button does not work, copy and paste this link into your browser:<br />
+              <a href="${verifyUrl}" style="color:#68a300;text-decoration:underline;word-break:break-all;">${verifyUrl}</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </div>
+  `;
+
+  await sendEmail({
+    email: user.email,
+    subject: "Verify your Naashpati account",
+    message,
+    html,
+  });
+};
+
 const getRemainingLockMinutes = (lockUntil) => {
   const diff = Number(lockUntil) - Date.now();
   return Math.max(1, Math.ceil(diff / (60 * 1000)));
@@ -181,25 +227,36 @@ export const register = async (req, res) => {
       });
     }
 
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationTokenHash = hashToken(verificationToken);
+
     const user = await User.create({
       firstName,
       lastName,
       email,
       password,
+      isEmailVerified: false,
+      emailVerificationToken: verificationTokenHash,
+      emailVerificationExpire: Date.now() + 24 * 60 * 60 * 1000,
     });
 
     try {
-      await sendAccountCreatedEmail(user);
+      await sendEmailVerificationEmail(user, verificationToken);
     } catch (error) {
-      console.error(
-        "Account creation email failed:",
-        error?.stack || error?.message || error,
-      );
+      user.emailVerificationToken = undefined;
+      user.emailVerificationExpire = undefined;
+      await user.save({ validateBeforeSave: false });
+
+      return res.status(500).json({
+        success: false,
+        error: "Email verification link could not be sent",
+      });
     }
 
     res.status(201).json({
       success: true,
-      message: "Registration successful! You can now log in.",
+      message:
+        "Registration successful! Please check your email for the verification link.",
       data: { email: user.email },
     });
   } catch (error) {
@@ -229,6 +286,13 @@ export const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         error: "Invalid credentials",
+      });
+    }
+
+    if (user.isEmailVerified === false) {
+      return res.status(403).json({
+        success: false,
+        error: "Please verify your email before logging in.",
       });
     }
 
@@ -441,4 +505,45 @@ export const getMe = async (req, res) => {
     success: true,
     data: user,
   });
+};
+
+export const verifyEmail = async (req, res) => {
+  const rawToken = String(req.params.token || "").trim();
+  if (!rawToken) {
+    return res.status(400).json({
+      success: false,
+      error: "Invalid verification token",
+    });
+  }
+
+  const verificationTokenHash = hashToken(rawToken);
+
+  try {
+    const user = await User.findOne({
+      emailVerificationToken: verificationTokenHash,
+      emailVerificationExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid or expired verification link",
+      });
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpire = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return res.json({
+      success: true,
+      message: "Thank you! your email is successfully verified",
+    });
+  } catch {
+    return res.status(500).json({
+      success: false,
+      error: "Server error",
+    });
+  }
 };

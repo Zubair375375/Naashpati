@@ -1,12 +1,16 @@
 import nodemailer from "nodemailer";
 
-const isProduction =
-  (process.env.NODE_ENV || "").toLowerCase() === "production";
-
 const sendEmail = async (options) => {
   try {
-    if (!isProduction) {
-      // console.warn("Email skipped in development mode.");
+    const hasSmtpConfig =
+      process.env.SMTP_HOST &&
+      process.env.SMTP_PORT &&
+      process.env.SMTP_EMAIL &&
+      process.env.SMTP_PASSWORD &&
+      process.env.FROM_EMAIL;
+
+    if (!hasSmtpConfig) {
+      console.warn("Email skipped: SMTP environment variables are missing.");
       return { messageId: "dev-skip-email" };
     }
 
