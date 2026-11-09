@@ -32,6 +32,7 @@ import {
   FaClock,
   FaBell,
   FaMapMarkerAlt,
+  FaTrash,
 } from "react-icons/fa";
 
 const Profile = () => {
@@ -398,6 +399,29 @@ const Profile = () => {
     return [user.avatar];
   }, [API_URL, user?.avatar]);
 
+  const profileInitial = useMemo(() => {
+    const nameSource =
+      [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+      user?.name ||
+      user?.email ||
+      "";
+    return String(nameSource).trim().charAt(0).toUpperCase() || "U";
+  }, [user?.email, user?.firstName, user?.lastName, user?.name]);
+
+  const hasPlaceholderAvatar = useMemo(() => {
+    const avatarValue = String(user?.avatar || "").toLowerCase();
+    if (!avatarValue) return true;
+
+    return (
+      avatarValue.includes("/assets/logos/") ||
+      avatarValue.includes("logo.png") ||
+      avatarValue.includes("naashpati-logo")
+    );
+  }, [user?.avatar]);
+
+  const shouldShowAvatarImage =
+    avatarCandidates.length > 0 && !hasPlaceholderAvatar;
+
   const [avatarSrcIndex, setAvatarSrcIndex] = useState(0);
 
   useEffect(() => {
@@ -427,6 +451,24 @@ const Profile = () => {
       toast.error(error || "Failed to upload profile photo");
     } finally {
       e.target.value = "";
+    }
+  };
+
+  const handleRemoveAvatar = async () => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete your profile photo?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await dispatch(updateProfile({ avatar: "" })).unwrap();
+      setAvatarSrcIndex(0);
+      toast.success("Profile photo removed successfully!");
+    } catch (error) {
+      toast.error(error || "Failed to remove profile photo");
     }
   };
 
@@ -722,7 +764,7 @@ const Profile = () => {
               <div className="text-center mb-6">
                 <div className="relative mx-auto mb-4 h-20 w-20">
                   <div className="h-20 w-20 overflow-hidden rounded-full bg-green-100">
-                    {user.avatar ? (
+                    {shouldShowAvatarImage ? (
                       <img
                         src={avatarCandidates[avatarSrcIndex] || ""}
                         alt={[user.firstName, user.lastName]
@@ -736,18 +778,30 @@ const Profile = () => {
                         }}
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <FaUser className="text-2xl text-green-600" />
-                      </div>
+                      <span className="flex h-full w-full items-center justify-center text-3xl font-bold text-green-700">
+                        {profileInitial}
+                      </span>
                     )}
                   </div>
-                  <label
-                    htmlFor="profile-photo-upload"
-                    className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-green-600 p-1.5 text-white hover:bg-green-700"
-                    title="Upload profile photo"
-                  >
-                    <FaCamera className="text-xs" />
-                  </label>
+                  {shouldShowAvatarImage ? (
+                    <button
+                      type="button"
+                      onClick={handleRemoveAvatar}
+                      disabled={isLoading}
+                      className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-red-600 p-1.5 text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+                      title="Remove profile photo"
+                    >
+                      <FaTrash className="text-xs" />
+                    </button>
+                  ) : (
+                    <label
+                      htmlFor="profile-photo-upload"
+                      className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-green-600 p-1.5 text-white hover:bg-green-700"
+                      title="Upload profile photo"
+                    >
+                      <FaCamera className="text-xs" />
+                    </label>
+                  )}
                   <input
                     id="profile-photo-upload"
                     type="file"
