@@ -97,6 +97,8 @@ const Home = () => {
   const [lensesProductsLoading, setLensesProductsLoading] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [activeSaleOfferIndex, setActiveSaleOfferIndex] = useState(0);
+  const [saleSlideIndex, setSaleSlideIndex] = useState(0);
+  const [isSaleSlideAnimating, setIsSaleSlideAnimating] = useState(true);
   const [mobileReviewsExpanded, setMobileReviewsExpanded] = useState(false);
   const [tabletReviewsExpanded, setTabletReviewsExpanded] = useState(false);
   const categoryScrollRef = useRef(null);
@@ -116,11 +118,18 @@ const Home = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    setActiveSaleOfferIndex(0);
+    setSaleSlideIndex(0);
+    setIsSaleSlideAnimating(true);
+  }, [saleOffers.length]);
+
+  useEffect(() => {
     if (!saleOffers.length || saleOffers.length === 1) {
       return undefined;
     }
 
     const intervalId = window.setInterval(() => {
+      setSaleSlideIndex((previousIndex) => previousIndex + 1);
       setActiveSaleOfferIndex(
         (previousIndex) => (previousIndex + 1) % saleOffers.length,
       );
@@ -128,6 +137,19 @@ const Home = () => {
 
     return () => window.clearInterval(intervalId);
   }, [saleOffers]);
+
+  const handleSaleSlideTransitionEnd = () => {
+    if (saleSlideIndex !== saleOffers.length) {
+      return;
+    }
+
+    setIsSaleSlideAnimating(false);
+    setSaleSlideIndex(0);
+
+    window.requestAnimationFrame(() => {
+      setIsSaleSlideAnimating(true);
+    });
+  };
 
   useEffect(() => {
     try {
@@ -266,6 +288,8 @@ const Home = () => {
     : activeSaleOfferId
       ? `/sales/${activeSaleOfferId}`
       : "/";
+  const saleCarouselSlides =
+    saleOffers.length > 1 ? [...saleOffers, saleOffers[0]] : saleOffers;
 
   return (
     <div className="min-h-screen">
@@ -278,17 +302,29 @@ const Home = () => {
               aria-label={`Open ${activeSaleOffer?.saleName || activeSaleOffer?.name || "sale offer"}`}
             >
               <div className="relative h-[610px] w-full overflow-hidden bg-white shadow-[0_2px_14px_rgba(0,0,0,0.04)] sm:h-[430px] md:h-[560px] lg:h-[86vh]">
-                <img
-                  key={activeSaleOffer?._id || activeSaleOfferIndex}
-                  src={resolveMediaUrl(activeSaleOffer?.banner)}
-                  alt={
-                    activeSaleOffer?.saleName ||
-                    activeSaleOffer?.name ||
-                    "Sale offer"
-                  }
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
+                <div
+                  className={`flex h-full w-full ${
+                    isSaleSlideAnimating
+                      ? "transition-transform duration-700 ease-in-out"
+                      : ""
+                  }`}
+                  style={{ transform: `translateX(-${saleSlideIndex * 100}%)` }}
+                  onTransitionEnd={handleSaleSlideTransitionEnd}
+                >
+                  {saleCarouselSlides.map((offer, index) => (
+                    <div
+                      key={`${offer._id || "sale-offer"}-${index}`}
+                      className="h-full w-full shrink-0"
+                    >
+                      <img
+                        src={resolveMediaUrl(offer?.banner)}
+                        alt={offer?.saleName || offer?.name || "Sale offer"}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  ))}
+                </div>
 
                 <div className="absolute inset-0 z-10 flex items-center justify-center p-5 text-[#383838] sm:items-center sm:justify-start sm:p-8 lg:p-12">
                   <div className="w-full max-w-[360px] text-center sm:max-w-3xl sm:text-left">
