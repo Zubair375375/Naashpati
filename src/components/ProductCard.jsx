@@ -5,12 +5,8 @@ import { selectAuthUser } from "../store/slices/authSlice";
 import toast from "react-hot-toast";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 import { canManageWishlist } from "../utils/wishlistAuth";
-import {
-  MdStar,
-  MdShoppingCart,
-  MdFavoriteBorder,
-  MdVisibility,
-} from "react-icons/md";
+import { MdStar, MdFavoriteBorder, MdVisibility } from "react-icons/md";
+import { FiShoppingCart } from "react-icons/fi";
 
 const ProductCard = ({ product, viewMode = "grid" }) => {
   const dispatch = useDispatch();
@@ -39,10 +35,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     ? persistedSalePercentage
     : computedDiscountPercent;
   const formatSalePercentage = (value) => {
-    const fixedValue = Number(value).toFixed(2);
-    return fixedValue.endsWith(".00")
-      ? fixedValue.replace(/\.00$/, "")
-      : fixedValue;
+    return String(Math.round(Number(value) || 0));
   };
   const salePercentageLabel = hasPersistedSalePercentage
     ? formatSalePercentage(persistedSalePercentage)
@@ -187,10 +180,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock || isAdmin}
-              className="bg-transparent border-0 p-0 text-[#68a300] disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-transparent border-0 p-0 text-black disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Add to cart"
             >
-              <MdShoppingCart className="h-5 w-5" />
+              <FiShoppingCart className="h-5 w-5" strokeWidth={1.8} />
             </button>
           </div>
 
@@ -267,7 +260,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
               disabled={isOutOfStock || isAdmin}
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-[#68a300] px-3 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <MdShoppingCart className="h-4 w-4" />
+              <FiShoppingCart className="h-4 w-4" strokeWidth={1.8} />
               Add to Cart
             </button>
             <button
@@ -333,10 +326,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock || isAdmin}
-              className="bg-transparent border-0 p-0 text-[#68a300] disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-transparent border-0 p-0 text-black disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Add to cart"
             >
-              <MdShoppingCart className="h-5 w-5" />
+              <FiShoppingCart className="h-5 w-5" strokeWidth={1.8} />
             </button>
           </div>
 
@@ -390,10 +383,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock || isAdmin}
-              className="bg-transparent border-0 p-0 text-[#68a300] disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-transparent border-0 p-0 text-black disabled:cursor-not-allowed disabled:opacity-50"
               aria-label="Add to cart"
             >
-              <MdShoppingCart className="h-4 w-4" />
+              <FiShoppingCart className="h-4 w-4" strokeWidth={1.8} />
             </button>
           </div>
         </div>
@@ -448,10 +441,10 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           <button
             onClick={handleAddToCart}
             disabled={isOutOfStock || isAdmin}
-            className="bg-transparent border-0 p-0 text-[#68a300] disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-transparent border-0 p-0 text-black disabled:cursor-not-allowed disabled:opacity-50"
             aria-label="Add to cart"
           >
-            <MdShoppingCart className="h-5 w-5" />
+            <FiShoppingCart className="h-5 w-5" strokeWidth={1.8} />
           </button>
         </div>
 

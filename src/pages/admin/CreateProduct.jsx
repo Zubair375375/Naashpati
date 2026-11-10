@@ -85,10 +85,7 @@ const calculateSalePercentFromPrices = (priceValue, salePriceValue) => {
 
   const percent = ((parsedPrice - parsedSalePrice) / parsedPrice) * 100;
   const normalizedPercent = Math.min(100, Math.max(0, percent));
-  const fixedPercent = normalizedPercent.toFixed(2);
-  return fixedPercent.endsWith(".00")
-    ? fixedPercent.replace(/\.00$/, "")
-    : fixedPercent;
+  return String(Math.round(normalizedPercent));
 };
 
 const CreateProduct = ({
@@ -927,7 +924,7 @@ const CreateProduct = ({
               type="number"
               min="0"
               max="100"
-              step="0.01"
+              step="1"
               value={formData.salePercentage}
               onChange={handleChange}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 sm:text-sm"
