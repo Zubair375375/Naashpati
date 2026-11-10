@@ -138,7 +138,6 @@ const sendEmailVerificationEmail = async (user, rawToken) => {
         <tr>
           <td style="padding:18px 24px;background:#ffffff;border-bottom:1px solid #e5e7eb;text-align:center;">
             <img src="${logoUrl}" alt="Naashpati" width="170" style="display:inline-block;max-width:170px;height:auto;border:0;outline:none;text-decoration:none;" />
-            <div style="margin-top:8px;font-size:12px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;">Naashpati</div>
           </td>
         </tr>
         <tr>
