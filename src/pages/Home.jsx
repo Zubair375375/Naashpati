@@ -98,6 +98,7 @@ const Home = () => {
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
   const [activeSaleOfferIndex, setActiveSaleOfferIndex] = useState(0);
   const [mobileReviewsExpanded, setMobileReviewsExpanded] = useState(false);
+  const [tabletReviewsExpanded, setTabletReviewsExpanded] = useState(false);
   const categoryScrollRef = useRef(null);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
 
@@ -276,7 +277,7 @@ const Home = () => {
               className="group block"
               aria-label={`Open ${activeSaleOffer?.saleName || activeSaleOffer?.name || "sale offer"}`}
             >
-              <div className="relative h-[610px] w-full overflow-hidden bg-white shadow-[0_2px_14px_rgba(0,0,0,0.04)] sm:h-[300px] lg:h-[86vh]">
+              <div className="relative h-[610px] w-full overflow-hidden bg-white shadow-[0_2px_14px_rgba(0,0,0,0.04)] sm:h-[430px] md:h-[560px] lg:h-[86vh]">
                 <img
                   key={activeSaleOffer?._id || activeSaleOfferIndex}
                   src={resolveMediaUrl(activeSaleOffer?.banner)}
@@ -431,8 +432,51 @@ const Home = () => {
                 ))}
               </div>
 
+              <div className="hidden grid-cols-2 gap-2 px-2 pb-2 pt-1 sm:grid sm:px-3 min-[1367px]:hidden">
+                {filteredHomeCategories.map((category) => (
+                  <Link
+                    key={category.value}
+                    to={`/products?category=${category.value}`}
+                    className="group relative block h-[360px] overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] md:h-[430px]"
+                    aria-label={`Open ${category.name}`}
+                  >
+                    <div className="absolute inset-0">
+                      {category.image ? (
+                        <img
+                          src={resolveMediaUrl(category.image)}
+                          alt={category.name}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#c7d7b5] to-[#8da86d]">
+                          <FaSeedling className="text-6xl text-white/80" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                    <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
+                      <div className="space-y-3">
+                        <h3 className="text-[1.35rem] font-black leading-[0.95] tracking-[-0.06em] text-white md:text-[1.7rem]">
+                          {category.name}
+                        </h3>
+                      </div>
+
+                      <button
+                        type="button"
+                        className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-4 py-2 text-[0.8rem] font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1] md:px-5 md:py-3 md:text-sm"
+                      >
+                        Shop Now
+                      </button>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
               <div
-                className={`hidden snap-x snap-mandatory gap-2.5 overflow-x-auto scroll-px-2 px-2 pb-2 pt-1 sm:flex sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+                className={`hidden snap-x snap-mandatory gap-2.5 overflow-x-auto scroll-px-2 px-2 pb-2 pt-1 min-[1367px]:flex min-[1367px]:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
                   isCategoryRowCentered ? "justify-center" : "justify-start"
                 }`}
               >
@@ -528,7 +572,56 @@ const Home = () => {
                     })}
                   </div>
 
-                  <div className="hidden snap-x snap-mandatory justify-center gap-2.5 overflow-x-auto scroll-px-2 pb-0 pt-1 sm:flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <div className="hidden grid-cols-2 gap-2 px-2 pb-2 pt-1 sm:grid sm:px-3 min-[1367px]:hidden">
+                    {newArrivalItems.slice(0, 4).map((item) => {
+                      const product = latestProducts.find(
+                        (entry) => entry._id === item.productId,
+                      );
+                      const targetProduct = product || { _id: item.productId };
+
+                      return (
+                        <Link
+                          key={item._id}
+                          to={`/products/${targetProduct.slug || targetProduct._id}`}
+                          className="group relative block h-[360px] overflow-hidden border border-[#e5e5e5] bg-[#f2f2f2] md:h-[430px]"
+                          aria-label={item.title || "New arrival product"}
+                        >
+                          <div className="absolute inset-0">
+                            <img
+                              src={resolveMediaUrl(item.image)}
+                              alt={item.title || "New arrival"}
+                              loading="lazy"
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                          <div className="relative flex h-full flex-col justify-end p-5 sm:p-6">
+                            <div className="space-y-3">
+                              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                                New Arrival
+                              </p>
+                              <h3 className="text-[1.2rem] font-black leading-[0.95] tracking-[-0.06em] text-white md:text-[1.55rem]">
+                                {item.title ||
+                                  targetProduct.name ||
+                                  "Featured Product"}
+                              </h3>
+                            </div>
+
+                            <button
+                              type="button"
+                              className="mt-5 inline-flex w-fit items-center justify-center rounded-full bg-white px-4 py-2 text-[0.8rem] font-semibold text-[#1f1f1f] shadow-md transition hover:bg-[#f1f1f1] md:px-5 md:py-3 md:text-sm"
+                            >
+                              Shop Now
+                            </button>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+
+                  <div className="hidden snap-x snap-mandatory justify-center gap-2.5 overflow-x-auto scroll-px-2 pb-0 pt-1 min-[1367px]:flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {newArrivalItems.slice(0, 4).map((item) => {
                       const product = latestProducts.find(
                         (entry) => entry._id === item.productId,
@@ -628,7 +721,9 @@ const Home = () => {
               </div>
             </article>
 
-            <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6">
+            <article
+              className={`${tabletReviewsExpanded ? "block" : "hidden"} rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6 lg:block`}
+            >
               <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
                 ★★★★★
               </div>
@@ -644,7 +739,9 @@ const Home = () => {
               </div>
             </article>
 
-            <article className="rounded-[1.4rem] bg-[#1b1d20] p-5 text-[#f4f0eb] shadow-[0_2px_10px_rgba(23,23,23,0.12)] sm:p-6">
+            <article
+              className={`${tabletReviewsExpanded ? "block" : "hidden"} rounded-[1.4rem] bg-[#1b1d20] p-5 text-[#f4f0eb] shadow-[0_2px_10px_rgba(23,23,23,0.12)] sm:p-6 lg:block`}
+            >
               <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
                 ★★★★★
               </div>
@@ -660,7 +757,9 @@ const Home = () => {
               </div>
             </article>
 
-            <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6">
+            <article
+              className={`${tabletReviewsExpanded ? "block" : "hidden"} rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6 lg:block`}
+            >
               <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
                 ★★★★★
               </div>
@@ -676,7 +775,9 @@ const Home = () => {
               </div>
             </article>
 
-            <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6">
+            <article
+              className={`${tabletReviewsExpanded ? "block" : "hidden"} rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6 lg:block`}
+            >
               <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
                 ★★★★★
               </div>
@@ -692,7 +793,9 @@ const Home = () => {
               </div>
             </article>
 
-            <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6">
+            <article
+              className={`${tabletReviewsExpanded ? "block" : "hidden"} rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)] sm:p-6 lg:block`}
+            >
               <div className="mb-4 text-[#d4a63a] text-[1.1rem] tracking-[0.18em]">
                 ★★★★★
               </div>
@@ -708,6 +811,17 @@ const Home = () => {
               </div>
             </article>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setTabletReviewsExpanded((value) => !value)}
+            className="mt-3 hidden w-full items-center justify-center text-center text-[0.95rem] font-semibold text-[#171717]/70 sm:flex lg:hidden"
+          >
+            <span>{tabletReviewsExpanded ? "see less" : "see more"}</span>
+            <span className="ml-1 text-base">
+              {tabletReviewsExpanded ? "▴" : "▾"}
+            </span>
+          </button>
 
           <div className="mt-8 space-y-4 sm:hidden">
             <article className="rounded-[1.4rem] bg-white p-5 shadow-[0_2px_10px_rgba(23,23,23,0.02)]">
