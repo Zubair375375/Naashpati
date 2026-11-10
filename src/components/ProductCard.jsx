@@ -166,11 +166,11 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              <span className="mr-1 text-xs align-super text-black-100">
+                Rs.
+              </span>
               {hasDiscount ? (
                 <span className="text-lg text-gray-400 line-through">
-                  <span className="mr-1 text-xs align-super text-black-100">
-                    PKR
-                  </span>
                   {basePrice.toFixed(2)}
                 </span>
               ) : null}
@@ -241,15 +241,13 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           </h3>
 
           <div className="mt-3 flex items-center gap-2">
+            <span className="mr-1 text-xs align-super text-black-100">Rs.</span>
             {hasDiscount ? (
               <span className="text-lg font-semibold text-gray-400 line-through">
                 {basePrice.toFixed(2)}
               </span>
             ) : null}
             <span className="text-lg font-semibold text-gray-900">
-              <span className="mr-1 text-xs align-super text-black-100">
-                PKR
-              </span>
               {salePrice.toFixed(2)}
             </span>
           </div>
@@ -312,15 +310,15 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
 
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
+              <span className="mr-1 text-[10px] align-super text-black-100">
+                Rs.
+              </span>
               {hasDiscount ? (
                 <span className="text-sm font-medium text-gray-400 line-through">
                   {basePrice.toFixed(2)}
                 </span>
               ) : null}
               <span className="text-sm font-medium">
-                <span className="mr-1 text-[10px] align-super text-black-100">
-                  PKR
-                </span>
                 {salePrice.toFixed(2)}
               </span>
             </div>
@@ -377,7 +375,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           <div className="flex items-center justify-between gap-1">
             <span className="text-xs font-medium">
               <span className="mr-1 text-[9px] align-super text-black-100">
-                PKR
+                Rs.
               </span>
               {salePrice.toFixed(2)}
             </span>
@@ -431,17 +429,13 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
+            <span className="text-xs align-super mr-1 text-black-100">Rs.</span>
             {hasDiscount ? (
               <span className="text-lg text-gray-400 line-through">
                 {basePrice.toFixed(2)}
               </span>
             ) : null}
-            <span className="text-lg">
-              <span className="text-xs align-super mr-1 text-black-100">
-                PKR
-              </span>
-              {salePrice.toFixed(2)}
-            </span>
+            <span className="text-lg">{salePrice.toFixed(2)}</span>
           </div>
 
           <button

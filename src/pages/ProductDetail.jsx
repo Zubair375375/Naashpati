@@ -916,12 +916,12 @@ const ProductDetail = () => {
 
               <div className="mb-4 flex items-center gap-3">
                 <div className="text-2xl font-semibold text-gray-900">
-                  PKR {displayPrice.toFixed(2)}
+                  Rs. {displayPrice.toFixed(2)}
                 </div>
                 {hasDiscount ? (
                   <>
                     <div className="text-base text-gray-400 line-through">
-                      PKR {listPrice.toFixed(2)}
+                      Rs. {listPrice.toFixed(2)}
                     </div>
                     <span className="rounded-full bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-700">
                       -{discountPercent}% OFF
@@ -1787,7 +1787,7 @@ const ProductDetail = () => {
                         {relatedProduct.name}
                       </p>
                       <p className="mt-1 text-sm text-[#68a300]">
-                        PKR{" "}
+                        Rs.{" "}
                         {Number(
                           relatedProduct.salePrice ?? relatedProduct.price ?? 0,
                         ).toFixed(2)}
