@@ -935,19 +935,19 @@ const ProductDetail = () => {
                 (product.tags || []).length > 0) && (
                 <div className="mb-5 flex flex-wrap items-center gap-2 text-xs">
                   {product.subcategory ? (
-                    <span className="rounded-full bg-gray-100 px-2.5 py-1 text-gray-700">
+                    <span className="bg-gray-100 px-2.5 py-1 text-gray-700">
                       {product.subcategory}
                     </span>
                   ) : null}
                   {product.brand ? (
-                    <span className="rounded-full bg-blue-50 px-2.5 py-1 text-blue-700">
+                    <span className="bg-blue-50 px-2.5 py-1 text-blue-700">
                       {product.brand}
                     </span>
                   ) : null}
                   {(product.tags || []).map((tag) => (
                     <span
                       key={tag}
-                      className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700"
+                      className="bg-emerald-50 px-2.5 py-1 text-emerald-700"
                     >
                       {tag}
                     </span>
@@ -959,7 +959,7 @@ const ProductDetail = () => {
             {/* Stock Status */}
             <div className="flex items-center space-x-2">
               <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                className={`px-3 py-1 text-sm font-medium ${
                   product.stock > 10
                     ? "bg-green-100 text-green-800"
                     : product.stock > 0
@@ -979,7 +979,7 @@ const ProductDetail = () => {
             {product.stock > 0 && (
               <div className="flex items-center space-x-4">
                 <span className="font-medium">Quantity:</span>
-                <div className="flex items-center border border-gray-300 rounded">
+                <div className="flex items-center border border-gray-300">
                   <button
                     onClick={() => handleQuantityChange(-1)}
                     disabled={quantity <= 1}
@@ -1006,7 +1006,7 @@ const ProductDetail = () => {
               <button
                 onClick={handleAddToCart}
                 disabled={product.stock === 0 || isAdmin}
-                className="flex-1 bg-[#68a300] text-white px-6 py-3 rounded-lg hover:bg-[#5f9600] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                className="flex-1 bg-[#000000] text-white px-6 py-3 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >
                 <FaShoppingCart />
                 <span>Add to Cart</span>
@@ -1014,7 +1014,7 @@ const ProductDetail = () => {
 
               <button
                 onClick={handleToggleWishlist}
-                className={`p-3 rounded-lg border ${
+                className={`p-3 border ${
                   isWishlisted
                     ? "bg-red-50 border-red-200 text-red-600"
                     : "border-gray-300 text-gray-600 hover:bg-gray-50"
@@ -1025,7 +1025,7 @@ const ProductDetail = () => {
 
               <button
                 onClick={handleShare}
-                className="p-3 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50"
+                className="p-3 border border-gray-300 text-gray-600 hover:bg-gray-50"
               >
                 <FaShare />
               </button>
@@ -1077,7 +1077,7 @@ const ProductDetail = () => {
               )}
 
               {product.shipping && (
-                <div className="mt-6 rounded-lg border border-gray-100 bg-gray-50 p-4 text-sm text-gray-700">
+                <div className="mt-6 border border-gray-100 bg-gray-50 p-4 text-sm text-gray-700">
                   <h4 className="text-sm font-semibold uppercase tracking-wide text-gray-700">
                     Shipping
                   </h4>
@@ -1114,7 +1114,7 @@ const ProductDetail = () => {
                   </p>
                 )}
               </div>
-              <div className="mt-6 border-t border-gray-200 pt-4">
+              <div className="mt-6 pt-4">
                 <div className="mt-4 border-t border-gray-200">
                   <button
                     type="button"
