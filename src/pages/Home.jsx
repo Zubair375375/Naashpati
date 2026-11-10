@@ -83,7 +83,7 @@ const Home = () => {
   const heroGenderImages = useSelector(selectHeroGenderImages);
   const saleOffers = useSelector(selectSaleOffers);
   const [latestProducts, setLatestProducts] = useState([]);
-  const [shopOurInstagramImages, setShopOurInstagramImages] = useState([]);
+  const [shopOurInstagramItems, setShopOurInstagramItems] = useState([]);
   const [newArrivalItems, setNewArrivalItems] = useState([]);
   const [activeCategoryTab, setActiveCategoryTab] = useState("categories");
   const [visibleLatestProductCount, setVisibleLatestProductCount] = useState(
@@ -177,10 +177,18 @@ const Home = () => {
           const allProducts = Array.isArray(allProductsResponse.data?.data)
             ? allProductsResponse.data.data
             : [];
-          const galleryImages = allProducts
+          const galleryItems = allProducts
             .filter((product) => product?.instagramPicture)
-            .map((product) => product.instagramPicture)
-            .filter(Boolean);
+            .map((product) => ({
+              image: product.instagramPicture,
+              productId: product._id,
+              productSlug: product.slug || "",
+            }))
+            .filter((item) => item.image && item.productId);
+
+          const uniqueGalleryItems = Array.from(
+            new Map(galleryItems.map((item) => [item.image, item])).values(),
+          );
 
           setLatestProducts(
             Array.isArray(latestResponse.data?.data)
@@ -192,7 +200,7 @@ const Home = () => {
               ? lensesResponse.data.data
               : [],
           );
-          setShopOurInstagramImages(Array.from(new Set(galleryImages)));
+          setShopOurInstagramItems(uniqueGalleryItems);
           setVisibleLatestProductCount(LATEST_PRODUCTS_BATCH_SIZE);
           setVisibleLensesProductCount(LENSES_PRODUCTS_BATCH_SIZE);
         }
@@ -1296,29 +1304,32 @@ const Home = () => {
             />
           </h2>
 
-          {shopOurInstagramImages.length > 0 && (
+          {shopOurInstagramItems.length > 0 && (
             <div
               className={`grid gap-0 ${
-                shopOurInstagramImages.length === 1
+                shopOurInstagramItems.length === 1
                   ? "grid-cols-1"
-                  : shopOurInstagramImages.length === 2
+                  : shopOurInstagramItems.length === 2
                     ? "grid-cols-2 sm:grid-cols-4"
                     : "grid-cols-3 sm:grid-cols-4"
               }`}
             >
-              {shopOurInstagramImages.map((image, index) => {
+              {shopOurInstagramItems.map((item, index) => {
+                const productPath = `/products/${item.productSlug || item.productId}`;
                 return (
-                  <div
-                    key={`${image}-${index}`}
+                  <Link
+                    to={productPath}
+                    key={`${item.image}-${index}`}
                     className={[
                       "group relative overflow-hidden bg-white",
-                      shopOurInstagramImages.length === 1
+                      shopOurInstagramItems.length === 1
                         ? "aspect-square w-full"
                         : "aspect-square w-full",
                     ].join(" ")}
+                    aria-label="Open product details"
                   >
                     <img
-                      src={image}
+                      src={item.image}
                       alt="Shop our Instagram feature"
                       loading="lazy"
                       className="h-full w-full rounded-none object-cover"
@@ -1345,7 +1356,7 @@ const Home = () => {
                         />
                       </svg>
                     </div>
-                  </div>
+                  </Link>
                 );
               })}
             </div>
