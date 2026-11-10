@@ -347,10 +347,10 @@ const Products = ({ collectionType = "" }) => {
                       className="text-[12px] w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 sm:w-[180px]"
                     >
                       <option value="">All Prices</option>
-                      <option value="0-25">$0 - $25</option>
-                      <option value="25-50">$25 - $50</option>
-                      <option value="50-100">$50 - $100</option>
-                      <option value="100">$100+</option>
+                      <option value="0-25">Rs 0 - Rs 1999</option>
+                      <option value="25-50">Rs 2000 - Rs 2999</option>
+                      <option value="50-100">Rs 3000 - Rs 4999</option>
+                      <option value="100">Rs 5000+</option>
                     </select>
                   </div>
 

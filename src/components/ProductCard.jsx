@@ -165,17 +165,17 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           </div>
 
           <div className="flex items-center justify-between">
-            <span className="text-lg">
-              <span className="mr-1 text-xs align-super text-black-100">
-                PKR
-              </span>
-              {salePrice.toFixed(2)}
-            </span>
-            {hasDiscount ? (
-              <span className="text-sm text-gray-400 line-through">
-                PKR {basePrice.toFixed(2)}
-              </span>
-            ) : null}
+            <div className="flex items-center gap-2">
+              {hasDiscount ? (
+                <span className="text-lg text-gray-400 line-through">
+                  <span className="mr-1 text-xs align-super text-black-100">
+                    PKR
+                  </span>
+                  {basePrice.toFixed(2)}
+                </span>
+              ) : null}
+              <span className="text-lg">{salePrice.toFixed(2)}</span>
+            </div>
 
             <button
               onClick={handleAddToCart}
@@ -241,17 +241,17 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           </h3>
 
           <div className="mt-3 flex items-center gap-2">
+            {hasDiscount ? (
+              <span className="text-lg font-semibold text-gray-400 line-through">
+                {basePrice.toFixed(2)}
+              </span>
+            ) : null}
             <span className="text-lg font-semibold text-gray-900">
               <span className="mr-1 text-xs align-super text-black-100">
                 PKR
               </span>
               {salePrice.toFixed(2)}
             </span>
-            {hasDiscount ? (
-              <span className="text-sm text-gray-400 line-through">
-                PKR {basePrice.toFixed(2)}
-              </span>
-            ) : null}
           </div>
 
           <div className="mt-4 flex items-center gap-2">
@@ -311,17 +311,19 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           </div>
 
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm font-medium">
-              <span className="mr-1 text-[10px] align-super text-black-100">
-                PKR
+            <div className="flex items-center gap-2">
+              {hasDiscount ? (
+                <span className="text-sm font-medium text-gray-400 line-through">
+                  {basePrice.toFixed(2)}
+                </span>
+              ) : null}
+              <span className="text-sm font-medium">
+                <span className="mr-1 text-[10px] align-super text-black-100">
+                  PKR
+                </span>
+                {salePrice.toFixed(2)}
               </span>
-              {salePrice.toFixed(2)}
-            </span>
-            {hasDiscount ? (
-              <span className="text-[11px] text-gray-400 line-through">
-                {basePrice.toFixed(2)}
-              </span>
-            ) : null}
+            </div>
 
             <button
               onClick={handleAddToCart}
@@ -428,15 +430,19 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
         </p>
 
         <div className="flex items-center justify-between">
-          <span className="text-lg">
-            <span className="text-xs align-super mr-1 text-black-100">PKR</span>
-            {salePrice.toFixed(2)}
-          </span>
-          {hasDiscount ? (
-            <span className="text-sm text-gray-400 line-through">
-              PKR {basePrice.toFixed(2)}
+          <div className="flex items-center gap-2">
+            {hasDiscount ? (
+              <span className="text-lg text-gray-400 line-through">
+                {basePrice.toFixed(2)}
+              </span>
+            ) : null}
+            <span className="text-lg">
+              <span className="text-xs align-super mr-1 text-black-100">
+                PKR
+              </span>
+              {salePrice.toFixed(2)}
             </span>
-          ) : null}
+          </div>
 
           <button
             onClick={handleAddToCart}
