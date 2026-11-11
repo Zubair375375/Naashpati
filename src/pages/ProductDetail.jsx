@@ -20,6 +20,7 @@ import {
   selectIsAuthenticated,
 } from "../store/slices/authSlice";
 import Loader from "../components/Loader";
+import ProductCard from "../components/ProductCard";
 import toast from "react-hot-toast";
 import DOMPurify from "dompurify";
 import { resolveMediaUrl } from "../utils/mediaUrl";
@@ -1764,37 +1765,13 @@ const ProductDetail = () => {
             <h2 className="text-xl font-semibold text-gray-900">
               Related Products
             </h2>
-            <div className="mt-5 grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {relatedProducts.map((relatedProduct) => (
-                <button
+                <ProductCard
                   key={relatedProduct._id}
-                  type="button"
-                  onClick={() =>
-                    navigate(
-                      `/products/${relatedProduct.slug || relatedProduct._id}`,
-                    )
-                  }
-                  className="text-left"
-                >
-                  <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-                    <img
-                      src={getPrimaryProductImage(relatedProduct)}
-                      alt={relatedProduct.name}
-                      className="h-36 w-full object-cover"
-                    />
-                    <div className="p-3">
-                      <p className="line-clamp-1 text-sm font-semibold text-gray-900">
-                        {relatedProduct.name}
-                      </p>
-                      <p className="mt-1 text-sm text-[#68a300]">
-                        Rs.{" "}
-                        {Number(
-                          relatedProduct.salePrice ?? relatedProduct.price ?? 0,
-                        ).toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                </button>
+                  product={relatedProduct}
+                  viewMode="compact"
+                />
               ))}
             </div>
           </div>
