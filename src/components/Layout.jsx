@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Toaster } from "react-hot-toast";
@@ -19,6 +19,22 @@ const CartDrawer = () => {
   const isCartOpen = useSelector((state) => state.cart.isCartOpen);
   const cartItems = useSelector(selectCartItems);
   const cartTotal = useSelector(selectCartTotal);
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+
+  useEffect(() => {
+    if (!isCartOpen) {
+      setIsDrawerVisible(false);
+      return;
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      setIsDrawerVisible(true);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [isCartOpen]);
 
   useEffect(() => {
     document.body.style.overflow = isCartOpen ? "hidden" : "";
@@ -42,11 +58,13 @@ const CartDrawer = () => {
       <button
         type="button"
         aria-label="Close cart"
-        className="absolute inset-0 bg-black/15"
+        className={`absolute inset-0 bg-black/15 transition-opacity duration-300 ${isDrawerVisible ? "opacity-100" : "opacity-0"}`}
         onClick={() => dispatch(closeCart())}
       />
 
-      <aside className="absolute right-0 top-0 flex h-full w-[80%] max-w-[480px] flex-col bg-[#f5f5f4] shadow-[0_0_0_1px_rgba(17,17,17,0.04),-24px_20px_60px_rgba(0,0,0,0.08)] transition-transform duration-300 sm:w-[40%] xl:w-[30%] md:w-[40%]">
+      <aside
+        className={`absolute right-0 top-0 flex h-full w-[80%] max-w-[480px] flex-col bg-[#f5f5f4] shadow-[0_0_0_1px_rgba(17,17,17,0.04),-24px_20px_60px_rgba(0,0,0,0.08)] transition-transform duration-300 will-change-transform sm:w-[40%] xl:w-[30%] md:w-[40%] ${isDrawerVisible ? "translate-x-0" : "translate-x-full"}`}
+      >
         <div className="px-5 pb-3 pt-5 sm:px-7 sm:pb-4 sm:pt-5">
           <h3 className="text-[1.6rem] font-black leading-[0.95] tracking-[-0.06em] text-[#111111] sm:text-2xl mt-2 mb-6">
             Shopping Cart
