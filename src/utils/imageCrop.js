@@ -39,10 +39,7 @@ const dataUrlToBlob = async (dataUrl) => {
   return new Blob([byteArray], { type: mimeType });
 };
 
-export const cropImageFileToSquare = async (
-  file,
-  size = DEFAULT_CROP_SIZE,
-) => {
+export const cropImageFileToSquare = async (file, size = DEFAULT_CROP_SIZE) => {
   const image = await fileToImage(file);
   const canvas = document.createElement("canvas");
   canvas.width = size;

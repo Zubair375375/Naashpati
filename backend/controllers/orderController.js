@@ -26,6 +26,23 @@ const getGuestEmailFromShipping = (shippingAddress = {}) => {
   return (shippingAddress.email || "").trim();
 };
 
+const getClientBaseUrl = () => {
+  const clientUrls = (process.env.CLIENT_URLS || "")
+    .split(",")
+    .map((url) => url.trim())
+    .filter(Boolean);
+
+  if (clientUrls.length > 0) {
+    return clientUrls[0];
+  }
+
+  return (
+    process.env.CLIENT_URL ||
+    process.env.FRONTEND_URL ||
+    "https://www.naashpati.com"
+  );
+};
+
 const withCustomerFallback = (order) => {
   const orderObject =
     typeof order.toObject === "function" ? order.toObject() : order;
@@ -51,6 +68,8 @@ const withCustomerFallback = (order) => {
 
 const buildOrderConfirmationEmail = (customerName, order) => {
   const orderId = order._id.toString().slice(-8).toUpperCase();
+  const clientBaseUrl = getClientBaseUrl().replace(/\/$/, "");
+  const logoUrl = `${clientBaseUrl}/assets/logos/Logo.png`;
   // Modern card style for bought products
   const itemRows = (order.orderItems || [])
     .map(
@@ -62,7 +81,7 @@ const buildOrderConfirmationEmail = (customerName, order) => {
                 <!-- Product Image -->
                 <td style="width:90px;padding:16px 0 16px 16px;vertical-align:middle;">
                   <div style="width:64px;height:64px;background:#fff;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;">
-                    <img src="${item.image || ""}" alt="${item.name}" style="max-width:100%;max-height:100%;display:block;object-fit:contain;">
+                    <img src="${item.image || ""}" alt="${item.name}" style="max-width:100%;max-height:100%;display:block;object-fit:contain;filter:none !important;-webkit-filter:none !important;mix-blend-mode:normal !important;">
                   </div>
                 </td>
                 <!-- Product Details (no color/size) -->
@@ -101,6 +120,8 @@ const buildOrderConfirmationEmail = (customerName, order) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
   <style>
     @media only screen and (max-width: 600px) {
       .naashpati-btn-row { display: block !important; }
@@ -118,10 +139,10 @@ const buildOrderConfirmationEmail = (customerName, order) => {
     <tr><td align="center">
       <table width="100%" max-width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
         
-        <!-- Hero Header with Text Branding -->
+        <!-- Hero Header with Logo -->
         <tr>
           <td style="background:#68a300;padding:48px 0 36px 0;text-align:center;">
-            <span style="font-family:'Segoe UI',Arial,sans-serif;font-size:2rem;font-weight:700;letter-spacing:2px;color:#fff;">NAASHPATI</span>
+            <img src="${logoUrl}" alt="Naashpati" width="210" style="display:inline-block;max-width:210px;height:auto;border:0;outline:none;text-decoration:none;filter:none !important;-webkit-filter:none !important;mix-blend-mode:normal !important;" />
           </td>
         </tr>
 
@@ -524,8 +545,9 @@ export const createOrder = async (req, res) => {
         }
 
         const fallbackImage =
-          product?.image ||
+          product?.images?.[0]?.original_url ||
           product?.images?.[0]?.url ||
+          product?.image ||
           product?.images?.[0] ||
           "";
 
