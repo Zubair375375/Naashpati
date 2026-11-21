@@ -152,6 +152,7 @@ const ImageCropperModal = ({
               aspect={aspect}
               cropShape="rect"
               showGrid
+              mediaProps={{ crossOrigin: "anonymous" }}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}

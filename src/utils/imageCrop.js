@@ -11,9 +11,13 @@ const readFileAsDataUrl = (file) =>
 const dataUrlToImage = (dataUrl) =>
   new Promise((resolve, reject) => {
     const image = new Image();
+    const srcValue = String(dataUrl || "");
+    if (!srcValue.startsWith("data:")) {
+      image.crossOrigin = "anonymous";
+    }
     image.onload = () => resolve(image);
     image.onerror = () => reject(new Error("Failed to load image"));
-    image.src = dataUrl;
+    image.src = srcValue;
   });
 
 const fileToImage = async (file) => {
