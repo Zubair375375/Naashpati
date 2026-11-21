@@ -65,6 +65,21 @@ const saleOfferSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    enableShadow: {
+      type: Boolean,
+      default: false,
+    },
+    shadowColor: {
+      type: String,
+      trim: true,
+      default: "#000000",
+    },
+    shadowOpacity: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: 35,
+    },
   },
   {
     timestamps: true,

@@ -194,6 +194,72 @@ const SalesTab = ({
               />
             </div>
 
+            <label className="flex cursor-pointer items-center gap-2 rounded border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700">
+              <input
+                type="checkbox"
+                checked={Boolean(saleOfferForm.enableShadow)}
+                onChange={(e) =>
+                  setSaleOfferForm((prev) => ({
+                    ...prev,
+                    enableShadow: e.target.checked,
+                  }))
+                }
+                className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+              />
+              <span className="font-medium">Enable Shadow on Banner</span>
+            </label>
+
+            {Boolean(saleOfferForm.enableShadow) && (
+              <div className="space-y-3 rounded border border-gray-200 bg-white p-3">
+                <div className="flex items-center gap-2">
+                  <label className="text-xs font-medium text-gray-600">
+                    Shadow Color
+                  </label>
+                  <input
+                    type="color"
+                    value={saleOfferForm.shadowColor || "#000000"}
+                    onChange={(e) =>
+                      setSaleOfferForm((prev) => ({
+                        ...prev,
+                        shadowColor: e.target.value,
+                      }))
+                    }
+                    className="h-8 w-12 cursor-pointer rounded border border-gray-300 bg-white p-1"
+                    aria-label="Pick shadow color"
+                  />
+                  <span className="text-xs text-gray-500">
+                    {saleOfferForm.shadowColor || "#000000"}
+                  </span>
+                </div>
+
+                <div>
+                  <div className="mb-1 flex items-center justify-between">
+                    <label className="text-xs font-medium text-gray-600">
+                      Shadow Volume
+                    </label>
+                    <span className="text-xs text-gray-500">
+                      {Number(saleOfferForm.shadowOpacity || 0)}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value={Number(saleOfferForm.shadowOpacity || 0)}
+                    onChange={(e) =>
+                      setSaleOfferForm((prev) => ({
+                        ...prev,
+                        shadowOpacity: Number(e.target.value),
+                      }))
+                    }
+                    className="w-full accent-green-600"
+                    aria-label="Set shadow volume"
+                  />
+                </div>
+              </div>
+            )}
+
             <div>
               <div className="mb-2 flex items-center justify-between">
                 <label className="block text-sm font-medium text-gray-700">
@@ -293,6 +359,9 @@ const SalesTab = ({
                       <p className="mt-1 text-sm text-gray-500">
                         {(offer.products || []).length} product
                         {(offer.products || []).length === 1 ? "" : "s"}
+                      </p>
+                      <p className="mt-1 text-xs font-medium text-gray-500">
+                        Shadow: {offer.enableShadow ? "Enabled" : "Disabled"}
                       </p>
                     </div>
                     <button

@@ -39,6 +39,15 @@ const normalizeHexColor = (value, fallback) => {
   return /^#[0-9a-f]{6}$/.test(normalized) ? normalized : fallback;
 };
 
+const normalizeShadowOpacity = (value, fallback = 35) => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+
+  return Math.max(0, Math.min(100, Math.round(parsed)));
+};
+
 const validateExistingProducts = async (productIds) => {
   if (productIds.length === 0) {
     throw new Error("Please select at least one product for this sale");
@@ -62,7 +71,7 @@ export const getSaleOffers = async (req, res) => {
     const offers = await SaleOffer.find({ isActive: true })
       .sort({ displayOrder: 1, createdAt: -1 })
       .select(
-        "saleName saleNameColor productName productNameColor productDescription productDescriptionColor name slug banner displayOrder products createdAt",
+        "saleName saleNameColor productName productNameColor productDescription productDescriptionColor name slug banner displayOrder enableShadow shadowColor shadowOpacity products createdAt",
       );
 
     res.json({ success: true, data: offers });
@@ -129,6 +138,9 @@ export const createSaleOffer = async (req, res) => {
     );
     const banner = String(req.body.banner || "").trim();
     const displayOrder = Number(req.body.displayOrder || 0);
+    const enableShadow = Boolean(req.body.enableShadow);
+    const shadowColor = normalizeHexColor(req.body.shadowColor, "#000000");
+    const shadowOpacity = normalizeShadowOpacity(req.body.shadowOpacity, 35);
     const products = normalizeProductIds(req.body.products);
 
     if (saleName.length < 2 || saleName.length > 100) {
@@ -171,6 +183,9 @@ export const createSaleOffer = async (req, res) => {
       banner,
       products,
       displayOrder,
+      enableShadow,
+      shadowColor,
+      shadowOpacity,
       isActive:
         req.body.isActive === undefined ? true : Boolean(req.body.isActive),
     });

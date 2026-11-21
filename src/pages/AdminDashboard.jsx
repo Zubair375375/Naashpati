@@ -196,6 +196,9 @@ const AdminDashboard = () => {
     productDescription: "",
     productDescriptionColor: "#383838",
     displayOrder: 0,
+    enableShadow: false,
+    shadowColor: "#000000",
+    shadowOpacity: 35,
     productIds: [],
   });
   const [saleOfferBannerFile, setSaleOfferBannerFile] = useState(null);
@@ -905,6 +908,9 @@ const AdminDashboard = () => {
           banner: bannerUrl,
           products: saleOfferForm.productIds,
           displayOrder: Number(saleOfferForm.displayOrder || 0),
+          enableShadow: Boolean(saleOfferForm.enableShadow),
+          shadowColor: saleOfferForm.shadowColor || "#000000",
+          shadowOpacity: Number(saleOfferForm.shadowOpacity || 35),
         }),
       ).unwrap();
 
@@ -916,6 +922,9 @@ const AdminDashboard = () => {
         productDescription: "",
         productDescriptionColor: "#383838",
         displayOrder: 0,
+        enableShadow: false,
+        shadowColor: "#000000",
+        shadowOpacity: 35,
         productIds: [],
       });
       setSaleOfferBannerFile(null);
