@@ -76,7 +76,8 @@ const HOME_FAQS = [
   },
 ];
 
-const isValidHexColor = (value) => /^#[0-9a-fA-F]{6}$/.test(String(value || ""));
+const isValidHexColor = (value) =>
+  /^#[0-9a-fA-F]{6}$/.test(String(value || ""));
 
 const hexToRgba = (hexColor, alpha) => {
   const safeHex = isValidHexColor(hexColor) ? hexColor : "#000000";

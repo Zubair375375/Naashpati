@@ -117,7 +117,9 @@ const ImageCropperModal = ({
           : null;
 
       if (!cropped) {
-        throw new Error("Unable to crop image. Please adjust crop and try again.");
+        throw new Error(
+          "Unable to crop image. Please adjust crop and try again.",
+        );
       }
 
       await Promise.resolve(onConfirm({ ...cropped, zoom }));
