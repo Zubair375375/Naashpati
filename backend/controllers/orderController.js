@@ -141,8 +141,8 @@ const buildOrderConfirmationEmail = (customerName, order) => {
         
         <!-- Hero Header with Logo -->
         <tr>
-          <td style="background:#68a300;padding:48px 0 36px 0;text-align:center;">
-            <img src="${logoUrl}" alt="Naashpati" width="210" style="display:inline-block;max-width:210px;height:auto;border:0;outline:none;text-decoration:none;filter:none !important;-webkit-filter:none !important;mix-blend-mode:normal !important;" />
+          <td style="background:white;padding:48px 0 36px 0;text-align:center;">
+            <img src="${logoUrl}" alt="Naashpati" width="310" style="display:inline-block;max-width:210px;height:auto;border:0;outline:none;text-decoration:none;filter:none !important;-webkit-filter:none !important;mix-blend-mode:normal !important;" />
           </td>
         </tr>
 
