@@ -174,6 +174,8 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
   const [instagramPictureFile, setInstagramPictureFile] = useState(null);
   const [existingImages, setExistingImages] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [editingImageIndex, setEditingImageIndex] = useState(-1);
+  const [editingImageSourceUrl, setEditingImageSourceUrl] = useState("");
   const [reviewRecords, setReviewRecords] = useState([]);
   const [questionRecords, setQuestionRecords] = useState([]);
   const [questionAnswerDrafts, setQuestionAnswerDrafts] = useState({});
@@ -684,7 +686,46 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
     e.target.value = "";
   };
 
-  const handleCropConfirm = ({ file, previewUrl }) => {
+  const handleCropConfirm = async ({ file, previewUrl }) => {
+    if (editingImageIndex >= 0 && editingImageIndex < existingImages.length) {
+      try {
+        const uploadedImage = await uploadImage(file);
+
+        if (!uploadedImage?.url) {
+          throw new Error("Image upload succeeded but no URL was returned.");
+        }
+
+        setExistingImages((prevImages) =>
+          prevImages.map((image, currentIndex) =>
+            currentIndex === editingImageIndex
+              ? {
+                  ...image,
+                  url: uploadedImage.url,
+                  public_id: uploadedImage.public_id || uploadedImage.url,
+                }
+              : image,
+          ),
+        );
+
+        setImagePreviews((prevPreviews) =>
+          prevPreviews.map((preview, currentIndex) =>
+            currentIndex === editingImageIndex
+              ? resolveMediaUrl(uploadedImage.url)
+              : preview,
+          ),
+        );
+
+        toast.success("Image edited successfully.");
+      } catch (editError) {
+        toast.error(editError?.message || "Failed to edit image.");
+      } finally {
+        setEditingImageIndex(-1);
+        setEditingImageSourceUrl("");
+        completeCrop({ file, previewUrl });
+      }
+      return;
+    }
+
     setImageFiles((prevFiles) => [...prevFiles, file]);
     setImagePreviews((prevPreviews) => [...prevPreviews, previewUrl]);
     completeCrop({ file, previewUrl });
@@ -751,6 +792,22 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
       url: uploadedUrl,
       public_id: result?.data?.public_id || result?.public_id || "",
     };
+  };
+
+  const handleEditExistingImage = (index) => {
+    if (index < 0 || index >= existingImages.length) {
+      toast.error("Invalid image selected for editing.");
+      return;
+    }
+
+    const sourceUrl = resolveMediaUrl(existingImages[index]?.url);
+    if (!sourceUrl) {
+      toast.error("No image found to edit.");
+      return;
+    }
+
+    setEditingImageIndex(index);
+    setEditingImageSourceUrl(sourceUrl);
   };
 
   const handleSubmit = async (e) => {
@@ -869,7 +926,7 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
 
     try {
       let finalImages = [...existingImages];
-      let finalImage = product?.image || "";
+      let finalImage = existingImages[0]?.url || "";
       let finalInstagramPicture = (instagramPicture || "").trim();
 
       if (instagramPictureFile) {
@@ -1458,6 +1515,16 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
                     >
                       Remove
                     </button>
+                    {index < existingImages.length && (
+                      <button
+                        type="button"
+                        onClick={() => handleEditExistingImage(index)}
+                        disabled={editingImageIndex === index}
+                        className="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-xs font-medium text-gray-800 hover:bg-white disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        {editingImageIndex === index ? "Editing..." : "Edit"}
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1465,9 +1532,14 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
           </div>
 
           <ImageCropperModal
-            isOpen={isCropperOpen}
+            isOpen={isCropperOpen || Boolean(editingImageSourceUrl)}
             file={cropFile}
-            onCancel={skipCrop}
+            sourceImageUrl={editingImageSourceUrl}
+            onCancel={() => {
+              setEditingImageIndex(-1);
+              setEditingImageSourceUrl("");
+              skipCrop();
+            }}
             onConfirm={handleCropConfirm}
             aspect={1}
             outputSize={1024}
