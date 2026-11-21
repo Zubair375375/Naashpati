@@ -76,6 +76,19 @@ const HOME_FAQS = [
   },
 ];
 
+const isValidHexColor = (value) => /^#[0-9a-fA-F]{6}$/.test(String(value || ""));
+
+const hexToRgba = (hexColor, alpha) => {
+  const safeHex = isValidHexColor(hexColor) ? hexColor : "#000000";
+  const normalizedAlpha = Math.max(0, Math.min(1, Number(alpha) || 0));
+
+  const red = Number.parseInt(safeHex.slice(1, 3), 16);
+  const green = Number.parseInt(safeHex.slice(3, 5), 16);
+  const blue = Number.parseInt(safeHex.slice(5, 7), 16);
+
+  return `rgba(${red}, ${green}, ${blue}, ${normalizedAlpha})`;
+};
+
 const Home = () => {
   const dispatch = useDispatch();
   const categories = useSelector(selectCategories);
@@ -319,19 +332,40 @@ const Home = () => {
                   style={{ transform: `translateX(-${saleSlideIndex * 100}%)` }}
                   onTransitionEnd={handleSaleSlideTransitionEnd}
                 >
-                  {saleCarouselSlides.map((offer, index) => (
-                    <div
-                      key={`${offer._id || "sale-offer"}-${index}`}
-                      className="h-full w-full shrink-0"
-                    >
-                      <img
-                        src={resolveMediaUrl(offer?.banner)}
-                        alt={offer?.saleName || offer?.name || "Sale offer"}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                  ))}
+                  {saleCarouselSlides.map((offer, index) => {
+                    const shadowColor = isValidHexColor(offer?.shadowColor)
+                      ? offer.shadowColor
+                      : "#000000";
+                    const parsedOpacity = Number(offer?.shadowOpacity);
+                    const shadowOpacity = Number.isFinite(parsedOpacity)
+                      ? Math.max(0, Math.min(100, parsedOpacity))
+                      : 35;
+
+                    return (
+                      <div
+                        key={`${offer._id || "sale-offer"}-${index}`}
+                        className="relative h-full w-full shrink-0"
+                      >
+                        <img
+                          src={resolveMediaUrl(offer?.banner)}
+                          alt={offer?.saleName || offer?.name || "Sale offer"}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                        />
+                        {Boolean(offer?.enableShadow) && (
+                          <div
+                            className="pointer-events-none absolute inset-0"
+                            style={{
+                              backgroundColor: hexToRgba(
+                                shadowColor,
+                                shadowOpacity / 100,
+                              ),
+                            }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <div className="absolute inset-0 z-10 flex items-center justify-center p-5 text-[#383838] sm:items-center sm:justify-start sm:p-8 lg:p-12">
