@@ -26,6 +26,9 @@ const normalizeProductImage = (value) => {
 
   const url = String(value.url || "").trim();
   const publicId = String(value.public_id || "").trim();
+  const originalUrl = String(value.original_url || "").trim();
+  const originalPublicId = String(value.original_public_id || "").trim();
+  const cropZoom = Number(value.crop_zoom);
 
   if (!url || !publicId) {
     return null;
@@ -34,6 +37,11 @@ const normalizeProductImage = (value) => {
   return {
     url,
     public_id: publicId,
+    original_url: originalUrl,
+    original_public_id: originalPublicId,
+    crop_zoom: Number.isFinite(cropZoom)
+      ? Math.max(1, Math.min(3, cropZoom))
+      : 1,
   };
 };
 

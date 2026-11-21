@@ -19,6 +19,7 @@ const ImageCropperModal = ({
   isOpen,
   file,
   sourceImageUrl = "",
+  initialZoom = 1,
   onCancel,
   onConfirm,
   aspect = 1,
@@ -30,6 +31,9 @@ const ImageCropperModal = ({
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [loadingImage, setLoadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
+  const safeInitialZoom = Number.isFinite(Number(initialZoom))
+    ? Math.max(1, Math.min(3, Number(initialZoom)))
+    : 1;
 
   useEffect(() => {
     let isMounted = true;
@@ -73,6 +77,14 @@ const ImageCropperModal = ({
 
   useEffect(() => {
     if (!isOpen) {
+      return;
+    }
+
+    setZoom(safeInitialZoom);
+  }, [isOpen, safeInitialZoom]);
+
+  useEffect(() => {
+    if (!isOpen) {
       setCrop({ x: 0, y: 0 });
       setZoom(1);
       setCroppedAreaPixels(null);
@@ -108,7 +120,7 @@ const ImageCropperModal = ({
         throw new Error("Unable to crop image. Please adjust crop and try again.");
       }
 
-      await Promise.resolve(onConfirm(cropped));
+      await Promise.resolve(onConfirm({ ...cropped, zoom }));
     } catch (error) {
       toast.error(error?.message || "Unable to crop image.");
     } finally {

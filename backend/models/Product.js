@@ -251,6 +251,20 @@ const productSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
+        original_url: {
+          type: String,
+          default: "",
+        },
+        original_public_id: {
+          type: String,
+          default: "",
+        },
+        crop_zoom: {
+          type: Number,
+          min: 1,
+          max: 3,
+          default: 1,
+        },
       },
     ],
     image: {

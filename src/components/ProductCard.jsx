@@ -47,6 +47,16 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
       {salePercentageLabel}% Discount
     </span>
   ) : null;
+  const primaryImageEntry = Array.isArray(product.images)
+    ? product.images.find((entry) => String(entry?.url || entry || "").trim())
+    : null;
+  const productImageZoom = Number.isFinite(Number(primaryImageEntry?.crop_zoom))
+    ? Math.max(1, Math.min(3, Number(primaryImageEntry.crop_zoom)))
+    : 1;
+  const productImageStyle = {
+    transform: `scale(${productImageZoom})`,
+    transformOrigin: "center center",
+  };
   const productImage = product.image
     ? resolveMediaUrl(product.image)
     : resolveMediaUrl(product.images?.[0]?.url || product.images?.[0]);
@@ -117,6 +127,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover"
+            style={productImageStyle}
           />
           {hasDiscount ? (
             <div className="absolute left-2 top-2">{saleBadge}</div>
@@ -207,6 +218,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover"
+            style={productImageStyle}
           />
           <div className="absolute left-3 top-3 flex flex-col gap-2">
             {saleBadge}
@@ -286,6 +298,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover"
+            style={productImageStyle}
           />
           {hasDiscount ? (
             <div className="absolute left-2 top-2">{saleBadge}</div>
@@ -353,6 +366,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
             alt={product.name}
             loading="lazy"
             className="h-full w-full object-cover"
+            style={productImageStyle}
           />
           {hasDiscount ? (
             <div className="absolute left-1.5 top-1.5">
@@ -405,6 +419,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
           alt={product.name}
           loading="lazy"
           className="w-full h-full object-cover"
+          style={productImageStyle}
         />
         {hasDiscount ? (
           <div className="absolute left-2 top-2">{saleBadge}</div>

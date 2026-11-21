@@ -176,6 +176,7 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
   const [uploading, setUploading] = useState(false);
   const [editingImageIndex, setEditingImageIndex] = useState(-1);
   const [editingImageSourceUrl, setEditingImageSourceUrl] = useState("");
+  const [editingImageInitialZoom, setEditingImageInitialZoom] = useState(1);
   const [reviewRecords, setReviewRecords] = useState([]);
   const [questionRecords, setQuestionRecords] = useState([]);
   const [questionAnswerDrafts, setQuestionAnswerDrafts] = useState({});
@@ -354,6 +355,19 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
               public_id: String(
                 entry?.public_id || entry?.url || entry || "",
               ).trim(),
+              original_url: String(
+                entry?.original_url || entry?.url || entry || "",
+              ).trim(),
+              original_public_id: String(
+                entry?.original_public_id ||
+                  entry?.public_id ||
+                  entry?.url ||
+                  entry ||
+                  "",
+              ).trim(),
+              crop_zoom: Number.isFinite(Number(entry?.crop_zoom))
+                ? Math.max(1, Math.min(3, Number(entry.crop_zoom)))
+                : 1,
             }))
             .filter((entry) => entry.url && entry.public_id)
         : [];
@@ -367,6 +381,9 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
         const fallbackExistingImage = {
           url: String(product.image).trim(),
           public_id: String(product.image).trim(),
+          original_url: String(product.image).trim(),
+          original_public_id: String(product.image).trim(),
+          crop_zoom: 1,
         };
         setExistingImages([fallbackExistingImage]);
         setImagePreviews([resolveMediaUrl(product.image)]);
@@ -686,41 +703,32 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
     e.target.value = "";
   };
 
-  const handleCropConfirm = async ({ file, previewUrl }) => {
+  const handleCropConfirm = async ({ file, previewUrl, zoom }) => {
     if (editingImageIndex >= 0 && editingImageIndex < existingImages.length) {
       try {
-        const uploadedImage = await uploadImage(file);
-
-        if (!uploadedImage?.url) {
-          throw new Error("Image upload succeeded but no URL was returned.");
-        }
-
         setExistingImages((prevImages) =>
           prevImages.map((image, currentIndex) =>
             currentIndex === editingImageIndex
               ? {
                   ...image,
-                  url: uploadedImage.url,
-                  public_id: uploadedImage.public_id || uploadedImage.url,
+                  original_url: image.original_url || image.url,
+                  original_public_id:
+                    image.original_public_id || image.public_id || image.url,
+                  crop_zoom: Number.isFinite(Number(zoom))
+                    ? Math.max(1, Math.min(3, Number(zoom)))
+                    : image.crop_zoom || 1,
                 }
               : image,
           ),
         );
 
-        setImagePreviews((prevPreviews) =>
-          prevPreviews.map((preview, currentIndex) =>
-            currentIndex === editingImageIndex
-              ? resolveMediaUrl(uploadedImage.url)
-              : preview,
-          ),
-        );
-
-        toast.success("Image edited successfully.");
+        toast.success("Image zoom crop updated.");
       } catch (editError) {
         toast.error(editError?.message || "Failed to edit image.");
       } finally {
         setEditingImageIndex(-1);
         setEditingImageSourceUrl("");
+        setEditingImageInitialZoom(1);
         completeCrop({ file, previewUrl });
       }
       return;
@@ -808,6 +816,49 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
 
     setEditingImageIndex(index);
     setEditingImageSourceUrl(sourceUrl);
+    setEditingImageInitialZoom(
+      Number.isFinite(Number(existingImages[index]?.crop_zoom))
+        ? Math.max(1, Math.min(3, Number(existingImages[index]?.crop_zoom)))
+        : 1,
+    );
+  };
+
+  const handleUndoExistingImage = (index) => {
+    if (index < 0 || index >= existingImages.length) {
+      toast.error("Invalid image selected for undo.");
+      return;
+    }
+
+    const imageEntry = existingImages[index];
+    const originalUrl = String(imageEntry?.original_url || "").trim();
+    const originalPublicId = String(
+      imageEntry?.original_public_id || "",
+    ).trim();
+
+    if (!originalUrl) {
+      toast.error("Original image is not available for this item.");
+      return;
+    }
+
+    setExistingImages((prevImages) =>
+      prevImages.map((entry, currentIndex) =>
+        currentIndex === index
+          ? {
+              ...entry,
+              url: originalUrl,
+              public_id: originalPublicId || originalUrl,
+            }
+          : entry,
+      ),
+    );
+
+    setImagePreviews((prevPreviews) =>
+      prevPreviews.map((preview, currentIndex) =>
+        currentIndex === index ? resolveMediaUrl(originalUrl) : preview,
+      ),
+    );
+
+    toast.success("Original image restored.");
   };
 
   const handleSubmit = async (e) => {
@@ -1516,14 +1567,27 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
                       Remove
                     </button>
                     {index < existingImages.length && (
-                      <button
-                        type="button"
-                        onClick={() => handleEditExistingImage(index)}
-                        disabled={editingImageIndex === index}
-                        className="absolute bottom-2 right-2 rounded-full bg-white/90 px-2 py-1 text-xs font-medium text-gray-800 hover:bg-white disabled:cursor-not-allowed disabled:opacity-70"
-                      >
-                        {editingImageIndex === index ? "Editing..." : "Edit"}
-                      </button>
+                      <div className="absolute bottom-2 right-2 flex gap-1">
+                        {existingImages[index]?.original_url &&
+                          existingImages[index]?.original_url !==
+                            existingImages[index]?.url && (
+                            <button
+                              type="button"
+                              onClick={() => handleUndoExistingImage(index)}
+                              className="rounded-full bg-black/75 px-2 py-1 text-xs font-medium text-white hover:bg-black"
+                            >
+                              Undo
+                            </button>
+                          )}
+                        <button
+                          type="button"
+                          onClick={() => handleEditExistingImage(index)}
+                          disabled={editingImageIndex === index}
+                          className="rounded-full bg-white/90 px-2 py-1 text-xs font-medium text-gray-800 hover:bg-white disabled:cursor-not-allowed disabled:opacity-70"
+                        >
+                          {editingImageIndex === index ? "Editing..." : "Edit"}
+                        </button>
+                      </div>
                     )}
                   </div>
                 ))}
@@ -1538,9 +1602,11 @@ const EditProduct = ({ onClose, onSuccess, product: productProp }) => {
             onCancel={() => {
               setEditingImageIndex(-1);
               setEditingImageSourceUrl("");
+              setEditingImageInitialZoom(1);
               skipCrop();
             }}
             onConfirm={handleCropConfirm}
+            initialZoom={editingImageInitialZoom}
             aspect={1}
             outputSize={1024}
           />
