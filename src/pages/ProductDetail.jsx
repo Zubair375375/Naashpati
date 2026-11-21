@@ -165,20 +165,34 @@ const ProductDetail = () => {
       reviewCount
     : 0;
 
-  const galleryImages = (() => {
+  const galleryItems = (() => {
     const normalized = Array.isArray(product?.images)
       ? product.images
-          .map((entry) => resolveMediaUrl(entry?.url || entry || ""))
+          .map((entry) => {
+            const resolvedUrl = resolveMediaUrl(entry?.url || entry || "");
+            if (!resolvedUrl) {
+              return null;
+            }
+
+            const zoom = Number.isFinite(Number(entry?.crop_zoom))
+              ? Math.max(1, Math.min(3, Number(entry.crop_zoom)))
+              : 1;
+
+            return {
+              src: resolvedUrl,
+              cropZoom: zoom,
+            };
+          })
           .filter(Boolean)
       : [];
 
     const fallbackPrimary = resolveMediaUrl(product?.image || "");
-    if (fallbackPrimary && !normalized.includes(fallbackPrimary)) {
-      normalized.unshift(fallbackPrimary);
+    if (fallbackPrimary && !normalized.some((entry) => entry.src === fallbackPrimary)) {
+      normalized.unshift({ src: fallbackPrimary, cropZoom: 1 });
     }
 
     if (normalized.length === 0) {
-      return ["/placeholder-product.jpg"];
+      return [{ src: "/placeholder-product.jpg", cropZoom: 1 }];
     }
 
     return normalized;
@@ -623,10 +637,10 @@ const ProductDetail = () => {
   }, [product]);
 
   useEffect(() => {
-    if (selectedImage >= galleryImages.length) {
+    if (selectedImage >= galleryItems.length) {
       setSelectedImage(0);
     }
-  }, [galleryImages.length, selectedImage]);
+  }, [galleryItems.length, selectedImage]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -638,27 +652,27 @@ const ProductDetail = () => {
           target.tagName === "SELECT" ||
           target.isContentEditable);
 
-      if (isTypingField || galleryImages.length <= 1) {
+      if (isTypingField || galleryItems.length <= 1) {
         return;
       }
 
       if (event.key === "ArrowRight") {
         setSelectedImage(
-          (currentIndex) => (currentIndex + 1) % galleryImages.length,
+          (currentIndex) => (currentIndex + 1) % galleryItems.length,
         );
       }
 
       if (event.key === "ArrowLeft") {
         setSelectedImage(
           (currentIndex) =>
-            (currentIndex - 1 + galleryImages.length) % galleryImages.length,
+            (currentIndex - 1 + galleryItems.length) % galleryItems.length,
         );
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [galleryImages.length]);
+  }, [galleryItems.length]);
 
   useEffect(() => {
     if (!product?._id) return;
@@ -862,9 +876,13 @@ const ProductDetail = () => {
           <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
               <img
-                src={galleryImages[selectedImage] || "/placeholder-product.jpg"}
+                src={galleryItems[selectedImage]?.src || "/placeholder-product.jpg"}
                 alt={product.name}
                 className="w-full h-full object-cover"
+                style={{
+                  transform: `scale(${galleryItems[selectedImage]?.cropZoom || 1})`,
+                  transformOrigin: "center center",
+                }}
               />
             </div>
 
@@ -877,9 +895,9 @@ const ProductDetail = () => {
             ) : null}
 
             {/* Thumbnail Images */}
-            {galleryImages.length > 1 && (
+            {galleryItems.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
-                {galleryImages.map((imageSrc, index) => (
+                {galleryItems.map((imageItem, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
@@ -890,9 +908,13 @@ const ProductDetail = () => {
                     }`}
                   >
                     <img
-                      src={imageSrc}
+                      src={imageItem.src}
                       alt={`${product.name} ${index + 1}`}
                       className="h-full w-full object-cover"
+                      style={{
+                        transform: `scale(${imageItem.cropZoom || 1})`,
+                        transformOrigin: "center center",
+                      }}
                     />
                   </button>
                 ))}
