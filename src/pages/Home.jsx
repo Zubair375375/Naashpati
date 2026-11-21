@@ -109,12 +109,12 @@ const Home = () => {
   );
   const [lensesProductsLoading, setLensesProductsLoading] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(0);
-  const [activeSaleOfferIndex, setActiveSaleOfferIndex] = useState(0);
   const [saleSlideIndex, setSaleSlideIndex] = useState(0);
   const [isSaleSlideAnimating, setIsSaleSlideAnimating] = useState(true);
   const [mobileReviewsExpanded, setMobileReviewsExpanded] = useState(false);
   const [tabletReviewsExpanded, setTabletReviewsExpanded] = useState(false);
   const categoryScrollRef = useRef(null);
+  const saleResetInProgressRef = useRef(false);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
 
   const femaleCollectionImage =
@@ -131,8 +131,8 @@ const Home = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    setActiveSaleOfferIndex(0);
-    setSaleSlideIndex(0);
+    saleResetInProgressRef.current = false;
+    setSaleSlideIndex(saleOffers.length > 1 ? 1 : 0);
     setIsSaleSlideAnimating(true);
   }, [saleOffers.length]);
 
@@ -142,26 +142,49 @@ const Home = () => {
     }
 
     const intervalId = window.setInterval(() => {
+      if (saleResetInProgressRef.current) {
+        return;
+      }
+
       setSaleSlideIndex((previousIndex) => previousIndex + 1);
-      setActiveSaleOfferIndex(
-        (previousIndex) => (previousIndex + 1) % saleOffers.length,
-      );
     }, 4000);
 
     return () => window.clearInterval(intervalId);
   }, [saleOffers]);
 
   const handleSaleSlideTransitionEnd = () => {
-    if (saleSlideIndex !== saleOffers.length) {
+    if (saleOffers.length <= 1) {
       return;
     }
 
-    setIsSaleSlideAnimating(false);
-    setSaleSlideIndex(0);
+    const lastIndex = saleOffers.length + 1;
 
-    window.requestAnimationFrame(() => {
-      setIsSaleSlideAnimating(true);
-    });
+    if (saleSlideIndex === lastIndex) {
+      saleResetInProgressRef.current = true;
+      setIsSaleSlideAnimating(false);
+      setSaleSlideIndex(1);
+
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          setIsSaleSlideAnimating(true);
+          saleResetInProgressRef.current = false;
+        });
+      });
+      return;
+    }
+
+    if (saleSlideIndex === 0) {
+      saleResetInProgressRef.current = true;
+      setIsSaleSlideAnimating(false);
+      setSaleSlideIndex(saleOffers.length);
+
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          setIsSaleSlideAnimating(true);
+          saleResetInProgressRef.current = false;
+        });
+      });
+    }
   };
 
   useEffect(() => {
@@ -269,6 +292,10 @@ const Home = () => {
     });
   };
 
+  const activeSaleOfferIndex =
+    saleOffers.length <= 1
+      ? 0
+      : (saleSlideIndex - 1 + saleOffers.length) % saleOffers.length;
   const activeSaleOffer = saleOffers[activeSaleOfferIndex] || null;
   const activeSaleOfferProduct =
     Array.isArray(activeSaleOffer?.products) &&
@@ -310,7 +337,9 @@ const Home = () => {
       ? `/sales/${activeSaleOfferId}`
       : "/";
   const saleCarouselSlides =
-    saleOffers.length > 1 ? [...saleOffers, saleOffers[0]] : saleOffers;
+    saleOffers.length > 1
+      ? [saleOffers[saleOffers.length - 1], ...saleOffers, saleOffers[0]]
+      : saleOffers;
 
   return (
     <div className="min-h-screen">
