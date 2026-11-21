@@ -18,6 +18,7 @@ const readFileAsDataUrl = (file) =>
 const ImageCropperModal = ({
   isOpen,
   file,
+  sourceImageUrl = "",
   onCancel,
   onConfirm,
   aspect = 1,
@@ -34,7 +35,18 @@ const ImageCropperModal = ({
     let isMounted = true;
 
     const loadSource = async () => {
-      if (!isOpen || !file) {
+      if (!isOpen) {
+        setImageSrc("");
+        return;
+      }
+
+      if (sourceImageUrl) {
+        setLoadingImage(false);
+        setImageSrc(sourceImageUrl);
+        return;
+      }
+
+      if (!file) {
         setImageSrc("");
         return;
       }
@@ -57,7 +69,7 @@ const ImageCropperModal = ({
     return () => {
       isMounted = false;
     };
-  }, [file, isOpen]);
+  }, [file, isOpen, sourceImageUrl]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -75,7 +87,7 @@ const ImageCropperModal = ({
   }, []);
 
   const handleConfirm = async () => {
-    if (!imageSrc || !file) {
+    if (!imageSrc) {
       return;
     }
 
@@ -88,7 +100,13 @@ const ImageCropperModal = ({
             file?.name || "image.jpg",
             outputSize,
           )
-        : await cropImageFileToSquare(file, outputSize);
+        : file
+          ? await cropImageFileToSquare(file, outputSize)
+          : null;
+
+      if (!cropped) {
+        throw new Error("Unable to crop image. Please adjust crop and try again.");
+      }
 
       await Promise.resolve(onConfirm(cropped));
     } catch (error) {
@@ -98,7 +116,7 @@ const ImageCropperModal = ({
     }
   };
 
-  if (!isOpen || !file) {
+  if (!isOpen || (!file && !sourceImageUrl)) {
     return null;
   }
 
@@ -142,8 +160,13 @@ const ImageCropperModal = ({
         </div>
 
         <div className="border-t border-gray-200 px-5 py-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between gap-4">
             <label className="text-sm font-medium text-gray-700">Zoom</label>
+            <span className="text-sm font-semibold text-gray-700">
+              {zoom.toFixed(2)}x
+            </span>
+          </div>
+          <div className="mt-2">
             <input
               type="range"
               min="1"
@@ -152,7 +175,22 @@ const ImageCropperModal = ({
               value={zoom}
               onChange={(event) => setZoom(Number(event.target.value))}
               className="w-full"
+              list="cropper-zoom-scale"
             />
+            <datalist id="cropper-zoom-scale">
+              <option value="1" label="1x" />
+              <option value="1.5" label="1.5x" />
+              <option value="2" label="2x" />
+              <option value="2.5" label="2.5x" />
+              <option value="3" label="3x" />
+            </datalist>
+            <div className="mt-1 flex justify-between text-xs text-gray-500">
+              <span>1x</span>
+              <span>1.5x</span>
+              <span>2x</span>
+              <span>2.5x</span>
+              <span>3x</span>
+            </div>
           </div>
 
           <div className="mt-4 flex items-center justify-end gap-3">
@@ -166,7 +204,7 @@ const ImageCropperModal = ({
             <button
               type="button"
               onClick={handleConfirm}
-              disabled={saving || loadingImage}
+              disabled={saving || loadingImage || !croppedAreaPixels}
               className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? "Cropping..." : "Use crop"}
