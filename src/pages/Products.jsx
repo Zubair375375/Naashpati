@@ -13,6 +13,7 @@ import {
 import ProductCard from "../components/ProductCard";
 import Loader from "../components/Loader";
 import { resolveMediaUrl } from "../utils/mediaUrl";
+import { trackViewItemList } from "../utils/ecommerceTracking";
 
 const Products = ({ collectionType = "" }) => {
   const dispatch = useDispatch();
@@ -50,6 +51,7 @@ const Products = ({ collectionType = "" }) => {
   })();
   const viewMode = "compact";
   const categoryScrollRef = useRef(null);
+  const lastTrackedListSignatureRef = useRef("");
 
   const [filters, setFilters] = useState({
     category: initialCategory,
@@ -263,6 +265,43 @@ const Products = ({ collectionType = "" }) => {
     }
   });
 
+  const listName = useMemo(() => {
+    if (normalizedCollection === "male") return "male_collection";
+    if (normalizedCollection === "female") return "female_collection";
+    if (initialCategory) return `category:${initialCategory}`;
+    if (lensesOnly) return "lenses_collection";
+    if (menBestSellers) return "men_best_sellers";
+    if (womenBestSellers) return "women_best_sellers";
+    return "all_products";
+  }, [
+    normalizedCollection,
+    initialCategory,
+    lensesOnly,
+    menBestSellers,
+    womenBestSellers,
+  ]);
+
+  useEffect(() => {
+    if (status !== "succeeded" || sortedProducts.length === 0) {
+      return;
+    }
+
+    const signature = `${listName}:${sortedProducts
+      .map((product) => String(product?._id || product?.id || ""))
+      .join("|")}`;
+
+    if (signature === lastTrackedListSignatureRef.current) {
+      return;
+    }
+
+    trackViewItemList({
+      listName,
+      products: sortedProducts,
+    });
+
+    lastTrackedListSignatureRef.current = signature;
+  }, [status, sortedProducts, listName]);
+
   const handleFilterChange = (key, value) => {
     if (key === "category") {
       let target = "/products";
@@ -390,11 +429,13 @@ const Products = ({ collectionType = "" }) => {
                         : "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5 gap-6"
                 }
               >
-                {sortedProducts.map((product) => (
+                {sortedProducts.map((product, index) => (
                   <ProductCard
                     key={product._id}
                     product={product}
                     viewMode={viewMode}
+                    listName={listName}
+                    listIndex={index}
                   />
                 ))}
               </div>

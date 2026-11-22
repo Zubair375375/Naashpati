@@ -11,6 +11,7 @@ import {
 } from "../store/slices/cartSlice";
 import Loader from "../components/Loader";
 import toast from "react-hot-toast";
+import { trackViewCartEvent } from "../utils/ecommerceTracking";
 import {
   FaTrash,
   FaPlus,
@@ -33,6 +34,7 @@ const Cart = () => {
   const [discount, setDiscount] = useState(0);
   const [showOrderSuccessPopup, setShowOrderSuccessPopup] = useState(false);
   const [orderSummary, setOrderSummary] = useState(null);
+  const [hasTrackedViewCart, setHasTrackedViewCart] = useState(false);
 
   useEffect(() => {
     if (location.state?.orderSuccess && location.state?.orderSummary) {
@@ -41,6 +43,18 @@ const Cart = () => {
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location.pathname, location.state, navigate]);
+
+  useEffect(() => {
+    if (hasTrackedViewCart) {
+      return;
+    }
+
+    trackViewCartEvent({
+      cartItems,
+      totalValue: cartTotal,
+    });
+    setHasTrackedViewCart(true);
+  }, [cartItems, cartTotal, hasTrackedViewCart]);
 
   const getProductImage = (product) => {
     const rawImage =

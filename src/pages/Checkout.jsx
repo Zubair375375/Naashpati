@@ -10,6 +10,12 @@ import { selectAuthUser } from "../store/slices/authSlice";
 import { createOrder } from "../store/slices/orderSlice";
 import Loader from "../components/Loader";
 import toast from "react-hot-toast";
+import {
+  trackAddPaymentInfoEvent,
+  trackAddShippingInfoEvent,
+  trackBeginCheckoutEvent,
+  trackPurchaseEvent,
+} from "../utils/ecommerceTracking";
 import { FaCreditCard, FaTruck, FaMapMarkerAlt } from "react-icons/fa";
 import { createIdempotencyKey } from "../utils/idempotencyKey";
 
@@ -55,6 +61,7 @@ const Checkout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [hasPlacedOrder, setHasPlacedOrder] = useState(false);
   const orderSubmitKeyRef = useRef("");
+  const hasTrackedBeginCheckoutRef = useRef(false);
   const TAX_RATE = 0.08;
   const subtotal = Number(cartTotal || 0);
   const taxAmount = Number((subtotal * TAX_RATE).toFixed(2));
@@ -76,6 +83,19 @@ const Checkout = () => {
       return;
     }
   }, [itemCount, isProcessing, hasPlacedOrder, navigate]);
+
+  useEffect(() => {
+    if (hasTrackedBeginCheckoutRef.current || itemCount <= 0) {
+      return;
+    }
+
+    trackBeginCheckoutEvent({
+      cartItems,
+      totalValue: grandTotal,
+    });
+
+    hasTrackedBeginCheckoutRef.current = true;
+  }, [cartItems, itemCount, grandTotal]);
 
   useEffect(() => {
     if (!user) return;
@@ -247,6 +267,24 @@ const Checkout = () => {
       };
 
       const createdOrder = await dispatch(createOrder(orderData)).unwrap();
+
+      trackAddShippingInfoEvent({
+        cartItems,
+        totalValue: grandTotal,
+        shippingTier: deliveryOption,
+      });
+
+      trackAddPaymentInfoEvent({
+        cartItems,
+        totalValue: grandTotal,
+        paymentType: paymentMethod,
+      });
+
+      trackPurchaseEvent({
+        order: createdOrder,
+        fallbackCartItems: cartItems,
+      });
+
       orderSubmitKeyRef.current = "";
       setHasPlacedOrder(true);
       const customerName =
