@@ -32,20 +32,23 @@ const Contact = () => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || "/api"}/contact`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || "/api"}/contact`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email,
+            comment: formData.comment,
+            orderId: formData.orderId,
+          }),
         },
-        credentials: "include",
-        body: JSON.stringify({
-          name: formData.name,
-          phone: formData.phone,
-          email: formData.email,
-          comment: formData.comment,
-          orderId: formData.orderId,
-        }),
-      });
+      );
 
       const result = await response.json().catch(() => ({}));
 
@@ -54,7 +57,8 @@ const Contact = () => {
       }
 
       toast.success(
-        result?.message || "Thank you! Your message has been sent. We will contact you soon.",
+        result?.message ||
+          "Thank you! Your message has been sent. We will contact you soon.",
       );
       setFormData({
         name: "",
@@ -179,6 +183,7 @@ const Contact = () => {
         </div>
 
         <div className="space-y-6">
+          {/*
           <div className="bg-herbs-50 border border-herbs-100 rounded-3xl p-6 shadow-sm">
             <div className="flex items-center gap-4">
               <div className="rounded-2xl bg-herbs-600 p-3 text-white">
@@ -224,6 +229,7 @@ const Contact = () => {
               Open chat support
             </button>
           </div>
+          */}
 
           <div className="bg-herbs-50 border border-herbs-100 rounded-3xl p-6 shadow-sm">
             <div className="flex items-center gap-4">
@@ -264,12 +270,12 @@ const Contact = () => {
             <p className="mt-3 text-sm text-secondary-600">
               Email us at{" "}
               <a
-                href="mailto:contact@naashpati.com"
+                href="mailto:info@naashpati.com"
                 className="text-herbs-600 hover:text-herbs-700"
               >
-                contact@naashpati.com
+                info@naashpati.com
               </a>{" "}
-              or call <span className="font-semibold">+1 (800) 123-4567</span>.
+              {/* or call <span className="font-semibold">+1 (800) 123-4567</span>. */}
             </p>
           </div>
         </div>
