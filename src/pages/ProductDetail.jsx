@@ -14,6 +14,7 @@ import {
   trackProductView,
   trackAddToCart,
 } from "../utils/trendingMetricsTracker";
+import { trackViewItem } from "../utils/ecommerceTracking";
 import { canManageWishlist } from "../utils/wishlistAuth";
 import {
   selectAuthUser,
@@ -36,6 +37,8 @@ import {
   FaReply,
   FaTrash,
 } from "react-icons/fa";
+
+let lastTrackedProductViewId = "";
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -187,7 +190,10 @@ const ProductDetail = () => {
       : [];
 
     const fallbackPrimary = resolveMediaUrl(product?.image || "");
-    if (fallbackPrimary && !normalized.some((entry) => entry.src === fallbackPrimary)) {
+    if (
+      fallbackPrimary &&
+      !normalized.some((entry) => entry.src === fallbackPrimary)
+    ) {
       normalized.unshift({ src: fallbackPrimary, cropZoom: 1 });
     }
 
@@ -625,6 +631,20 @@ const ProductDetail = () => {
   }, [dispatch, id]);
 
   useEffect(() => {
+    if (!product?._id) {
+      return;
+    }
+
+    const trackKey = String(product._id);
+    if (trackKey === lastTrackedProductViewId) {
+      return;
+    }
+
+    trackViewItem({ product });
+    lastTrackedProductViewId = trackKey;
+  }, [product?._id]);
+
+  useEffect(() => {
     if (product?.category) {
       dispatch(fetchProducts({ category: product.category, limit: 12 }));
     }
@@ -876,7 +896,9 @@ const ProductDetail = () => {
           <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
             <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
               <img
-                src={galleryItems[selectedImage]?.src || "/placeholder-product.jpg"}
+                src={
+                  galleryItems[selectedImage]?.src || "/placeholder-product.jpg"
+                }
                 alt={product.name}
                 className="w-full h-full object-cover"
                 style={{

@@ -8,6 +8,7 @@ import announcementReducer from "./slices/announcementSlice";
 import heroBadgeReducer from "./slices/heroBadgeSlice";
 import saleOfferReducer from "./slices/saleOfferSlice";
 import bestsellerReducer from "./slices/trendingSlice";
+import { ecommerceTrackingMiddleware } from "./middleware/ecommerceTrackingMiddleware";
 
 export const store = configureStore({
   reducer: {
@@ -26,5 +27,5 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: ["persist/PERSIST", "persist/REHYDRATE"],
       },
-    }),
+    }).concat(ecommerceTrackingMiddleware),
 });

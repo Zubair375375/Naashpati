@@ -5,10 +5,16 @@ import { selectAuthUser } from "../store/slices/authSlice";
 import toast from "react-hot-toast";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 import { canManageWishlist } from "../utils/wishlistAuth";
+import { trackSelectItem } from "../utils/ecommerceTracking";
 import { MdStar, MdFavoriteBorder, MdVisibility } from "react-icons/md";
 import { FiShoppingCart } from "react-icons/fi";
 
-const ProductCard = ({ product, viewMode = "grid" }) => {
+const ProductCard = ({
+  product,
+  viewMode = "grid",
+  listName = "product_list",
+  listIndex = 0,
+}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const user = useSelector(selectAuthUser);
@@ -102,6 +108,14 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     e.stopPropagation();
   };
 
+  const handleSelectItem = () => {
+    trackSelectItem({
+      product,
+      listName,
+      index: listIndex,
+    });
+  };
+
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
       <MdStar
@@ -119,6 +133,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     return (
       <Link
         to={productUrl}
+        onClick={handleSelectItem}
         className="group flex flex-col overflow-hidden rounded-lg bg-white shadow-soft sm:flex-row"
       >
         <div className="relative h-52 w-full overflow-hidden sm:h-auto sm:w-56">
@@ -210,6 +225,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     return (
       <Link
         to={productUrl}
+        onClick={handleSelectItem}
         className="group flex h-full flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
       >
         <div className="relative aspect-square overflow-hidden bg-gray-50">
@@ -290,6 +306,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     return (
       <Link
         to={productUrl}
+        onClick={handleSelectItem}
         className="group overflow-hidden rounded-lg bg-white shadow-soft"
       >
         <div className="relative aspect-[4/3] overflow-hidden">
@@ -358,6 +375,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
     return (
       <Link
         to={productUrl}
+        onClick={handleSelectItem}
         className="group overflow-hidden rounded-md bg-white shadow-soft"
       >
         <div className="relative aspect-square overflow-hidden">
@@ -411,6 +429,7 @@ const ProductCard = ({ product, viewMode = "grid" }) => {
   return (
     <Link
       to={productUrl}
+      onClick={handleSelectItem}
       className="group bg-white rounded-lg shadow-soft overflow-hidden"
     >
       <div className="relative aspect-square overflow-hidden">
