@@ -5,6 +5,8 @@ import { Toaster } from "react-hot-toast";
 import Header from "./Header";
 import Footer from "./Footer";
 import AnnouncementBanner from "./AnnouncementBanner";
+import CookieConsentManager from "./CookieConsentManager";
+import { initConsentAwareTrackers } from "../utils/consentAwareTrackers";
 import {
   closeCart,
   removeFromCart,
@@ -192,6 +194,11 @@ const CartDrawer = () => {
 };
 
 const Layout = () => {
+  useEffect(() => {
+    const teardown = initConsentAwareTrackers();
+    return teardown;
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <AnnouncementBanner />
@@ -201,6 +208,7 @@ const Layout = () => {
       </main>
       <CartDrawer />
       <Footer />
+      <CookieConsentManager />
       <Toaster
         position="top-center"
         toastOptions={{

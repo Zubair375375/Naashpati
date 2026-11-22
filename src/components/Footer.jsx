@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { FaFacebook, FaTwitter, FaInstagram, FaEnvelope } from "react-icons/fa";
+import { COOKIE_PREFERENCE_OPEN_EVENT } from "../utils/cookieConsent";
 
 const Footer = () => {
+  const openCookiePreferences = () => {
+    window.dispatchEvent(new CustomEvent(COOKIE_PREFERENCE_OPEN_EVENT));
+  };
+
   return (
     <footer className="bg-black text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -131,6 +136,15 @@ const Footer = () => {
                 >
                   Terms of Service
                 </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={openCookiePreferences}
+                  className="text-secondary-300 hover:text-white transition-colors"
+                >
+                  Cookie Preferences
+                </button>
               </li>
             </ul>
           </div>
