@@ -90,14 +90,39 @@ const allowedOrigins = (() => {
 // );
 app.use(
   helmet({
+    frameguard: false,
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
+        baseUri: ["'self'"],
+        objectSrc: ["'none'"],
+        formAction: ["'self'"],
+        scriptSrcAttr: ["'none'"],
+        frameSrc: ["'self'", "https://tagassistant.google.com"],
+        frameAncestors: ["'self'", "https://tagassistant.google.com"],
 
-        connectSrc: ["'self'", process.env.API_URL],
+        connectSrc: [
+          "'self'",
+          process.env.API_URL,
+          "https://www.googletagmanager.com",
+          "https://www.google-analytics.com",
+          "https://region1.google-analytics.com",
+          "https://tagassistant.google.com",
+        ],
 
-        imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "https://res.cloudinary.com",
+          "https://www.googletagmanager.com",
+          "https://www.google-analytics.com",
+        ],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://www.googletagmanager.com",
+          "https://tagassistant.google.com",
+        ],
         styleSrc: ["'self'", "'unsafe-inline'"],
       },
     },
