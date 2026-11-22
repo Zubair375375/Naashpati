@@ -82,7 +82,7 @@ const VerifyEmail = () => {
           </Link>
           <Link
             to="/"
-            className="rounded-full border border-gray-300 px-5 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+            className="border-0 px-5 py-2 text-sm font-semibold text-white bg-[#000000] hover:bg-gray-600"
           >
             Go to Home
           </Link>
