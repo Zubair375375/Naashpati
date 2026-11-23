@@ -20,32 +20,143 @@
  * @param {string} [filename]
  */
 export async function exportToExcel(sheets, filename = "export.xlsx") {
-  // Dynamically import xlsx so it is NOT included in the initial JS bundle.
+  // Dynamically import exceljs so it is NOT included in the initial JS bundle.
   // It is only downloaded the first time the user clicks Export.
-  const XLSX = await import("xlsx");
+  const ExcelJS = await import("exceljs");
+  const workbook = new ExcelJS.Workbook();
 
-  const wb = XLSX.utils.book_new();
-
-  sheets.forEach(({ name, data }) => {
-    if (!data || data.length === 0) {
-      // Still write an empty sheet so the tab exists
-      const ws = XLSX.utils.aoa_to_sheet([["No data available"]]);
-      XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31));
-      return;
+  const sanitizeExcelString = (value) => {
+    if (typeof value !== "string") {
+      return value;
     }
 
-    const ws = XLSX.utils.json_to_sheet(data);
+    return /^[=+\-@]/.test(value) ? `'${value}` : value;
+  };
 
-    // Auto-fit column widths based on header lengths
-    const colWidths = Object.keys(data[0]).map((key) => ({
-      wch: Math.max(key.length + 2, 14),
-    }));
-    ws["!cols"] = colWidths;
+  const normalizeSheetName = (name, index) => {
+    const fallback = `Sheet ${index + 1}`;
+    const value = String(name || fallback).trim() || fallback;
+    const sanitized = value.replace(/[\[\]:*?/\\]/g, "_");
+    const normalized = sanitized.trim() || fallback;
+    return normalized.slice(0, 31);
+  };
 
-    XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31));
+  const usedSheetNames = new Set();
+
+  const getUniqueSheetName = (name, index) => {
+    const baseName = normalizeSheetName(name, index);
+    const baseKey = baseName.toLowerCase();
+
+    if (!usedSheetNames.has(baseKey)) {
+      usedSheetNames.add(baseKey);
+      return baseName;
+    }
+
+    let suffixIndex = 2;
+
+    while (true) {
+      const suffix = ` (${suffixIndex})`;
+      const maxBaseLength = 31 - suffix.length;
+      const candidateBase = baseName.slice(0, Math.max(maxBaseLength, 0));
+      const candidate = `${candidateBase}${suffix}`;
+      const candidateKey = candidate.toLowerCase();
+
+      if (!usedSheetNames.has(candidateKey)) {
+        usedSheetNames.add(candidateKey);
+        return candidate;
+      }
+
+      suffixIndex += 1;
+    }
+  };
+
+  const toCellValue = (value) => {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === "bigint") {
+      const asNumber = Number(value);
+      return Number.isFinite(asNumber) ? asNumber : String(value);
+    }
+
+    if (typeof value === "boolean") {
+      return value;
+    }
+
+    if (value instanceof Date) {
+      return value;
+    }
+
+    if (value === null || value === undefined) {
+      return "";
+    }
+
+    return sanitizeExcelString(String(value));
+  };
+
+  (Array.isArray(sheets) ? sheets : []).forEach(
+    ({ name, data }, sheetIndex) => {
+      const worksheet = workbook.addWorksheet(
+        getUniqueSheetName(name, sheetIndex),
+      );
+
+      if (!Array.isArray(data) || data.length === 0) {
+        worksheet.addRow(["No data available"]);
+        worksheet.columns = [{ width: 18 }];
+        return;
+      }
+
+      const headers = Object.keys(data[0] || {});
+      worksheet.addRow(headers);
+
+      const widths = headers.map((header) =>
+        Math.max(String(header).length + 2, 14),
+      );
+
+      data.forEach((row) => {
+        const rowValues = headers.map((header, colIndex) => {
+          const cellValue = toCellValue(row?.[header]);
+          const displayLength = String(cellValue ?? "").length;
+          widths[colIndex] = Math.max(
+            widths[colIndex],
+            Math.min(displayLength + 2, 60),
+          );
+          return cellValue;
+        });
+
+        worksheet.addRow(rowValues);
+      });
+
+      worksheet.columns = headers.map((header, index) => ({
+        key: header,
+        width: widths[index],
+      }));
+    },
+  );
+
+  const fileBuffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([fileBuffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
 
-  XLSX.writeFile(wb, filename);
+  const normalizedFilename = (() => {
+    const raw = String(filename ?? "").trim();
+    const safe = raw || "export.xlsx";
+    return /\.xlsx$/i.test(safe) ? safe : `${safe}.xlsx`;
+  })();
+
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = normalizedFilename;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.setTimeout(() => {
+    window.URL.revokeObjectURL(url);
+  }, 1000);
 }
 
 // ─── Formatter helpers ─────────────────────────────────────────────────────
