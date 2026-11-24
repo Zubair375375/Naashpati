@@ -52,7 +52,8 @@ export const errorHandler = (err, req, res, next) => {
   if (err.name === "MulterError") {
     if (err.code === "LIMIT_FILE_SIZE") {
       error = {
-        message: "File too large. Maximum allowed size is 10MB",
+        message:
+          "File too large. Maximum allowed size is 30MB for GIF and 10MB for other images",
         statusCode: 413,
       };
     } else {
