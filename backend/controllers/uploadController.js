@@ -6,13 +6,16 @@ import getCloudinary, {
 
 const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
 const MAX_GIF_UPLOAD_BYTES = 30 * 1024 * 1024;
+const CLOUDINARY_IMAGE_LIMIT_BYTES = 10 * 1024 * 1024;
 
 // @desc    Upload image to local /uploads folder
 // @route   POST /api/upload
 // @access  Private/Admin
 export const uploadImage = async (req, res) => {
+  let keepLocalFile = false;
+
   const cleanupTempFile = async () => {
-    if (!req?.file?.path) return;
+    if (!req?.file?.path || keepLocalFile) return;
     try {
       await import("fs").then((fs) => fs.unlinkSync(req.file.path));
     } catch (e) {
@@ -41,6 +44,20 @@ export const uploadImage = async (req, res) => {
         error: isGifUpload
           ? "Image upload failed: GIF file size must be 30MB or less"
           : "Image upload failed: file size must be 10MB or less",
+      });
+    }
+
+    if (isGifUpload && Number(req.file.size || 0) > CLOUDINARY_IMAGE_LIMIT_BYTES) {
+      keepLocalFile = true;
+      const localUrl = `/uploads/${req.file.filename}`;
+
+      return res.json({
+        success: true,
+        data: {
+          url: localUrl,
+          originalUrl: localUrl,
+          public_id: req.file.filename,
+        },
       });
     }
 
