@@ -81,6 +81,7 @@ import CustomerAnalyticsTab from "./admin/tabs/CustomerAnalyticsTab";
 import BreakEvenAnalyticsTab from "./admin/tabs/BreakEvenAnalyticsTab";
 
 const LENSES_PRODUCTS_SECTION = "lenses-products";
+const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 const toLocalDateBoundaryIso = (dateValue, boundary) => {
   if (!dateValue) return boundary === "end" ? null : undefined;
@@ -99,6 +100,10 @@ const toLocalDateBoundaryIso = (dateValue, boundary) => {
 const uploadDashboardImage = async (file) => {
   if (!file) {
     return "";
+  }
+
+  if (Number(file.size || 0) > MAX_IMAGE_UPLOAD_BYTES) {
+    throw new Error("Image file must be 10MB or less");
   }
 
   const formDataUpload = new FormData();
@@ -1092,6 +1097,11 @@ const AdminDashboard = () => {
 
   const handleGenderImageChange = (key, file) => {
     if (!file) {
+      return;
+    }
+
+    if (Number(file.size || 0) > MAX_IMAGE_UPLOAD_BYTES) {
+      toast.error("Image file must be 10MB or less");
       return;
     }
 

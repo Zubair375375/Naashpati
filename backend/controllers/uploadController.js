@@ -8,6 +8,15 @@ import getCloudinary, {
 // @route   POST /api/upload
 // @access  Private/Admin
 export const uploadImage = async (req, res) => {
+  const cleanupTempFile = async () => {
+    if (!req?.file?.path) return;
+    try {
+      await import("fs").then((fs) => fs.unlinkSync(req.file.path));
+    } catch (e) {
+      console.warn("Failed to delete local file after upload attempt", e);
+    }
+  };
+
   try {
     if (!req.file) {
       console.error("No file uploaded. req.file:", req.file);
@@ -24,17 +33,16 @@ export const uploadImage = async (req, res) => {
       );
     } catch (cloudErr) {
       console.error("Cloudinary upload error:", cloudErr);
-      return res.status(500).json({
-        success: false,
-        error: `Cloudinary upload failed: ${cloudErr.message || cloudErr}`,
-      });
-    }
+      const isTooLarge =
+        Number(cloudErr?.http_code) === 400 &&
+        String(cloudErr?.message || "").toLowerCase().includes("file size too large");
 
-    // Optionally, delete the local file after upload
-    try {
-      await import("fs").then((fs) => fs.unlinkSync(req.file.path));
-    } catch (e) {
-      console.warn("Failed to delete local file after Cloudinary upload", e);
+      return res.status(isTooLarge ? 413 : 500).json({
+        success: false,
+        error: isTooLarge
+          ? "Image upload failed: file size must be 10MB or less"
+          : `Cloudinary upload failed: ${cloudErr.message || cloudErr}`,
+      });
     }
 
     res.json({
@@ -51,6 +59,8 @@ export const uploadImage = async (req, res) => {
       success: false,
       error: `Image upload failed: ${error.message || error}`,
     });
+  } finally {
+    await cleanupTempFile();
   }
 };
 
