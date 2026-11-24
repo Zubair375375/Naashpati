@@ -227,14 +227,17 @@ const AdminDashboard = () => {
   const [genderImageFiles, setGenderImageFiles] = useState({
     female: null,
     male: null,
+    chroma: null,
   });
   const [genderImagePreviews, setGenderImagePreviews] = useState({
     female: "",
     male: "",
+    chroma: "",
   });
   const [genderImageRemovals, setGenderImageRemovals] = useState({
     female: false,
     male: false,
+    chroma: false,
   });
   const [savingGenderImages, setSavingGenderImages] = useState(false);
   const COLLECTION_BANNER_STORAGE_KEY = "naashpati-collection-page-banners";
@@ -1139,6 +1142,10 @@ const AdminDashboard = () => {
       updates.male = "";
     }
 
+    if (genderImageRemovals.chroma) {
+      updates.chroma = "";
+    }
+
     try {
       if (genderImageFiles.female) {
         updates.female = await uploadDashboardImage(genderImageFiles.female);
@@ -1148,6 +1155,10 @@ const AdminDashboard = () => {
         updates.male = await uploadDashboardImage(genderImageFiles.male);
       }
 
+      if (genderImageFiles.chroma) {
+        updates.chroma = await uploadDashboardImage(genderImageFiles.chroma);
+      }
+
       if (!Object.keys(updates).length) {
         toast.error("Select or clear at least one gender image");
         return;
@@ -1155,9 +1166,9 @@ const AdminDashboard = () => {
 
       setSavingGenderImages(true);
       await dispatch(updateHeroGenderImages(updates)).unwrap();
-      setGenderImageFiles({ female: null, male: null });
-      setGenderImagePreviews({ female: "", male: "" });
-      setGenderImageRemovals({ female: false, male: false });
+      setGenderImageFiles({ female: null, male: null, chroma: null });
+      setGenderImagePreviews({ female: "", male: "", chroma: "" });
+      setGenderImageRemovals({ female: false, male: false, chroma: false });
       toast.success("Shop by gender images updated successfully");
     } catch (error) {
       toast.error(

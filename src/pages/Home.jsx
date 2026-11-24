@@ -124,6 +124,9 @@ const Home = () => {
   const maleCollectionImage =
     resolveMediaUrl(heroGenderImages?.male) ||
     "/images/banners/hero_banner1.jpg";
+  const chromaSectionImage =
+    resolveMediaUrl(heroGenderImages?.chroma) ||
+    "/assets/logos/pexels-cottonbro-8718335.jpg";
 
   useEffect(() => {
     dispatch(fetchCategories({ force: true }));
@@ -1111,7 +1114,7 @@ const Home = () => {
 
           <div className="relative mt-3 min-h-[220px] max-h-[360px] bg-[#dfeee9] sm:mt-0">
             <img
-              src="/assets/logos/pexels-cottonbro-8718335.jpg"
+              src={chromaSectionImage}
               alt="Chroma Rush experience"
               className="h-full w-full object-cover"
             />
