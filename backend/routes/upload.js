@@ -16,6 +16,7 @@ const router = express.Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 // Ensure uploads directory exists
 const uploadDir = path.join(__dirname, "..", "uploads");
@@ -35,7 +36,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 15 * 1024 * 1024 },
+  limits: { fileSize: MAX_IMAGE_UPLOAD_BYTES },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);

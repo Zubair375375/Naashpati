@@ -49,6 +49,17 @@ export const errorHandler = (err, req, res, next) => {
     error = { message, statusCode: 401 };
   }
 
+  if (err.name === "MulterError") {
+    if (err.code === "LIMIT_FILE_SIZE") {
+      error = {
+        message: "File too large. Maximum allowed size is 10MB",
+        statusCode: 413,
+      };
+    } else {
+      error = { message: err.message || "Upload error", statusCode: 400 };
+    }
+  }
+
   res.status(error.statusCode || 500).json({
     success: false,
     error: error.message || "Server Error",
