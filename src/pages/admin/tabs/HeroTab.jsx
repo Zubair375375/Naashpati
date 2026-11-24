@@ -107,10 +107,11 @@ const HeroTab = ({
           <h2 className="mb-4 text-2xl font-semibold">Bestseller Images</h2>
 
           <form className="space-y-4" onSubmit={handleSaveGenderImages}>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {[
                 { key: "female", label: "Female Collection" },
                 { key: "male", label: "Male Collection" },
+                { key: "chroma", label: "Chroma Section" },
               ].map(({ key, label }) => {
                 const preview =
                   genderImagePreviews[key] ||

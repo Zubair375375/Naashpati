@@ -4,6 +4,8 @@ const normalizeGenderImages = (genderImages = {}) => ({
   female:
     typeof genderImages.female === "string" ? genderImages.female.trim() : "",
   male: typeof genderImages.male === "string" ? genderImages.male.trim() : "",
+  chroma:
+    typeof genderImages.chroma === "string" ? genderImages.chroma.trim() : "",
 });
 
 const toHeroBadgePayload = (doc) => ({

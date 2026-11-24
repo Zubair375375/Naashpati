@@ -55,7 +55,10 @@ export const updateHeroGenderImages = createAsyncThunk(
 
 const normalizeHeroBadgePayload = (payload) => {
   if (Array.isArray(payload)) {
-    return { images: payload, genderImages: { female: "", male: "" } };
+    return {
+      images: payload,
+      genderImages: { female: "", male: "", chroma: "" },
+    };
   }
 
   const images = Array.isArray(payload?.images) ? payload.images : [];
@@ -67,6 +70,8 @@ const normalizeHeroBadgePayload = (payload) => {
       female:
         typeof genderImages.female === "string" ? genderImages.female : "",
       male: typeof genderImages.male === "string" ? genderImages.male : "",
+      chroma:
+        typeof genderImages.chroma === "string" ? genderImages.chroma : "",
     },
   };
 };
@@ -78,6 +83,7 @@ const heroBadgeSlice = createSlice({
     genderImages: {
       female: "",
       male: "",
+      chroma: "",
     },
     isLoading: false,
     error: null,
