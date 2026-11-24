@@ -50,7 +50,7 @@ export const uploadImage = async (req, res) => {
       const uploadOptions = isGifUpload
         ? {
             folder: baseImageUploadOptions.folder,
-            resource_type: "video",
+            resource_type: "auto",
           }
         : baseImageUploadOptions;
 
