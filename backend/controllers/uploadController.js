@@ -4,6 +4,9 @@ import getCloudinary, {
   getCloudinaryImageUploadOptions,
 } from "../config/cloudinary.js";
 
+const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
+const MAX_GIF_UPLOAD_BYTES = 30 * 1024 * 1024;
+
 // @desc    Upload image to local /uploads folder
 // @route   POST /api/upload
 // @access  Private/Admin
@@ -25,11 +28,35 @@ export const uploadImage = async (req, res) => {
         .json({ success: false, error: "No file uploaded" });
     }
 
+    const isGifUpload =
+      req.file.mimetype === "image/gif" ||
+      String(req.file.originalname || "").toLowerCase().endsWith(".gif");
+    const maxAllowedBytes = isGifUpload
+      ? MAX_GIF_UPLOAD_BYTES
+      : MAX_IMAGE_UPLOAD_BYTES;
+
+    if (Number(req.file.size || 0) > maxAllowedBytes) {
+      return res.status(413).json({
+        success: false,
+        error: isGifUpload
+          ? "Image upload failed: GIF file size must be 30MB or less"
+          : "Image upload failed: file size must be 10MB or less",
+      });
+    }
+
     let result;
     try {
+      const baseImageUploadOptions = getCloudinaryImageUploadOptions();
+      const uploadOptions = isGifUpload
+        ? {
+            folder: baseImageUploadOptions.folder,
+            resource_type: "video",
+          }
+        : baseImageUploadOptions;
+
       result = await getCloudinary().uploader.upload(
         req.file.path,
-        getCloudinaryImageUploadOptions(),
+        uploadOptions,
       );
     } catch (cloudErr) {
       console.error("Cloudinary upload error:", cloudErr);
@@ -40,7 +67,9 @@ export const uploadImage = async (req, res) => {
       return res.status(isTooLarge ? 413 : 500).json({
         success: false,
         error: isTooLarge
-          ? "Image upload failed: file size must be 10MB or less"
+          ? isGifUpload
+            ? "Image upload failed: GIF file size must be 30MB or less"
+            : "Image upload failed: file size must be 10MB or less"
           : `Cloudinary upload failed: ${cloudErr.message || cloudErr}`,
       });
     }
@@ -48,7 +77,9 @@ export const uploadImage = async (req, res) => {
     res.json({
       success: true,
       data: {
-        url: buildOptimizedCloudinaryImageUrl(result.public_id),
+        url: isGifUpload
+          ? result.secure_url
+          : buildOptimizedCloudinaryImageUrl(result.public_id),
         originalUrl: result.secure_url,
         public_id: result.public_id,
       },

@@ -82,6 +82,15 @@ import BreakEvenAnalyticsTab from "./admin/tabs/BreakEvenAnalyticsTab";
 
 const LENSES_PRODUCTS_SECTION = "lenses-products";
 const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
+const MAX_GIF_UPLOAD_BYTES = 30 * 1024 * 1024;
+
+const getMaxImageUploadBytes = (file) =>
+  file?.type === "image/gif" ? MAX_GIF_UPLOAD_BYTES : MAX_IMAGE_UPLOAD_BYTES;
+
+const getImageUploadLimitMessage = (file) =>
+  file?.type === "image/gif"
+    ? "GIF file must be 30MB or less"
+    : "Image file must be 10MB or less";
 
 const toLocalDateBoundaryIso = (dateValue, boundary) => {
   if (!dateValue) return boundary === "end" ? null : undefined;
@@ -102,8 +111,8 @@ const uploadDashboardImage = async (file) => {
     return "";
   }
 
-  if (Number(file.size || 0) > MAX_IMAGE_UPLOAD_BYTES) {
-    throw new Error("Image file must be 10MB or less");
+  if (Number(file.size || 0) > getMaxImageUploadBytes(file)) {
+    throw new Error(getImageUploadLimitMessage(file));
   }
 
   const formDataUpload = new FormData();
@@ -1100,8 +1109,8 @@ const AdminDashboard = () => {
       return;
     }
 
-    if (Number(file.size || 0) > MAX_IMAGE_UPLOAD_BYTES) {
-      toast.error("Image file must be 10MB or less");
+    if (Number(file.size || 0) > getMaxImageUploadBytes(file)) {
+      toast.error(getImageUploadLimitMessage(file));
       return;
     }
 
