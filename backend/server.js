@@ -34,6 +34,7 @@ import batchRoutes from "./routes/batches.js";
 import expenseRoutes from "./routes/expenses.js";
 import financialRoutes from "./routes/financial.js";
 import customerAnalyticsRoutes from "./routes/customerAnalytics.js";
+import promoCodeRoutes from "./routes/promoCodes.js";
 import {
   startMetricsRecomputeJob,
   stopMetricsRecomputeJob,
@@ -208,6 +209,7 @@ app.use("/api/batches", batchRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/financial", financialRoutes);
 app.use("/api/customer-analytics", customerAnalyticsRoutes);
+app.use("/api/promo-codes", promoCodeRoutes);
 
 // ---------------------- HEALTH ----------------------
 app.get("/api/health", (req, res) => {

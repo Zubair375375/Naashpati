@@ -4,10 +4,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   selectCartItems,
   selectCartTotal,
+  selectCartPromoCode,
+  selectCartDiscountAmount,
   selectCartIsLoading,
   updateQuantity,
   removeFromCart,
   clearCart,
+  applyPromoCode,
+  removePromoCode,
 } from "../store/slices/cartSlice";
 import Loader from "../components/Loader";
 import toast from "react-hot-toast";
@@ -20,6 +24,11 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 
+const normalizePromoCode = (value) =>
+  String(value || "")
+    .trim()
+    .toUpperCase();
+
 const Cart = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -30,8 +39,9 @@ const Cart = () => {
   const API_URL = import.meta.env.VITE_API_URL || "/api";
   const SERVER_URL = API_URL.replace(/\/api\/?$/, "");
 
+  const appliedPromoCode = useSelector(selectCartPromoCode);
+  const discount = useSelector(selectCartDiscountAmount);
   const [promoCode, setPromoCode] = useState("");
-  const [discount, setDiscount] = useState(0);
   const [showOrderSuccessPopup, setShowOrderSuccessPopup] = useState(false);
   const [orderSummary, setOrderSummary] = useState(null);
   const [hasTrackedViewCart, setHasTrackedViewCart] = useState(false);
@@ -90,18 +100,58 @@ const Cart = () => {
     }
   };
 
-  const handleApplyPromoCode = () => {
-    // Simple promo code logic - in real app, this would be validated on backend
-    if (promoCode.toLowerCase() === "welcome10") {
-      setDiscount(cartTotal * 0.1);
-      toast.success("Promo code applied! 10% discount");
-    } else if (promoCode.toLowerCase() === "herbs20") {
-      setDiscount(cartTotal * 0.2);
-      toast.success("Promo code applied! 20% discount");
-    } else {
-      toast.error("Invalid promo code");
-      setDiscount(0);
+  const handleApplyPromoCode = async () => {
+    const normalized = normalizePromoCode(promoCode);
+
+    if (!normalized) {
+      toast.error("Enter a promo code");
+      return;
     }
+
+    try {
+      const response = await fetch(`${API_URL}/promo-codes/validate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          code: normalized,
+          subtotal: Number(cartTotal || 0),
+        }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(result?.error || "Invalid promo code");
+      }
+
+      const discountRate = Number(result?.data?.discountRate || 0);
+      if (!Number.isFinite(discountRate) || discountRate <= 0) {
+        throw new Error("Invalid promo code");
+      }
+
+      dispatch(
+        applyPromoCode({
+          code: result?.data?.code || normalized,
+          discountRate,
+        }),
+      );
+
+      setPromoCode("");
+      toast.success(
+        `Promo code applied! ${Number(result?.data?.discountPercent || 0).toFixed(2)}% discount`,
+      );
+    } catch (error) {
+      dispatch(removePromoCode());
+      toast.error(error?.message || "Invalid promo code");
+    }
+  };
+
+  const handleRemovePromoCode = () => {
+    dispatch(removePromoCode());
+    toast.success("Promo code removed");
   };
 
   const handleCheckout = () => {
@@ -319,9 +369,20 @@ const Cart = () => {
                   Apply
                 </button>
               </div>
-              {/* <p className="text-sm text-gray-500 mt-2">
-                Try: WELCOME10 or HERBS20
-              </p> */}
+              {appliedPromoCode ? (
+                <div className="mt-3 flex items-center justify-between rounded border border-green-200 bg-green-50 p-2 text-sm">
+                  <span className="text-green-700">
+                    Applied: <strong>{appliedPromoCode}</strong>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleRemovePromoCode}
+                    className="font-semibold text-green-800 hover:text-green-900"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : null}
             </div>
 
             {/* Order Summary */}

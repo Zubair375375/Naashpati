@@ -84,6 +84,15 @@ const createOrderValidation = [
   body("shippingPrice")
     .isFloat({ min: 0 })
     .withMessage("Shipping price must be a positive number"),
+  body("coupon")
+    .optional()
+    .trim()
+    .isLength({ max: 32 })
+    .withMessage("Coupon must be at most 32 characters"),
+  body("discountPrice")
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage("Discount price must be a positive number"),
   body("totalPrice")
     .isFloat({ min: 0 })
     .withMessage("Total price must be a positive number"),
