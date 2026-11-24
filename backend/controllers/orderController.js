@@ -14,6 +14,7 @@ import {
 } from "../services/bestsellerMetricUtils.js";
 import { processOrderMetricEvents } from "../eventHandlers/orderMetricsEventHandler.js";
 import { sendEmail } from "../utils/sendEmail.js";
+import { resolvePromoCodeDiscount } from "./promoCodeController.js";
 
 const getGuestNameFromShipping = (shippingAddress = {}) => {
   const firstName = (shippingAddress.firstName || "").trim();
@@ -107,7 +108,9 @@ const buildOrderConfirmationEmail = (customerName, order) => {
   const subtotal =
     Number(order.totalPrice) -
     Number(order.taxPrice || 0) -
-    Number(order.shippingPrice || 0);
+    Number(order.shippingPrice || 0) +
+    Number(order.discountPrice || 0);
+  const discount = Number(order.discountPrice || 0);
   const addr = order.shippingAddress || {};
   const firstName = addr.firstName || "";
   const lastName = addr.lastName || "";
@@ -178,6 +181,14 @@ const buildOrderConfirmationEmail = (customerName, order) => {
                 <td style="padding:10px 20px;font-size:14px;color:#666;">Shipping</td>
                 <td style="padding:10px 20px;text-align:right;font-size:14px;color:#666;">Rs. ${Number(order.shippingPrice || 0).toFixed(2)}</td>
               </tr>
+              ${
+                discount > 0
+                  ? `<tr>
+                <td style="padding:10px 20px;font-size:14px;color:#2d5a27;">Discount${order.coupon ? ` (${order.coupon})` : ""}</td>
+                <td style="padding:10px 20px;text-align:right;font-size:14px;color:#2d5a27;">-Rs. ${discount.toFixed(2)}</td>
+              </tr>`
+                  : ""
+              }
               <tr>
                 <td style="padding:10px 20px;font-size:14px;color:#666;font-weight:600;">Tax amount</td>
                 <td style="padding:10px 20px;text-align:right;font-size:14px;color:#666;font-weight:600;">Rs. ${Number(order.taxPrice || 0).toFixed(2)}</td>
@@ -406,6 +417,8 @@ export const createOrder = async (req, res) => {
       paymentMethod,
       taxPrice,
       shippingPrice,
+      discountPrice,
+      coupon,
       totalPrice,
     } = req.body;
     const normalizedOrderItems = normalizeOrderItems(req.body.orderItems || []);
@@ -489,8 +502,23 @@ export const createOrder = async (req, res) => {
 
       const normalizedTax = roundCurrency(taxPrice);
       const normalizedShipping = roundCurrency(shippingPrice);
+      const promoResolution = await resolvePromoCodeDiscount({
+        coupon,
+        subtotal: roundCurrency(expectedSubtotal),
+        session,
+      });
+      const expectedDiscount = roundCurrency(promoResolution.discountPrice);
+      const incomingDiscount = roundCurrency(discountPrice || 0);
+
+      if (incomingDiscount !== expectedDiscount) {
+        throw new Error("DISCOUNT_MISMATCH");
+      }
+
       const computedTotal = roundCurrency(
-        roundCurrency(expectedSubtotal) + normalizedTax + normalizedShipping,
+        roundCurrency(expectedSubtotal) +
+          normalizedTax +
+          normalizedShipping -
+          expectedDiscount,
       );
 
       if (computedTotal !== roundCurrency(totalPrice)) {
@@ -574,6 +602,8 @@ export const createOrder = async (req, res) => {
         paymentMethod,
         taxPrice: normalizedTax,
         shippingPrice: normalizedShipping,
+        coupon: promoResolution.coupon,
+        discountPrice: expectedDiscount,
         totalPrice: computedTotal,
         idempotency: {
           createOrderKey: idempotencyKey || "",
@@ -670,6 +700,21 @@ export const createOrder = async (req, res) => {
           success: false,
           error:
             "Order total mismatch. Please refresh your cart and try again.",
+        });
+      }
+
+      if (error.message === "DISCOUNT_MISMATCH") {
+        return res.status(409).json({
+          success: false,
+          error:
+            "Promo code or discount is invalid. Please reapply your promo code and try again.",
+        });
+      }
+
+      if (error.message === "INVALID_COUPON") {
+        return res.status(409).json({
+          success: false,
+          error: "Promo code is invalid or inactive.",
         });
       }
 

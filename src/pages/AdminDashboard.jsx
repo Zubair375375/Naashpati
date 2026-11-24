@@ -69,6 +69,7 @@ import AdminSidebarNav from "./admin/components/AdminSidebarNav";
 import { useAboutContent } from "./admin/hooks/useAboutContent";
 import AboutContentTab from "./admin/tabs/AboutContentTab";
 import SalesTab from "./admin/tabs/SalesTab";
+import PromoCodesTab from "./admin/tabs/PromoCodesTab";
 import NewArrivalTab from "./admin/tabs/NewArrivalTab";
 import BatchesTab from "./admin/tabs/BatchesTab";
 import HeroTab from "./admin/tabs/HeroTab";
@@ -1805,6 +1806,9 @@ const AdminDashboard = () => {
               handleDeleteSaleOffer={handleDeleteSaleOffer}
             />
           )}
+
+          {/* Promo Codes Tab */}
+          {activeTab === "promo-codes" && <PromoCodesTab />}
 
           {/* New Arrival Tab */}
           {activeTab === "new-arrivals" && (

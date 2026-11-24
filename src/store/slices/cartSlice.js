@@ -1,5 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const normalizePromoCode = (value) =>
+  String(value || "")
+    .trim()
+    .toUpperCase();
+
 // Get user-scoped cart key from current access token
 const getUserCartKey = () => {
   try {
@@ -19,7 +24,20 @@ const getUserCartKey = () => {
 const getCartFromStorage = () => {
   const key = getUserCartKey();
   const cart = localStorage.getItem(key);
-  return cart ? JSON.parse(cart) : { items: [], total: 0 };
+  if (!cart) {
+    return { items: [], total: 0, promoCode: "", discountRate: 0 };
+  }
+
+  const parsed = JSON.parse(cart);
+  const promoCode = normalizePromoCode(parsed?.promoCode || "");
+  const discountRate = Number(parsed?.discountRate || 0);
+
+  return {
+    items: Array.isArray(parsed?.items) ? parsed.items : [],
+    total: Number(parsed?.total || 0),
+    promoCode,
+    discountRate,
+  };
 };
 
 // Save cart to localStorage
@@ -99,7 +117,29 @@ const cartSlice = createSlice({
     clearCart: (state) => {
       state.items = [];
       state.total = 0;
+      state.promoCode = "";
+      state.discountRate = 0;
       state.isCartOpen = false;
+      saveCartToStorage(state);
+    },
+    applyPromoCode: (state, action) => {
+      const promoCode = normalizePromoCode(action.payload?.code || "");
+      const discountRate = Number(action.payload?.discountRate || 0);
+
+      if (!promoCode || !Number.isFinite(discountRate) || discountRate <= 0) {
+        state.promoCode = "";
+        state.discountRate = 0;
+        saveCartToStorage(state);
+        return;
+      }
+
+      state.promoCode = promoCode;
+      state.discountRate = discountRate;
+      saveCartToStorage(state);
+    },
+    removePromoCode: (state) => {
+      state.promoCode = "";
+      state.discountRate = 0;
       saveCartToStorage(state);
     },
     openCart: (state) => {
@@ -144,6 +184,8 @@ const cartSlice = createSlice({
       // Clear cart completely when user logs out
       state.items = [];
       state.total = 0;
+      state.promoCode = "";
+      state.discountRate = 0;
       // Clean up all user-scoped carts from localStorage
       Object.keys(localStorage).forEach((key) => {
         if (key.startsWith("cart_")) {
@@ -163,6 +205,8 @@ export const {
   removeFromCart,
   updateQuantity,
   clearCart,
+  applyPromoCode,
+  removePromoCode,
   openCart,
   closeCart,
   resetCart,
@@ -173,6 +217,15 @@ export const selectCartItems = (state) => state.cart.items;
 export const selectCartTotal = (state) => state.cart.total;
 export const selectCartItemCount = (state) =>
   state.cart.items.reduce((total, item) => total + item.quantity, 0);
+export const selectCartPromoCode = (state) => state.cart.promoCode || "";
+export const selectCartDiscountRate = (state) =>
+  Number(state.cart.discountRate || 0);
+export const selectCartDiscountAmount = (state) =>
+  Number(
+    (
+      Number(state.cart.total || 0) * Number(state.cart.discountRate || 0)
+    ).toFixed(2),
+  );
 export const selectCartIsLoading = (state) => state.cart.isLoading;
 export const selectCartError = (state) => state.cart.error;
 

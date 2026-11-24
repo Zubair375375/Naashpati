@@ -33,7 +33,9 @@ export const uploadImage = async (req, res) => {
 
     const isGifUpload =
       req.file.mimetype === "image/gif" ||
-      String(req.file.originalname || "").toLowerCase().endsWith(".gif");
+      String(req.file.originalname || "")
+        .toLowerCase()
+        .endsWith(".gif");
     const maxAllowedBytes = isGifUpload
       ? MAX_GIF_UPLOAD_BYTES
       : MAX_IMAGE_UPLOAD_BYTES;
@@ -47,7 +49,10 @@ export const uploadImage = async (req, res) => {
       });
     }
 
-    if (isGifUpload && Number(req.file.size || 0) > CLOUDINARY_IMAGE_LIMIT_BYTES) {
+    if (
+      isGifUpload &&
+      Number(req.file.size || 0) > CLOUDINARY_IMAGE_LIMIT_BYTES
+    ) {
       keepLocalFile = true;
       const localUrl = `/uploads/${req.file.filename}`;
 
@@ -79,7 +84,9 @@ export const uploadImage = async (req, res) => {
       console.error("Cloudinary upload error:", cloudErr);
       const isTooLarge =
         Number(cloudErr?.http_code) === 400 &&
-        String(cloudErr?.message || "").toLowerCase().includes("file size too large");
+        String(cloudErr?.message || "")
+          .toLowerCase()
+          .includes("file size too large");
 
       return res.status(isTooLarge ? 413 : 500).json({
         success: false,

@@ -5,6 +5,8 @@ import {
   selectCartItems,
   selectCartTotal,
   selectCartItemCount,
+  selectCartPromoCode,
+  selectCartDiscountAmount,
 } from "../store/slices/cartSlice";
 import { selectAuthUser } from "../store/slices/authSlice";
 import { createOrder } from "../store/slices/orderSlice";
@@ -26,6 +28,8 @@ const Checkout = () => {
   const cartItems = useSelector(selectCartItems);
   const cartTotal = useSelector(selectCartTotal);
   const itemCount = useSelector(selectCartItemCount);
+  const promoCode = useSelector(selectCartPromoCode);
+  const discountAmount = useSelector(selectCartDiscountAmount);
   const user = useSelector(selectAuthUser);
   const API_URL = import.meta.env.VITE_API_URL || "/api";
   const SERVER_URL = API_URL.replace(/\/api\/?$/, "");
@@ -64,8 +68,12 @@ const Checkout = () => {
   const hasTrackedBeginCheckoutRef = useRef(false);
   const TAX_RATE = 0.08;
   const subtotal = Number(cartTotal || 0);
-  const taxAmount = Number((subtotal * TAX_RATE).toFixed(2));
-  const grandTotal = Number((subtotal + taxAmount).toFixed(2));
+  const normalizedDiscount = Number(discountAmount || 0);
+  const discountedSubtotal = Number(
+    Math.max(subtotal - normalizedDiscount, 0).toFixed(2),
+  );
+  const taxAmount = Number((discountedSubtotal * TAX_RATE).toFixed(2));
+  const grandTotal = Number((discountedSubtotal + taxAmount).toFixed(2));
 
   const getProductImage = (product) => {
     const rawImage =
@@ -92,6 +100,7 @@ const Checkout = () => {
     trackBeginCheckoutEvent({
       cartItems,
       totalValue: grandTotal,
+      coupon: promoCode,
     });
 
     hasTrackedBeginCheckoutRef.current = true;
@@ -263,6 +272,8 @@ const Checkout = () => {
         taxPrice: taxAmount,
         shippingPrice: 0,
         totalPrice: grandTotal,
+        coupon: promoCode,
+        discountPrice: normalizedDiscount,
         idempotencyKey: orderSubmitKeyRef.current,
       };
 
@@ -272,12 +283,14 @@ const Checkout = () => {
         cartItems,
         totalValue: grandTotal,
         shippingTier: deliveryOption,
+        coupon: promoCode,
       });
 
       trackAddPaymentInfoEvent({
         cartItems,
         totalValue: grandTotal,
         paymentType: paymentMethod,
+        coupon: promoCode,
       });
 
       trackPurchaseEvent({
@@ -986,6 +999,12 @@ const Checkout = () => {
                 <span>Subtotal:</span>
                 <span>Rs. {subtotal.toFixed(2)}</span>
               </div>
+              {promoCode ? (
+                <div className="flex justify-between text-[16px] text-green-700 mb-2">
+                  <span>Promo ({promoCode}):</span>
+                  <span>-Rs. {normalizedDiscount.toFixed(2)}</span>
+                </div>
+              ) : null}
               <div className="flex justify-between text-[16px] text-gray-700 mb-2">
                 <span>Tax (8%):</span>
                 <span>Rs. {taxAmount.toFixed(2)}</span>

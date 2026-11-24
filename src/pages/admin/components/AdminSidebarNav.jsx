@@ -161,6 +161,12 @@ const AdminSidebarNav = ({
           Sales
         </button>
         <button
+          onClick={() => setActiveTab("promo-codes")}
+          className={getTabButtonClass("promo-codes")}
+        >
+          Promo Codes
+        </button>
+        <button
           onClick={() => setActiveTab("new-arrivals")}
           className={getTabButtonClass("new-arrivals")}
         >
