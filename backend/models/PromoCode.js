@@ -38,7 +38,6 @@ const promoCodeSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-promoCodeSchema.index({ code: 1 }, { unique: true });
 promoCodeSchema.index({ isActive: 1, validFrom: 1, validUntil: 1 });
 
 const PromoCode = mongoose.model("PromoCode", promoCodeSchema);
